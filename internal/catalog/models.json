@@ -1,0 +1,978 @@
+[
+  {
+    "family": "deepseek-r1",
+    "name": "DeepSeek-R1 Distill Qwen 7B",
+    "params_b": 7.62,
+    "active_params_b": 7.62,
+    "layers": 28,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 58,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "deepseek-r1:7b-qwen-distill-q4_K_M",
+        "size_bytes": 4683073184,
+        "bits": 4.92,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:7b-qwen-distill-q8_0",
+        "size_bytes": 8098524832,
+        "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "deepseek-r1",
+    "name": "DeepSeek-R1 Distill Llama 8B",
+    "params_b": 8.03,
+    "active_params_b": 8.03,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 56,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "deepseek-r1:8b-llama-distill-q4_K_M",
+        "size_bytes": 4920736320,
+        "bits": 4.9,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:8b-llama-distill-q8_0",
+        "size_bytes": 8540772928,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "deepseek-r1",
+    "name": "DeepSeek-R1 Distill Qwen 14B",
+    "params_b": 14.8,
+    "active_params_b": 14.8,
+    "layers": 48,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 74,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "deepseek-r1:14b-qwen-distill-q4_K_M",
+        "size_bytes": 8988109952,
+        "bits": 4.86,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:14b-qwen-distill-q8_0",
+        "size_bytes": 15701597312,
+        "bits": 8.49,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "deepseek-r1",
+    "name": "DeepSeek-R1 Distill Qwen 32B",
+    "params_b": 32.8,
+    "active_params_b": 32.8,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 84,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "deepseek-r1:32b-qwen-distill-q4_K_M",
+        "size_bytes": 19851335552,
+        "bits": 4.84,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:32b-qwen-distill-q8_0",
+        "size_bytes": 34820884352,
+        "bits": 8.49,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "deepseek-r1",
+    "name": "DeepSeek-R1 Distill Llama 70B",
+    "params_b": 70.6,
+    "active_params_b": 70.6,
+    "layers": 80,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 84,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "deepseek-r1:70b-llama-distill-q4_K_M",
+        "size_bytes": 42520395616,
+        "bits": 4.82,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:70b-llama-distill-q8_0",
+        "size_bytes": 74975051616,
+        "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma2",
+    "name": "Gemma 2 2B Instruct",
+    "params_b": 2.61,
+    "active_params_b": 2.61,
+    "layers": 26,
+    "kv_heads": 4,
+    "head_dim": 256,
+    "max_ctx": 8192,
+    "quality": 38,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma2:2b-instruct-q4_K_M",
+        "size_bytes": 1708582432,
+        "bits": 5.24,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma2:2b-instruct-q8_0",
+        "size_bytes": 2784495136,
+        "bits": 8.53,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma2",
+    "name": "Gemma 2 9B Instruct",
+    "params_b": 9.24,
+    "active_params_b": 9.24,
+    "layers": 42,
+    "kv_heads": 8,
+    "head_dim": 256,
+    "max_ctx": 8192,
+    "quality": 60,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma2:9b-instruct-q4_K_M",
+        "size_bytes": 5761058432,
+        "bits": 4.99,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma2:9b-instruct-q8_0",
+        "size_bytes": 9827149440,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma2",
+    "name": "Gemma 2 27B Instruct",
+    "params_b": 27.2,
+    "active_params_b": 27.2,
+    "layers": 46,
+    "kv_heads": 16,
+    "head_dim": 128,
+    "max_ctx": 8192,
+    "quality": 68,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma2:27b-instruct-q3_K_M",
+        "size_bytes": 13424648416,
+        "bits": 3.95,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "gemma2:27b-instruct-q4_K_M",
+        "size_bytes": 16645382368,
+        "bits": 4.9,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "gemma3",
+    "name": "Gemma 3 1B Instruct",
+    "params_b": 1,
+    "active_params_b": 1,
+    "layers": 26,
+    "kv_heads": 1,
+    "head_dim": 256,
+    "max_ctx": 32768,
+    "quality": 28,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma3:1b-it-q4_K_M",
+        "size_bytes": 806058400,
+        "bits": 6.45,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma3:1b-it-q8_0",
+        "size_bytes": 1069306528,
+        "bits": 8.55,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma3",
+    "name": "Gemma 3 4B Instruct",
+    "params_b": 4.3,
+    "active_params_b": 4.3,
+    "layers": 34,
+    "kv_heads": 4,
+    "head_dim": 256,
+    "max_ctx": 131072,
+    "quality": 52,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma3:4b-it-q4_K_M",
+        "size_bytes": 2499012288,
+        "bits": 4.65,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma3:4b-it-q8_0",
+        "size_bytes": 4139481376,
+        "bits": 7.7,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma3",
+    "name": "Gemma 3 12B Instruct",
+    "params_b": 12.2,
+    "active_params_b": 12.2,
+    "layers": 48,
+    "kv_heads": 8,
+    "head_dim": 256,
+    "max_ctx": 131072,
+    "quality": 70,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma3:12b-it-q4_K_M",
+        "size_bytes": 7309830496,
+        "bits": 4.79,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma3:12b-it-q8_0",
+        "size_bytes": 12519206144,
+        "bits": 8.21,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "gemma3",
+    "name": "Gemma 3 27B Instruct",
+    "params_b": 27.4,
+    "active_params_b": 27.4,
+    "layers": 62,
+    "kv_heads": 16,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "gemma3:27b-it-q4_K_M",
+        "size_bytes": 16555661472,
+        "bits": 4.83,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma3:27b-it-q8_0",
+        "size_bytes": 28716862912,
+        "bits": 8.38,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "granite3.1-moe",
+    "name": "Granite 3.1 MoE 3B Instruct",
+    "params_b": 3.3,
+    "active_params_b": 0.66,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 64,
+    "max_ctx": 131072,
+    "quality": 34,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "granite3.1-moe:3b-instruct-q4_K_M",
+        "size_bytes": 2035174048,
+        "bits": 4.93,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "granite3.1-moe:3b-instruct-q8_0",
+        "size_bytes": 3512781472,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "granite3.3",
+    "name": "Granite 3.3 2B Instruct",
+    "params_b": 2.53,
+    "active_params_b": 2.53,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 64,
+    "max_ctx": 131072,
+    "quality": 40,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "granite3.3:2b",
+        "size_bytes": 1545303328,
+        "bits": 4.89,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "granite3.3",
+    "name": "Granite 3.3 8B Instruct",
+    "params_b": 8.17,
+    "active_params_b": 8.17,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 56,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "granite3.3:8b",
+        "size_bytes": 4942873344,
+        "bits": 4.84,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "llama3.1",
+    "name": "Llama 3.1 8B Instruct",
+    "params_b": 8.03,
+    "active_params_b": 8.03,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 58,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "llama3.1:8b-instruct-q4_K_M",
+        "size_bytes": 4920738944,
+        "bits": 4.9,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "llama3.1:8b-instruct-q8_0",
+        "size_bytes": 8540775552,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "llama3.2",
+    "name": "Llama 3.2 1B Instruct",
+    "params_b": 1.24,
+    "active_params_b": 1.24,
+    "layers": 16,
+    "kv_heads": 8,
+    "head_dim": 64,
+    "max_ctx": 131072,
+    "quality": 30,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "llama3.2:1b-instruct-q4_K_M",
+        "size_bytes": 807694144,
+        "bits": 5.21,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "llama3.2:1b-instruct-q8_0",
+        "size_bytes": 1321082688,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "llama3.2",
+    "name": "Llama 3.2 3B Instruct",
+    "params_b": 3.21,
+    "active_params_b": 3.21,
+    "layers": 28,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 45,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "llama3.2:3b-instruct-q4_K_M",
+        "size_bytes": 2019377376,
+        "bits": 5.03,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "llama3.2:3b-instruct-q8_0",
+        "size_bytes": 3421898976,
+        "bits": 8.53,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "llama3.3",
+    "name": "Llama 3.3 70B Instruct",
+    "params_b": 70.6,
+    "active_params_b": 70.6,
+    "layers": 80,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 85,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "llama3.3:70b-instruct-q3_K_M",
+        "size_bytes": 34267499200,
+        "bits": 3.88,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "llama3.3:70b-instruct-q4_K_M",
+        "size_bytes": 42520398528,
+        "bits": 4.82,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "mistral",
+    "name": "Mistral 7B Instruct v0.3",
+    "params_b": 7.25,
+    "active_params_b": 7.25,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 46,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "mistral:7b-instruct-v0.3-q4_K_M",
+        "size_bytes": 4372811712,
+        "bits": 4.83,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "mistral:7b-instruct-v0.3-q8_0",
+        "size_bytes": 7702564800,
+        "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "mistral-nemo",
+    "name": "Mistral NeMo 12B Instruct 2407",
+    "params_b": 12.2,
+    "active_params_b": 12.2,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 1024000,
+    "quality": 56,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "mistral-nemo:12b-instruct-2407-q4_K_M",
+        "size_bytes": 7477204672,
+        "bits": 4.9,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "mistral-nemo:12b-instruct-2407-q8_0",
+        "size_bytes": 13022369472,
+        "bits": 8.54,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "mistral-small3.2",
+    "name": "Mistral Small 3.2 24B Instruct 2506",
+    "params_b": 24,
+    "active_params_b": 24,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 77,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "mistral-small3.2:24b-instruct-2506-q4_K_M",
+        "size_bytes": 15177369888,
+        "bits": 5.06,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "mistral-small3.2:24b-instruct-2506-q8_0",
+        "size_bytes": 25909741856,
+        "bits": 8.64,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "mixtral",
+    "name": "Mixtral 8x7B Instruct v0.1 (MoE)",
+    "params_b": 46.7,
+    "active_params_b": 11.68,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 55,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "mixtral:8x7b-instruct-v0.1-q3_K_M",
+        "size_bytes": 22546451360,
+        "bits": 3.86,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "mixtral:8x7b-instruct-v0.1-q4_K_M",
+        "size_bytes": 28448467872,
+        "bits": 4.87,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "phi4",
+    "name": "Phi-4 14B",
+    "params_b": 14.7,
+    "active_params_b": 14.7,
+    "layers": 40,
+    "kv_heads": 10,
+    "head_dim": 128,
+    "max_ctx": 16384,
+    "quality": 74,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "phi4:14b-q4_K_M",
+        "size_bytes": 9053114464,
+        "bits": 4.93,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "phi4:14b-q8_0",
+        "size_bytes": 15580500064,
+        "bits": 8.48,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "phi4-mini",
+    "name": "Phi-4 Mini 3.8B Instruct",
+    "params_b": 3.84,
+    "active_params_b": 3.84,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 53,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "phi4-mini:3.8b-q4_K_M",
+        "size_bytes": 2491874624,
+        "bits": 5.19,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "phi4-mini:3.8b-q8_0",
+        "size_bytes": 4084611392,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5",
+    "name": "Qwen2.5 3B Instruct",
+    "params_b": 3.09,
+    "active_params_b": 3.09,
+    "layers": 36,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 46,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5:3b-instruct-q4_K_M",
+        "size_bytes": 1929903008,
+        "bits": 5,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5:3b-instruct-q8_0",
+        "size_bytes": 3285476256,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5",
+    "name": "Qwen2.5 7B Instruct",
+    "params_b": 7.62,
+    "active_params_b": 7.62,
+    "layers": 28,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 62,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5:7b-instruct-q4_K_M",
+        "size_bytes": 4683073952,
+        "bits": 4.92,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5:7b-instruct-q8_0",
+        "size_bytes": 8098525600,
+        "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5",
+    "name": "Qwen2.5 14B Instruct",
+    "params_b": 14.8,
+    "active_params_b": 14.8,
+    "layers": 48,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 72,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5:14b-instruct-q4_K_M",
+        "size_bytes": 8988110688,
+        "bits": 4.86,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5:14b-instruct-q8_0",
+        "size_bytes": 15701598048,
+        "bits": 8.49,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5",
+    "name": "Qwen2.5 32B Instruct",
+    "params_b": 32.8,
+    "active_params_b": 32.8,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5:32b-instruct-q3_K_M",
+        "size_bytes": 15935048288,
+        "bits": 3.89,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "qwen2.5:32b-instruct-q4_K_M",
+        "size_bytes": 19851336288,
+        "bits": 4.84,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5",
+    "name": "Qwen2.5 72B Instruct",
+    "params_b": 72.7,
+    "active_params_b": 72.7,
+    "layers": 80,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 86,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5:72b-instruct-q3_K_M",
+        "size_bytes": 37698725248,
+        "bits": 4.15,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "qwen2.5:72b-instruct-q4_K_M",
+        "size_bytes": 47415715200,
+        "bits": 5.22,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5-coder",
+    "name": "Qwen2.5 Coder 32B Instruct",
+    "params_b": 32.8,
+    "active_params_b": 32.8,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 76,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen2.5-coder:32b-instruct-q3_K_M",
+        "size_bytes": 15935048384,
+        "bits": 3.89,
+        "quant": "q3_K_M"
+      },
+      {
+        "tag": "qwen2.5-coder:32b-instruct-q4_K_M",
+        "size_bytes": 19851336384,
+        "bits": 4.84,
+        "quant": "q4_K_M"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 0.6B",
+    "params_b": 0.6,
+    "active_params_b": 0.6,
+    "layers": 28,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 22,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:0.6b-q4_K_M",
+        "size_bytes": 522640096,
+        "bits": 6.97,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:0.6b-q8_0",
+        "size_bytes": 832278240,
+        "bits": 11.1,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 1.7B",
+    "params_b": 1.7,
+    "active_params_b": 1.7,
+    "layers": 28,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 40,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:1.7b-q4_K_M",
+        "size_bytes": 1359279776,
+        "bits": 6.4,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:1.7b-q8_0",
+        "size_bytes": 2220088992,
+        "bits": 10.45,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 4B",
+    "params_b": 4,
+    "active_params_b": 4,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 62,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:4b-q4_K_M",
+        "size_bytes": 2620774592,
+        "bits": 5.24,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:4b-q8_0",
+        "size_bytes": 4368878272,
+        "bits": 8.74,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 8B",
+    "params_b": 8.19,
+    "active_params_b": 8.19,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 72,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:8b-q4_K_M",
+        "size_bytes": 5225374496,
+        "bits": 5.1,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:8b-q8_0",
+        "size_bytes": 8851075872,
+        "bits": 8.65,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 14B",
+    "params_b": 14.8,
+    "active_params_b": 14.8,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:14b-q4_K_M",
+        "size_bytes": 9276184896,
+        "bits": 5.01,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:14b-q8_0",
+        "size_bytes": 15895141696,
+        "bits": 8.59,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 30B-A3B (MoE)",
+    "params_b": 30.5,
+    "active_params_b": 1.91,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 82,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:30b-a3b-q4_K_M",
+        "size_bytes": 18622549504,
+        "bits": 4.88,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:30b-a3b-q8_0",
+        "size_bytes": 32531117568,
+        "bits": 8.53,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 32B",
+    "params_b": 32.8,
+    "active_params_b": 32.8,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40960,
+    "quality": 90,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:32b-q4_K_M",
+        "size_bytes": 20201240160,
+        "bits": 4.93,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:32b-q8_0",
+        "size_bytes": 35132291680,
+        "bits": 8.57,
+        "quant": "q8_0"
+      }
+    ]
+  }
+]

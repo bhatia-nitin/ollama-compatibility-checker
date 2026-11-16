@@ -1,0 +1,317 @@
+# Input for scripts/gen-catalog. Hand-maintained; models.json is generated from it.
+#
+# Fields per entry:
+#   family, name      display identity
+#   params_b          total parameters in billions (from the model card)
+#   quality           0-100 cross-family score; see catalog/README.md
+#   quality_source    where the score came from
+#   kv_quant_ok       optional, default true
+#   tags              Ollama library tags; each is verified against the registry
+#
+# Quant policy: q4_K_M always; q8_0 for <= 14B (and 24B); q3_K_M for >= 27B where
+# the registry publishes it, else q8_0 (qwen3 32B/30B-A3B, gemma3 27B, deepseek-r1 32B/70B
+# have no q3_K_M tag). granite3.3 publishes only size tags, so the quant comes from
+# the GGUF file_type.
+
+- family: qwen3
+  name: "Qwen3 0.6B"
+  params_b: 0.6
+  quality: 22
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:0.6b-q4_K_M"
+    - "qwen3:0.6b-q8_0"
+- family: gemma3
+  name: "Gemma 3 1B Instruct"
+  params_b: 1.0
+  quality: 28
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma3:1b-it-q4_K_M"
+    - "gemma3:1b-it-q8_0"
+- family: llama3.2
+  name: "Llama 3.2 1B Instruct"
+  params_b: 1.24
+  quality: 30
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "llama3.2:1b-instruct-q4_K_M"
+    - "llama3.2:1b-instruct-q8_0"
+- family: qwen3
+  name: "Qwen3 1.7B"
+  params_b: 1.7
+  quality: 40
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:1.7b-q4_K_M"
+    - "qwen3:1.7b-q8_0"
+- family: gemma2
+  name: "Gemma 2 2B Instruct"
+  params_b: 2.61
+  quality: 38
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma2:2b-instruct-q4_K_M"
+    - "gemma2:2b-instruct-q8_0"
+- family: granite3.3
+  name: "Granite 3.3 2B Instruct"
+  params_b: 2.53
+  quality: 40
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "granite3.3:2b"
+- family: granite3.1-moe
+  name: "Granite 3.1 MoE 3B Instruct"
+  params_b: 3.3
+  quality: 34
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "granite3.1-moe:3b-instruct-q4_K_M"
+    - "granite3.1-moe:3b-instruct-q8_0"
+- family: llama3.2
+  name: "Llama 3.2 3B Instruct"
+  params_b: 3.21
+  quality: 45
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "llama3.2:3b-instruct-q4_K_M"
+    - "llama3.2:3b-instruct-q8_0"
+- family: qwen2.5
+  name: "Qwen2.5 3B Instruct"
+  params_b: 3.09
+  quality: 46
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5:3b-instruct-q4_K_M"
+    - "qwen2.5:3b-instruct-q8_0"
+- family: phi4-mini
+  name: "Phi-4 Mini 3.8B Instruct"
+  params_b: 3.84
+  quality: 53
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "phi4-mini:3.8b-q4_K_M"
+    - "phi4-mini:3.8b-q8_0"
+- family: qwen3
+  name: "Qwen3 4B"
+  params_b: 4.0
+  quality: 62
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:4b-q4_K_M"
+    - "qwen3:4b-q8_0"
+- family: gemma3
+  name: "Gemma 3 4B Instruct"
+  params_b: 4.3
+  quality: 52
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma3:4b-it-q4_K_M"
+    - "gemma3:4b-it-q8_0"
+- family: mistral
+  name: "Mistral 7B Instruct v0.3"
+  params_b: 7.25
+  quality: 46
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "mistral:7b-instruct-v0.3-q4_K_M"
+    - "mistral:7b-instruct-v0.3-q8_0"
+- family: qwen2.5
+  name: "Qwen2.5 7B Instruct"
+  params_b: 7.62
+  quality: 62
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5:7b-instruct-q4_K_M"
+    - "qwen2.5:7b-instruct-q8_0"
+- family: deepseek-r1
+  name: "DeepSeek-R1 Distill Qwen 7B"
+  params_b: 7.62
+  quality: 58
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "deepseek-r1:7b-qwen-distill-q4_K_M"
+    - "deepseek-r1:7b-qwen-distill-q8_0"
+- family: llama3.1
+  name: "Llama 3.1 8B Instruct"
+  params_b: 8.03
+  quality: 58
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "llama3.1:8b-instruct-q4_K_M"
+    - "llama3.1:8b-instruct-q8_0"
+- family: deepseek-r1
+  name: "DeepSeek-R1 Distill Llama 8B"
+  params_b: 8.03
+  quality: 56
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "deepseek-r1:8b-llama-distill-q4_K_M"
+    - "deepseek-r1:8b-llama-distill-q8_0"
+- family: qwen3
+  name: "Qwen3 8B"
+  params_b: 8.19
+  quality: 72
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:8b-q4_K_M"
+    - "qwen3:8b-q8_0"
+- family: granite3.3
+  name: "Granite 3.3 8B Instruct"
+  params_b: 8.17
+  quality: 56
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "granite3.3:8b"
+- family: gemma2
+  name: "Gemma 2 9B Instruct"
+  params_b: 9.24
+  quality: 60
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma2:9b-instruct-q4_K_M"
+    - "gemma2:9b-instruct-q8_0"
+- family: mistral-nemo
+  name: "Mistral NeMo 12B Instruct 2407"
+  params_b: 12.2
+  quality: 56
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "mistral-nemo:12b-instruct-2407-q4_K_M"
+    - "mistral-nemo:12b-instruct-2407-q8_0"
+- family: gemma3
+  name: "Gemma 3 12B Instruct"
+  params_b: 12.2
+  quality: 70
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma3:12b-it-q4_K_M"
+    - "gemma3:12b-it-q8_0"
+- family: phi4
+  name: "Phi-4 14B"
+  params_b: 14.7
+  quality: 74
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "phi4:14b-q4_K_M"
+    - "phi4:14b-q8_0"
+- family: qwen2.5
+  name: "Qwen2.5 14B Instruct"
+  params_b: 14.8
+  quality: 72
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5:14b-instruct-q4_K_M"
+    - "qwen2.5:14b-instruct-q8_0"
+- family: qwen3
+  name: "Qwen3 14B"
+  params_b: 14.8
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:14b-q4_K_M"
+    - "qwen3:14b-q8_0"
+- family: deepseek-r1
+  name: "DeepSeek-R1 Distill Qwen 14B"
+  params_b: 14.8
+  quality: 74
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "deepseek-r1:14b-qwen-distill-q4_K_M"
+    - "deepseek-r1:14b-qwen-distill-q8_0"
+- family: mistral-small3.2
+  name: "Mistral Small 3.2 24B Instruct 2506"
+  params_b: 24.0
+  quality: 77
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "mistral-small3.2:24b-instruct-2506-q4_K_M"
+    - "mistral-small3.2:24b-instruct-2506-q8_0"
+- family: gemma2
+  name: "Gemma 2 27B Instruct"
+  params_b: 27.2
+  quality: 68
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma2:27b-instruct-q3_K_M"
+    - "gemma2:27b-instruct-q4_K_M"
+- family: gemma3
+  name: "Gemma 3 27B Instruct"
+  params_b: 27.4
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "gemma3:27b-it-q4_K_M"
+    - "gemma3:27b-it-q8_0"
+- family: qwen3
+  name: "Qwen3 30B-A3B (MoE)"
+  params_b: 30.5
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:30b-a3b-q4_K_M"
+    - "qwen3:30b-a3b-q8_0"
+- family: qwen2.5
+  name: "Qwen2.5 32B Instruct"
+  params_b: 32.8
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5:32b-instruct-q3_K_M"
+    - "qwen2.5:32b-instruct-q4_K_M"
+- family: qwen2.5-coder
+  name: "Qwen2.5 Coder 32B Instruct"
+  params_b: 32.8
+  quality: 76
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5-coder:32b-instruct-q3_K_M"
+    - "qwen2.5-coder:32b-instruct-q4_K_M"
+- family: qwen3
+  name: "Qwen3 32B"
+  params_b: 32.8
+  quality: 90
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen3:32b-q4_K_M"
+    - "qwen3:32b-q8_0"
+- family: deepseek-r1
+  name: "DeepSeek-R1 Distill Qwen 32B"
+  params_b: 32.8
+  quality: 84
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "deepseek-r1:32b-qwen-distill-q4_K_M"
+    - "deepseek-r1:32b-qwen-distill-q8_0"
+- family: mixtral
+  name: "Mixtral 8x7B Instruct v0.1 (MoE)"
+  params_b: 46.7
+  quality: 55
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "mixtral:8x7b-instruct-v0.1-q3_K_M"
+    - "mixtral:8x7b-instruct-v0.1-q4_K_M"
+- family: llama3.3
+  name: "Llama 3.3 70B Instruct"
+  params_b: 70.6
+  quality: 85
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "llama3.3:70b-instruct-q3_K_M"
+    - "llama3.3:70b-instruct-q4_K_M"
+- family: deepseek-r1
+  name: "DeepSeek-R1 Distill Llama 70B"
+  params_b: 70.6
+  quality: 84
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "deepseek-r1:70b-llama-distill-q4_K_M"
+    - "deepseek-r1:70b-llama-distill-q8_0"
+- family: qwen2.5
+  name: "Qwen2.5 72B Instruct"
+  params_b: 72.7
+  quality: 86
+  quality_source: "maintainer-curated estimate, 2026-11-16"
+  tags:
+    - "qwen2.5:72b-instruct-q3_K_M"
+    - "qwen2.5:72b-instruct-q4_K_M"
