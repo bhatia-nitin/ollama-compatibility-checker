@@ -6,11 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/shra26/ollama-compatibility-checker/internal/catalog"
 	"github.com/shra26/ollama-compatibility-checker/internal/estimate"
@@ -493,3 +495,47 @@ func TestUnknownSizeStillNeedsConsent(t *testing.T) {
 	}
 }
 
+func TestCancelAtDownloadPrompt(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	pr, pw := io.Pipe()
+	defer pw.Close()
+	f := newFake(t)
+	var out bytes.Buffer
+	o := opts("", &out)
+	o.In = pr
+	time.AfterFunc(100*time.Millisecond, cancel)
+	_, err := Run(ctx, f.client(), []estimate.Estimate{est("m:1b", gbyte, 1, 40)}, o)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("err = %v", err)
+	}
+	if f.count("POST /api/pull") != 0 {
+		t.Error("pulled")
+	}
+}
+
+func TestCancelAtCleanupPrompt(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	pr, pw := io.Pipe()
+	defer pw.Close()
+	f := newFake(t)
+	var out bytes.Buffer
+	o := opts("", &out)
+	o.In = pr
+	go func() {
+		_, _ = pw.Write([]byte("y\n"))
+		time.Sleep(500 * time.Millisecond) // pull and bench finish, cleanup prompt blocks
+		cancel()
+	}()
+	_, err := Run(ctx, f.client(), []estimate.Estimate{est("m:1b", gbyte, 1, 40)}, o)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("err = %v", err)
+	}
+	if len(f.deleted) != 0 {
+		t.Errorf("deleted %v", f.deleted)
+	}
+	if !strings.Contains(out.String(), "Pulled during this run:") || !strings.Contains(out.String(), "ollama rm m:1b") {
+		t.Errorf("out = %q", out.String())
+	}
+}

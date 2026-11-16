@@ -192,7 +192,10 @@ func Run(ctx context.Context, c *Client, shortlist []estimate.Estimate, o Option
 				return nil, errors.New("refusing to download without --yes (stdin is not a terminal)")
 			}
 			fmt.Fprintf(out, "Download %s and benchmark %d models? [y/N] ", gbStr(missingBytes), len(avail)+len(missing))
-			ans := readAnswer(in)
+			ans, err := readAnswer(ctx, in)
+			if err != nil {
+				return nil, err
+			}
 			if ans != "y" && ans != "yes" {
 				fmt.Fprintln(out, "Cancelled.")
 				return nil, nil
@@ -246,7 +249,9 @@ func Run(ctx context.Context, c *Client, shortlist []estimate.Estimate, o Option
 
 	// 10. Cleanup.
 	if !o.Keep && len(pulled) > 0 {
-		cleanup(ctx, c, out, in, o, pulled)
+		if err := cleanup(ctx, c, out, in, o, pulled); err != nil {
+			return cancel()
+		}
 	}
 	return results, nil
 }
@@ -261,12 +266,23 @@ func orderLike(res []Result, shortlist []estimate.Estimate) []Result {
 	return res
 }
 
-func readAnswer(in *bufio.Reader) string {
+// readAnswer reads one line, returning early with ctx.Err() on cancellation.
+// A read still blocked on stdin is abandoned; the process is about to exit.
+func readAnswer(ctx context.Context, in *bufio.Reader) (string, error) {
 	if in == nil {
-		return ""
+		return "", ctx.Err()
 	}
-	line, _ := in.ReadString('\n') // EOF with partial text still counts
-	return strings.ToLower(strings.TrimSpace(line))
+	ch := make(chan string, 1)
+	go func() {
+		line, _ := in.ReadString('\n') // EOF with partial text still counts
+		ch <- strings.ToLower(strings.TrimSpace(line))
+	}()
+	select {
+	case ans := <-ch:
+		return ans, ctx.Err()
+	case <-ctx.Done():
+		return "", ctx.Err()
+	}
 }
 
 func listPulled(out io.Writer, header string, pulled []estimate.Estimate) {
@@ -279,20 +295,27 @@ func listPulled(out io.Writer, header string, pulled []estimate.Estimate) {
 	}
 }
 
-func cleanup(ctx context.Context, c *Client, out io.Writer, in *bufio.Reader, o Options, pulled []estimate.Estimate) {
+func cleanup(ctx context.Context, c *Client, out io.Writer, in *bufio.Reader, o Options, pulled []estimate.Estimate) error {
 	var total uint64
 	for _, e := range pulled {
 		total += e.Variant.SizeBytes
 	}
 	if !o.IsTTY || o.Yes {
 		listPulled(out, "Models downloaded for this benchmark were kept. Remove them with:", pulled)
-		return
+		return nil
 	}
 	fmt.Fprintf(out, "Remove the %d models downloaded for this benchmark to free %s? [Y/n] ", len(pulled), gbStr(total))
-	switch readAnswer(in) {
+	ans, err := readAnswer(ctx, in)
+	if err != nil {
+		return err
+	}
+	switch ans {
 	case "", "y", "yes":
 		for _, e := range pulled {
 			if err := c.Delete(ctx, e.Variant.Tag); err != nil {
+				if ctx.Err() != nil {
+					return ctx.Err()
+				}
 				fmt.Fprintf(out, "Could not remove %s: %v\n", e.Variant.Tag, err)
 				continue
 			}
@@ -301,6 +324,7 @@ func cleanup(ctx context.Context, c *Client, out io.Writer, in *bufio.Reader, o 
 	default:
 		listPulled(out, "Kept. Remove them later with:", pulled)
 	}
+	return nil
 }
 
 // benchOne measures one installed model. Errors are recorded in the Result.
