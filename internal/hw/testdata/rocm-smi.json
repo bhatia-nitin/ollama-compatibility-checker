@@ -1,0 +1,14 @@
+{
+  "card0": {
+    "Device Name": "Navi 31 [Radeon RX 7900 XT/7900 XTX/7900M]",
+    "Device ID": "0x744c",
+    "Card Series": "Radeon RX 7900 XTX",
+    "Card Model": "0x744c",
+    "Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]",
+    "Card SKU": "NAVI31",
+    "Subsystem ID": "0x2381",
+    "GFX Version": "gfx1100",
+    "VRAM Total Memory (B)": "25769803776",
+    "VRAM Total Used Memory (B)": "1073741824"
+  }
+}
