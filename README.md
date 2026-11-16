@@ -60,9 +60,9 @@ Running `ollama-compat` with no command is the same as `ollama-compat recommend`
 Scans the hardware, estimates every catalog variant at the chosen context
 length, and prints three picks, each with runners-up:
 
-- **Fastest**: highest estimated tok/s among variants that fit fully on the GPU.
-- **Balanced**: highest quality among variants that reach `--min-tps`.
-- **Largest**: highest quality that still reaches a usable speed, partial GPU offload allowed.
+- **Fastest**: highest est. tok/s among models with a quality score of at least 40 that fit fully on the GPU (falls back to partial offload if none fit).
+- **Balanced**: highest quality reaching `--min-tps`.
+- **Largest**: highest quality reaching at least 5 tok/s, partial offload allowed.
 
 It then prints the Ollama config for the Balanced pick: the `ollama pull`
 command, environment variables, and a Modelfile.
@@ -100,12 +100,14 @@ Config for Balanced
     launchctl setenv OLLAMA_FLASH_ATTENTION 1
     launchctl setenv OLLAMA_KV_CACHE_TYPE q8_0
     # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
+  Restart Ollama after setting these.
   Modelfile:
     FROM qwen2.5:3b-instruct-q4_K_M
     PARAMETER num_ctx 8192
     PARAMETER num_gpu 99
+  ollama create qwen2.5-3b-instruct-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads ~7.2 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~7.2 GB, asks first).
 ```
 
 Useful flags: `--ctx 16384` sizes the KV cache for a longer context,
@@ -145,7 +147,8 @@ Flags:
 (`--catalog`, `--json`, `--no-color`). It talks to `http://127.0.0.1:11434`,
 or to `OLLAMA_HOST` if set. If `OLLAMA_HOST` is not a loopback address,
 `bench` refuses unless you pass `--allow-remote`; the measurements then
-describe the remote machine, not the one you scanned. 
+describe the remote machine, not the one you scanned.
+
 Consent and cleanup:
 
 - Nothing is downloaded without showing the total size and asking
@@ -156,7 +159,7 @@ Consent and cleanup:
 - With `--yes`, or when there is no terminal, it never deletes anything and
   prints the `ollama rm <tag>` commands instead.
 - `--keep` skips the question and keeps the downloaded models.
-- Ctrl+C at any prompt stops with nothing downloaded or deleted.
+- Ctrl+C at the download prompt downloads nothing; at the cleanup prompt nothing is deleted and the downloaded models are listed with `ollama rm` commands.
 
 Examples:
 
