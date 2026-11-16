@@ -462,7 +462,7 @@ func TestParseSize(t *testing.T) {
 }
 
 func TestBenchPromptNoEmDash(t *testing.T) {
-	if strings.ContainsRune(BenchPrompt, '—') || len(strings.Fields(BenchPrompt)) < 30 {
+	if strings.ContainsRune(BenchPrompt, rune(0x2014)) || len(strings.Fields(BenchPrompt)) < 30 {
 		t.Errorf("bad prompt: %q", BenchPrompt)
 	}
 }
