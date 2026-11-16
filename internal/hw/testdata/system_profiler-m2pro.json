@@ -1,0 +1,21 @@
+{
+  "SPDisplaysDataType" : [
+    {
+      "_name" : "kHW_AppleM2ProItem",
+      "spdisplays_mtlgpufamilysupport" : "spdisplays_metal4",
+      "spdisplays_ndrvs" : [
+        {
+          "_name" : "Color LCD",
+          "spdisplays_connection_type" : "spdisplays_internal",
+          "spdisplays_main" : "spdisplays_yes",
+          "spdisplays_online" : "spdisplays_yes"
+        }
+      ],
+      "spdisplays_vendor" : "sppci_vendor_Apple",
+      "sppci_bus" : "spdisplays_builtin",
+      "sppci_cores" : "19",
+      "sppci_device_type" : "spdisplays_gpu",
+      "sppci_model" : "Apple M2 Pro"
+    }
+  ]
+}

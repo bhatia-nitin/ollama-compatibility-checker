@@ -1,0 +1,20 @@
+{
+  "SPDisplaysDataType" : [
+    {
+      "_name" : "sppci_displays",
+      "spdisplays_vendor" : "sppci_vendor_Intel",
+      "sppci_bus" : "spdisplays_builtin",
+      "sppci_device_type" : "spdisplays_gpu",
+      "sppci_model" : "Intel UHD Graphics 630",
+      "spdisplays_vram_shared" : "1536 MB"
+    },
+    {
+      "_name" : "sppci_displays",
+      "spdisplays_vendor" : "sppci_vendor_amd",
+      "sppci_bus" : "spdisplays_pcie_device",
+      "sppci_device_type" : "spdisplays_gpu",
+      "sppci_model" : "AMD Radeon Pro 5500M",
+      "spdisplays_vram" : "8 GB"
+    }
+  ]
+}
