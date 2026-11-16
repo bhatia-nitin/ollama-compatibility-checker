@@ -69,7 +69,11 @@ func RenderScan(w io.Writer, h hw.Hardware, color bool) {
 		} else {
 			supported = true
 		}
-		fmt.Fprintf(tw, "  GPU %d\t%s\t%s VRAM\t%s\t%s\t%s\n", i, g.Name, gbStr(g.VRAMBytes), bw, backend, strings.Join(flags, ", "))
+		row := fmt.Sprintf("  GPU %d\t%s\t%s VRAM\t%s\t%s", i, g.Name, gbStr(g.VRAMBytes), bw, backend)
+		if len(flags) > 0 {
+			row += "\t" + strings.Join(flags, ", ")
+		}
+		fmt.Fprintln(tw, row)
 	}
 	ram := gbStr(h.RAMBytes)
 	if h.RAMBandwidthGBs > 0 {

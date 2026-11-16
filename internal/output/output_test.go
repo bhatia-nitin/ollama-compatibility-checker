@@ -115,7 +115,7 @@ func TestRecommendAssertions(t *testing.T) {
 				t.Errorf("%s: tok/s without est.: %q", name, line)
 			}
 		}
-		if strings.Contains(out, "—") {
+		if strings.ContainsRune(out, 0x2014) {
 			t.Errorf("%s: em dash in output", name)
 		}
 	}
