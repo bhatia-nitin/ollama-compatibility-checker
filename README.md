@@ -2,7 +2,8 @@
 
 Find out which Ollama models your machine can run, and how fast.
 
-[![Watch the 20-second intro to ollama-compat](docs/assets/demo.jpg)](docs/assets/demo.mp4)
+https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
+
 
 *Click to watch the 20-second intro (with sound). The RTX 4090 scene is
 real output for an example hardware profile.*
