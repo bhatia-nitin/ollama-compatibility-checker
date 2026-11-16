@@ -1,0 +1,5 @@
+# Keep LF line endings on every OS so golden-file tests match on Windows.
+* text=auto eol=lf
+
+# Binary test fixtures must never be converted.
+*.gguf binary
