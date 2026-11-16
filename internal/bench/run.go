@@ -173,14 +173,18 @@ func Run(ctx context.Context, c *Client, shortlist []estimate.Estimate, o Option
 	}
 
 	// 7. Consent.
-	if missingBytes > 0 {
-		fmt.Fprintf(out, "%-36s %10s  %s\n", "Model", "Size", "Installed")
+	if len(missing) > 0 {
+		fmt.Fprintf(out, "%-36s %12s  %s\n", "Model", "Size", "Installed")
 		for _, e := range shortlist {
 			yes := "yes"
 			if !isInstalled(installed, e.Variant.Tag) {
 				yes = "no"
 			}
-			fmt.Fprintf(out, "%-36s %10s  %s\n", e.Variant.Tag, gbStr(e.Variant.SizeBytes), yes)
+			size := gbStr(e.Variant.SizeBytes)
+			if e.Variant.SizeBytes == 0 {
+				size = "unknown size"
+			}
+			fmt.Fprintf(out, "%-36s %12s  %s\n", e.Variant.Tag, size, yes)
 		}
 		fmt.Fprintf(out, "Total to download: %s\n", gbStr(missingBytes))
 		if !o.Yes {

@@ -466,3 +466,30 @@ func TestBenchPromptNoEmDash(t *testing.T) {
 		t.Errorf("bad prompt: %q", BenchPrompt)
 	}
 }
+
+func TestUnknownSizeStillNeedsConsent(t *testing.T) {
+	sl := []estimate.Estimate{est("m:1b", 0, 1, 40)}
+
+	f := newFake(t)
+	var out bytes.Buffer
+	o := opts("y\n", &out)
+	o.IsTTY = false
+	_, err := Run(context.Background(), f.client(), sl, o)
+	if err == nil || !strings.Contains(err.Error(), "refusing to download without --yes") {
+		t.Fatalf("err = %v", err)
+	}
+	if f.count("POST /api/pull") != 0 {
+		t.Error("pulled without consent")
+	}
+
+	f2 := newFake(t)
+	var out2 bytes.Buffer
+	res, err := Run(context.Background(), f2.client(), sl, opts("\n", &out2))
+	if err != nil || res != nil || f2.count("POST /api/pull") != 0 {
+		t.Fatalf("res=%v err=%v pulls=%d", res, err, f2.count("POST /api/pull"))
+	}
+	if !strings.Contains(out2.String(), "unknown size") || !strings.Contains(out2.String(), "[y/N]") {
+		t.Errorf("out = %q", out2.String())
+	}
+}
+
