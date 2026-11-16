@@ -1,0 +1,3 @@
+00:02.0 "VGA compatible controller" "Intel Corporation" "UHD Graphics 630" -r02 "Dell" "Device 0870"
+00:1f.3 "Audio device" "Intel Corporation" "Cannon Lake PCH cAVS" -r10 "Dell" "Device 0870"
+01:00.0 "3D controller" "NVIDIA Corporation" "GA107M" -ra1 "Dell" "Device 0870"
