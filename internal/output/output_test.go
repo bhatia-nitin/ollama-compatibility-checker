@@ -154,7 +154,7 @@ func TestFooterSize(t *testing.T) {
 			total += p.Best.Variant.SizeBytes
 		}
 	}
-	want := fmt.Sprintf("Run `ollama-compat bench` to measure these (downloads ~%.1f GB, asks first).", float64(total)/1e9)
+	want := fmt.Sprintf("Run `ollama-compat bench` to measure these (downloads up to ~%.1f GB, asks first).", float64(total)/1e9)
 	if out := renderRec(t, h, opts); !strings.Contains(out, want) {
 		t.Errorf("footer %q not in output:\n%s", want, out)
 	}
