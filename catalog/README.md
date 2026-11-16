@@ -93,7 +93,7 @@ Each entry records one `ollama-compat bench` run against the estimate from
 | Error | estimate about 2.1x too high (measured is 47% of estimate) |
 
 Note: system memory was under pressure during the run (about 24% free). Small
-models also have fixed per-token overhead that a pure bandwidth model ignores.
+models may also have fixed per-token overhead that a pure bandwidth model ignores.
 The constants (`EffGPU 0.65`) are unchanged for v1 because one data point on a
 memory-constrained machine is not enough to recalibrate. More data points,
 especially from 16 GB and larger Apple Silicon and NVIDIA machines, are needed.

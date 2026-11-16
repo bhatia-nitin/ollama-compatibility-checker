@@ -76,6 +76,7 @@ Hardware
   CPU    Apple M1  8C/8T
 
 Recommendations  (ctx 8192, estimates)
+  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.
   Fastest   qwen2.5:3b-instruct-q4_K_M   ~23 tok/s est.  2.6 GB  100% GPU
       also  llama3.2:3b-instruct-q4_K_M  ~22 tok/s est.  3.0 GB  100% GPU
       also  qwen3:1.7b-q8_0              ~20 tok/s est.  3.2 GB  100% GPU
@@ -178,11 +179,12 @@ Bandwidth comes from lookup tables of known GPUs and chips, not from a
 measurement. Models that cannot fit in VRAM plus 80 percent of RAM are
 excluded.
 
-The target is to land within about plus or minus 30 percent of real speed on
-models that fit fully on the GPU. This is a target, not a guarantee. Offloaded
-models, unknown GPUs (marked low confidence) and unusual drivers can be
-further off. Run `ollama-compat bench` to measure the real number on your
-machine. On small Apple Silicon machines (8 GB), the first calibration run measured about half the estimated speed; see `catalog/README.md` for the calibration log.
+Estimates are a rough guide (target within about plus or minus 30 percent,
+not yet met on every machine). The one Apple Silicon machine measured so far
+(M1, 8 GB) ran at about half the estimated speed; other machines are not yet
+measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
+drivers can be further off. Run `ollama-compat bench` to measure the real
+number on your machine. See `catalog/README.md` for the calibration log.
 
 Quality scores in the catalog are maintainer-curated estimates, not benchmark
 results; see `catalog/README.md`.
