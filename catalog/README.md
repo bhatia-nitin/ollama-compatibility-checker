@@ -75,3 +75,26 @@ These tags return 404 and are left out of `sources.yaml`; the entry carries
 q4_K_M), so those entries have one variant.
 
 The generator drops any tag that 404s and logs `DROP tag <tag>: 404`.
+
+## Calibration log
+
+Each entry records one `ollama-compat bench` run against the estimate from
+`recommend` on the same machine. Add new entries at the bottom.
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-16 |
+| Hardware | Apple M1, 8 GB unified memory, Metal, 68.25 GB/s |
+| Ollama | 0.24.0, default server settings (no flash attention or KV cache env vars) |
+| Model | qwen2.5:3b-instruct-q4_K_M, ctx 8192 |
+| Estimated decode | 23.0 tok/s (est.), GPU 100% |
+| Measured decode | 10.8 tok/s (median of 3 runs via `ollama-compat bench --installed-only`); cross-check with `ollama run --verbose`: 10.87 tok/s |
+| Measured prefill | 1365 tok/s; measured GPU fraction 100% |
+| Error | estimate about 2.1x too high (measured is 47% of estimate) |
+
+Note: system memory was under pressure during the run (about 24% free). Small
+models also have fixed per-token overhead that a pure bandwidth model ignores.
+The constants (`EffGPU 0.65`) are unchanged for v1 because one data point on a
+memory-constrained machine is not enough to recalibrate. More data points,
+especially from 16 GB and larger Apple Silicon and NVIDIA machines, are needed.
+Users can contribute with `ollama-compat bench --json`.

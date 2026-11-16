@@ -182,7 +182,7 @@ The target is to land within about plus or minus 30 percent of real speed on
 models that fit fully on the GPU. This is a target, not a guarantee. Offloaded
 models, unknown GPUs (marked low confidence) and unusual drivers can be
 further off. Run `ollama-compat bench` to measure the real number on your
-machine.
+machine. On small Apple Silicon machines (8 GB), the first calibration run measured about half the estimated speed; see `catalog/README.md` for the calibration log.
 
 Quality scores in the catalog are maintainer-curated estimates, not benchmark
 results; see `catalog/README.md`.
