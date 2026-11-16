@@ -32,7 +32,8 @@ func loadCatalog(path string) ([]catalog.Model, error) {
 }
 
 // useColor reports whether ANSI color is allowed: stdout is a terminal and
-// neither --no-color nor a non-empty NO_COLOR is set.
+// neither --no-color nor a non-empty NO_COLOR is set. On Windows the console
+// must also accept virtual terminal processing.
 func useColor(cmd *cobra.Command) bool {
 	if off, _ := cmd.Flags().GetBool("no-color"); off {
 		return false
@@ -40,7 +41,7 @@ func useColor(cmd *cobra.Command) bool {
 	if os.Getenv("NO_COLOR") != "" {
 		return false
 	}
-	return isTerminal(cmd.OutOrStdout())
+	return isTerminal(cmd.OutOrStdout()) && enableANSI()
 }
 
 func isTerminal(w io.Writer) bool {
