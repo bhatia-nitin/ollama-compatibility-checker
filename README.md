@@ -75,10 +75,6 @@ Or install into your Go bin directory (`~/go/bin`, which must be on your
 go install github.com/shra26/ollama-compatibility-checker/cmd/ollama-compat@latest
 ```
 
-While the repository is private, cloning and `go install` need GitHub access
-(`gh auth login` or an SSH key) and, for `go install`,
-`GOPRIVATE=github.com/shra26/*`.
-
 ### Ollama
 
 `recommend`, `scan` and `catalog` do not need Ollama. To run the recommended

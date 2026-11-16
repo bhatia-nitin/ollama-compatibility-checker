@@ -37,7 +37,7 @@ a separate terminal.
 
 ## 2. Get ollama-compat
 
-### Option A: prebuilt binary (once a release is published)
+### Option A: prebuilt binary
 
 Download the archive for your platform from
 [GitHub Releases](https://github.com/shra26/ollama-compatibility-checker/releases):
@@ -81,7 +81,7 @@ SmartScreen may warn about an unrecognized app; choose "More info", then
 
 ### Option B: build from source
 
-Use this if no release is published yet, or you want the latest code. You
+Use this if you want the latest unreleased code. You
 need [Go 1.24 or newer](https://go.dev/dl/) and git.
 
 ```bash
@@ -100,10 +100,6 @@ sure it is on your `PATH`):
 ```bash
 go install github.com/shra26/ollama-compatibility-checker/cmd/ollama-compat@latest
 ```
-
-While the repository is private, `git clone` and `go install` need access to
-it: sign in with `gh auth login` (or an SSH key), and for `go install` also
-set `GOPRIVATE=github.com/shra26/*`.
 
 ## 3. Run your first check
 
