@@ -1,0 +1,11 @@
+[
+  {"family":"llama3.2","name":"Llama 3.2 3B","params_b":3.2,"active_params_b":3.2,"layers":28,"kv_heads":8,"head_dim":128,"max_ctx":131072,"quality":45,
+   "variants":[{"tag":"llama3.2:3b-instruct-q4_K_M","size_bytes":2000000000,"bits":4.9,"quant":"q4_K_M"},
+               {"tag":"llama3.2:3b-instruct-q8_0","size_bytes":3400000000,"bits":8.5,"quant":"q8_0"}]},
+  {"family":"qwen2.5","name":"Qwen2.5 7B","params_b":7.6,"active_params_b":7.6,"layers":28,"kv_heads":4,"head_dim":128,"max_ctx":131072,"quality":58,
+   "variants":[{"tag":"qwen2.5:7b-instruct-q4_K_M","size_bytes":4700000000,"bits":4.9,"quant":"q4_K_M"}]},
+  {"family":"qwen2.5","name":"Qwen2.5 14B","params_b":14.8,"active_params_b":14.8,"layers":48,"kv_heads":8,"head_dim":128,"max_ctx":131072,"quality":70,
+   "variants":[{"tag":"qwen2.5:14b-instruct-q4_K_M","size_bytes":9000000000,"bits":4.9,"quant":"q4_K_M"}]},
+  {"family":"gemma2","name":"Gemma 2 27B","params_b":27.2,"active_params_b":27.2,"layers":46,"kv_heads":16,"head_dim":128,"max_ctx":8192,"quality":80,
+   "variants":[{"tag":"gemma2:27b-instruct-q4_K_M","size_bytes":16000000000,"bits":4.9,"quant":"q4_K_M"}]}
+]

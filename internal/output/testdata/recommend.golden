@@ -1,0 +1,33 @@
+Hardware
+  GPU 0  NVIDIA GeForce RTX 4070  12.9 GB VRAM  504 GB/s  CUDA (driver 560.94)  low confidence
+  GPU 1  Intel UHD Graphics       1.1 GB VRAM   30 GB/s   Vulkan                not used by Ollama
+  RAM    34.4 GB  ~60 GB/s
+  CPU    AMD Ryzen 7 7700X  8C/16T  AVX2 AVX-512
+  ! nvidia-smi reported no free VRAM figure
+
+Recommendations  (ctx 8192, estimates)
+  Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
+      also  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
+  Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
+  Largest   qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
+
+Config for Balanced
+  ollama pull qwen2.5:14b-instruct-q4_K_M
+  env:
+    export OLLAMA_FLASH_ATTENTION=1
+    export OLLAMA_KV_CACHE_TYPE=q8_0
+    # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
+  Modelfile:
+    FROM qwen2.5:14b-instruct-q4_K_M
+    PARAMETER num_ctx 8192
+    PARAMETER num_gpu 99
+
+Run `ollama-compat bench` to measure these (downloads ~11.0 GB, asks first).
