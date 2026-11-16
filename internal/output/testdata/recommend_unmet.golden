@@ -19,5 +19,6 @@ Config for Balanced (closest)
   Modelfile:
     FROM llama3.2:3b-instruct-q4_K_M
     PARAMETER num_ctx 8192
+  ollama create llama3.2-3b-instruct-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads ~2.0 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~2.0 GB, asks first).

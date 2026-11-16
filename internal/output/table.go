@@ -144,6 +144,9 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 	RenderScan(w, h, color)
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, paint(color, ansiBold, fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)))
+	if usesMetal(h) {
+		fmt.Fprintln(w, "  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.")
+	}
 	tw := newTab(w)
 	for _, p := range picks {
 		switch {
@@ -178,6 +181,7 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 		renderEnv(w, h.OS, cfg)
 		fmt.Fprintln(w, "  Modelfile:")
 		indentBlock(w, cfg.Modelfile, "    ")
+		fmt.Fprintf(w, "  ollama create %s -f Modelfile\n", tunedName(cfg.PullCmd))
 		if cfg.CtxNote != "" {
 			fmt.Fprintln(w, "  note: context "+cfg.CtxNote)
 		}
@@ -185,8 +189,24 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 
 	if total, any := downloadBytes(picks); any {
 		fmt.Fprintln(w)
-		fmt.Fprintf(w, "Run `ollama-compat bench` to measure these (downloads ~%.1f GB, asks first).\n", float64(total)/1e9)
+		fmt.Fprintf(w, "Run `ollama-compat bench` to measure these (downloads up to ~%.1f GB, asks first).\n", float64(total)/1e9)
 	}
+}
+
+// usesMetal reports whether the first supported GPU runs on Metal.
+func usesMetal(h hw.Hardware) bool {
+	for _, g := range h.GPUs {
+		if g.Supported {
+			return g.Backend == "metal"
+		}
+	}
+	return false
+}
+
+// tunedName derives a model name for `ollama create` from the pull command.
+func tunedName(pullCmd string) string {
+	tag := strings.TrimPrefix(pullCmd, "ollama pull ")
+	return strings.ReplaceAll(tag, ":", "-") + "-tuned"
 }
 
 func isMet(picks []recommend.Pick, kind string) bool {
@@ -224,11 +244,16 @@ func renderEnv(w io.Writer, goos string, cfg recommend.Config) {
 	default:
 		secs = []sec{{"posix", "env:"}}
 	}
+	shown := false
 	for _, s := range secs {
 		if body := cfg.EnvSyntax[s.key]; body != "" {
 			fmt.Fprintln(w, "  "+s.title)
 			indentBlock(w, body, "    ")
+			shown = true
 		}
+	}
+	if shown {
+		fmt.Fprintln(w, "  Restart Ollama after setting these.")
 	}
 }
 

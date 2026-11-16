@@ -242,3 +242,39 @@ func TestJSONDocs(t *testing.T) {
 		t.Errorf("scan doc keys = %v", m)
 	}
 }
+
+func TestMetalNoteOnlyForMetal(t *testing.T) {
+	const note = "Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure."
+	mac := hw.Hardware{
+		OS: "darwin", Arch: "arm64", RAMBytes: 16 * gb, RAMBandwidthGBs: 100, UnifiedMemory: true,
+		CPU:  hw.CPU{Model: "Apple M1", Cores: 8, Threads: 8},
+		GPUs: []hw.GPU{{Vendor: "apple", Name: "Apple M1", VRAMBytes: 10 * gb, BandwidthGBs: 68, Backend: "metal", Supported: true}},
+	}
+	got := renderRec(t, mac, opts)
+	if !strings.Contains(got, "Recommendations  (ctx 8192, estimates)\n  "+note+"\n") {
+		t.Errorf("metal note missing or misplaced:\n%s", got)
+	}
+	if strings.Contains(renderRec(t, gpuHW(), opts), "uncalibrated") {
+		t.Error("note must not appear for cuda")
+	}
+}
+
+func TestConfigUsageLines(t *testing.T) {
+	got := renderRec(t, gpuHW(), opts)
+	if !strings.Contains(got, "Restart Ollama after setting these.") {
+		t.Errorf("missing restart line:\n%s", got)
+	}
+	if !strings.Contains(got, "ollama create ") || !strings.Contains(got, "-tuned -f Modelfile") {
+		t.Errorf("missing create line:\n%s", got)
+	}
+	cpu := renderRec(t, cpuHW(), opts)
+	if strings.Contains(cpu, "Restart Ollama") {
+		t.Error("no env, no restart line")
+	}
+	if !strings.Contains(cpu, "ollama create llama3.2-3b-instruct-q4_K_M-tuned -f Modelfile") {
+		t.Errorf("create name:\n%s", cpu)
+	}
+	if !strings.Contains(cpu, "downloads up to ~") {
+		t.Errorf("footer wording:\n%s", cpu)
+	}
+}
