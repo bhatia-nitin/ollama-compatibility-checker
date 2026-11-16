@@ -16,3 +16,6 @@ dist/
 .opencode/
 .github/copilot-instructions.md
 AGENTS.md
+
+# Launch video working files (published copy lives in docs/assets/)
+brag-output/

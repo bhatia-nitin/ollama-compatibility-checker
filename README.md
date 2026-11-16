@@ -2,6 +2,11 @@
 
 Find out which Ollama models your machine can run, and how fast.
 
+[![Watch the 20-second intro to ollama-compat](docs/assets/demo.jpg)](docs/assets/demo.mp4)
+
+*Click to watch the 20-second intro (with sound). The RTX 4090 scene is
+real output for an example hardware profile.*
+
 `ollama-compat` scans your hardware (GPU, VRAM, memory bandwidth, RAM, CPU),
 estimates decode speed for a curated catalog of open-weight models, and
 recommends a fast, a balanced and a largest-that-fits pick. It also prints a
