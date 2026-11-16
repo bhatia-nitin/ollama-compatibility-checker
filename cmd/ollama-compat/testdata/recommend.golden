@@ -17,9 +17,11 @@ Config for Balanced
     export OLLAMA_FLASH_ATTENTION=1
     export OLLAMA_KV_CACHE_TYPE=q8_0
     # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
+  Restart Ollama after setting these.
   Modelfile:
     FROM qwen2.5:14b-instruct-q4_K_M
     PARAMETER num_ctx 4096
     PARAMETER num_gpu 99
+  ollama create qwen2.5-14b-instruct-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads ~11.0 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~11.0 GB, asks first).
