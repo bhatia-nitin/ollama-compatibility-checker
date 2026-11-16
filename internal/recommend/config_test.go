@@ -38,6 +38,9 @@ func TestConfigCPUOnlyNoEnv(t *testing.T) {
 	if len(c.Env) != 0 || len(c.EnvSyntax) != 0 || c.NumGPU != 0 {
 		t.Fatalf("%+v", c)
 	}
+	if strings.Contains(c.Modelfile, "num_gpu") {
+		t.Fatalf("CPU-only modelfile must omit num_gpu: %q", c.Modelfile)
+	}
 }
 
 func TestConfigCtxCapped(t *testing.T) {

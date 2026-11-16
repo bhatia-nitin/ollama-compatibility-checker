@@ -20,6 +20,5 @@ Config for Balanced (closest)
   Modelfile:
     FROM llama3.2:3b-instruct-q4_K_M
     PARAMETER num_ctx 8192
-    PARAMETER num_gpu 0
 
 Run `ollama-compat bench` to measure these (downloads ~5.4 GB, asks first).

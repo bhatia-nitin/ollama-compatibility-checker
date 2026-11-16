@@ -56,7 +56,10 @@ func BuildConfig(h hw.Hardware, e estimate.Estimate, o Options) Config {
 		CtxNote: strings.Join(notes, "; "),
 		Env:     map[string]string{},
 	}
-	c.Modelfile = fmt.Sprintf("FROM %s\nPARAMETER num_ctx %d\nPARAMETER num_gpu %d\n", final.Variant.Tag, c.NumCtx, c.NumGPU)
+	c.Modelfile = fmt.Sprintf("FROM %s\nPARAMETER num_ctx %d\n", final.Variant.Tag, c.NumCtx)
+	if c.NumGPU > 0 {
+		c.Modelfile += fmt.Sprintf("PARAMETER num_gpu %d\n", c.NumGPU)
+	}
 
 	if c.NumGPU > 0 && usesAccelerator(h) {
 		c.Env["OLLAMA_FLASH_ATTENTION"] = "1"
