@@ -23,6 +23,13 @@ func TestLookupGPUBandwidth(t *testing.T) {
 		{"nvidia", "unknown", 12 << 30, 450, true},
 		{"nvidia", "unknown", 24 << 30, 900, true},
 		{"nvidia", "unknown", 48 << 30, 1500, true},
+		{"nvidia", "NVIDIA L40S", 48 << 30, 1500, true},
+		{"nvidia", "NVIDIA L4", 24 << 30, 300, false},
+		{"nvidia", "Tesla T4", 16 << 30, 320, false},
+		{"nvidia", "NVIDIA Quadro T4000", 8 << 30, 300, true},
+		{"nvidia", "NVIDIA GeForce RTX 4070 Laptop GPU", 8 << 30, 252, true},
+		{"nvidia", "NVIDIA GeForce RTX 4090 Max-Q", 16 << 30, 504, true},
+		{"nvidia", "NVIDIA RTX 3080 Mobile", 16 << 30, 380, true},
 		{"amd", "AMD Future", 8 << 30, 240, true},
 		{"intel", "Intel Future", 16 << 30, 400, true},
 	}

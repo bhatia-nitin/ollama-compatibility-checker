@@ -126,11 +126,38 @@ func longestMatch(table map[string]float64, name string) (float64, bool) {
 	bestLen := 0
 	var best float64
 	for k, v := range table {
-		if len(k) > bestLen && strings.Contains(n, k) {
+		if len(k) > bestLen && containsToken(n, k) {
 			bestLen, best = len(k), v
 		}
 	}
 	return best, bestLen > 0
+}
+
+// containsToken reports whether key occurs in name with non-alphanumeric
+// characters (or string ends) on both sides, so "l4" does not match "l40s".
+func containsToken(name, key string) bool {
+	for off := 0; ; {
+		i := strings.Index(name[off:], key)
+		if i < 0 {
+			return false
+		}
+		start, end := off+i, off+i+len(key)
+		if (start == 0 || !isAlnum(name[start-1])) && (end == len(name) || !isAlnum(name[end])) {
+			return true
+		}
+		off = start + 1
+	}
+}
+
+func isAlnum(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= '0' && c <= '9'
+}
+
+// isMobileName reports laptop/mobile variants, which have far lower
+// bandwidth than the desktop part sharing the model number.
+func isMobileName(name string) bool {
+	n := normalizeName(name)
+	return strings.Contains(n, "laptop") || strings.Contains(n, "mobile") || strings.Contains(n, "max-q")
 }
 
 // vramClassBandwidth is the fallback estimate by VRAM size class.
@@ -169,6 +196,9 @@ func LookupGPUBandwidth(vendor, name string, vramBytes uint64) (gbs float64, low
 		table = appleBandwidth
 	}
 	if v, ok := longestMatch(table, name); ok {
+		if isMobileName(name) {
+			return v * 0.5, true
+		}
 		return v, false
 	}
 	return vramClassBandwidth(vendor, vramBytes), true
