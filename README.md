@@ -144,8 +144,18 @@ Flags:
 (`--catalog`, `--json`, `--no-color`). It talks to `http://127.0.0.1:11434`,
 or to `OLLAMA_HOST` if set. If `OLLAMA_HOST` is not a loopback address,
 `bench` refuses unless you pass `--allow-remote`; the measurements then
-describe the remote machine, not the one you scanned. Models that `bench`
-downloaded are removed afterwards unless you pass `--keep`.
+describe the remote machine, not the one you scanned. 
+Consent and cleanup:
+
+- Nothing is downloaded without showing the total size and asking
+  `[y/N]` (default No). Non-interactive runs refuse to download unless you pass `--yes`.
+- Afterwards, on a terminal, it asks "Remove the N models downloaded for this
+  benchmark ... [Y/n]" and deletes only models it pulled in that run. Models
+  you already had are never removed.
+- With `--yes`, or when there is no terminal, it never deletes anything and
+  prints the `ollama rm <tag>` commands instead.
+- `--keep` skips the question and keeps the downloaded models.
+- Ctrl+C at any prompt stops with nothing downloaded or deleted.
 
 Examples:
 
