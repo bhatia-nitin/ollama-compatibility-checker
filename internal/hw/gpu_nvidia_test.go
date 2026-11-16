@@ -107,3 +107,24 @@ func TestDetectNvidiaOK(t *testing.T) {
 		t.Errorf("args=%v", gotArgs)
 	}
 }
+
+func TestDetectNvidiaOldDriverRetriesWithoutComputeCap(t *testing.T) {
+	var queries []string
+	run := func(ctx context.Context, name string, args ...string) ([]byte, error) {
+		queries = append(queries, args[0])
+		if strings.Contains(args[0], "compute_cap") {
+			return []byte("Field \"compute_cap\" is not a valid field"), errors.New("exit status 2")
+		}
+		return []byte("NVIDIA GeForce GTX 1080, 8192, 8000, 390.1\n"), nil
+	}
+	gpus, warns := DetectNvidia(context.Background(), run)
+	if len(queries) != 2 || queries[1] != "--query-gpu=name,memory.total,memory.free,driver_version" {
+		t.Fatalf("queries=%v", queries)
+	}
+	if len(gpus) != 1 || !gpus[0].Supported || gpus[0].Backend != "cuda" || gpus[0].Driver != "390.1" || gpus[0].ComputeCap != "" {
+		t.Fatalf("gpus=%+v", gpus)
+	}
+	if len(warns) != 1 || !strings.Contains(warns[0], "compute capability unavailable") {
+		t.Errorf("warns=%v", warns)
+	}
+}
