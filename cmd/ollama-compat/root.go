@@ -30,6 +30,11 @@ func newRootCmd(stdout, stderr io.Writer) *cobra.Command {
 // newRootCmdWith builds the root command with an injected detector. With no
 // subcommand it runs recommend.
 func newRootCmdWith(stdout, stderr io.Writer, detect detectFunc) *cobra.Command {
+	return newRootCmdEnv(stdout, stderr, detect, hostBenchEnv())
+}
+
+// newRootCmdEnv also injects the bench environment (Ollama client, TTY check).
+func newRootCmdEnv(stdout, stderr io.Writer, detect detectFunc, env benchEnv) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "ollama-compat",
 		Short:        "Recommend Ollama models that fit your hardware",
@@ -48,6 +53,6 @@ func newRootCmdWith(stdout, stderr io.Writer, detect detectFunc) *cobra.Command 
 	pf.Bool("no-color", false, "disable colored output")
 	addRecommendFlags(cmd)
 
-	cmd.AddCommand(newScanCmd(detect), newRecommendCmd(detect), newCatalogCmd())
+	cmd.AddCommand(newScanCmd(detect), newRecommendCmd(detect), newCatalogCmd(), newBenchCmd(detect, env))
 	return cmd
 }

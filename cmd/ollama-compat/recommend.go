@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/shra26/ollama-compatibility-checker/internal/output"
 	"github.com/shra26/ollama-compatibility-checker/internal/recommend"
@@ -29,26 +30,34 @@ func newRecommendCmd(detect detectFunc) *cobra.Command {
 	return cmd
 }
 
+// recommendOptions reads and validates the recommend flags.
+func recommendOptions(f *pflag.FlagSet) (recommend.Options, error) {
+	minTPS, _ := f.GetFloat64("min-tps")
+	ctx, _ := f.GetInt("ctx")
+	top, _ := f.GetInt("top")
+	switch {
+	case minTPS < 0:
+		return recommend.Options{}, errors.New("--min-tps must not be negative")
+	case ctx <= 0:
+		return recommend.Options{}, errors.New("--ctx must be positive")
+	case top < 0:
+		return recommend.Options{}, errors.New("--top must not be negative")
+	}
+	return recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top}, nil
+}
+
 func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, _ []string) error {
 		f := cmd.Flags()
-		minTPS, _ := f.GetFloat64("min-tps")
-		ctx, _ := f.GetInt("ctx")
-		top, _ := f.GetInt("top")
-		switch {
-		case minTPS < 0:
-			return errors.New("--min-tps must not be negative")
-		case ctx <= 0:
-			return errors.New("--ctx must be positive")
-		case top < 0:
-			return errors.New("--top must not be negative")
+		o, err := recommendOptions(f)
+		if err != nil {
+			return err
 		}
 		path, _ := f.GetString("catalog")
 		ms, err := loadCatalog(path)
 		if err != nil {
 			return err
 		}
-		o := recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top}
 		h := detect(cmd.Context())
 		picks := recommend.Recommend(h, ms, o)
 		var cfg recommend.Config
