@@ -26,7 +26,7 @@ makes no network calls for the catalog.
 | `kv_heads` | GGUF `<arch>.attention.head_count_kv` |
 | `head_dim` | GGUF `<arch>.attention.key_length`, else `embedding_length / head_count` |
 | `max_ctx` | GGUF `<arch>.context_length` (the trained maximum, as declared in the file) |
-| `active_params_b` | `params_b`, or for mixture-of-experts models `params_b * expert_used_count / expert_count` |
+| `active_params_b` | `sources.yaml` `active_params_b` when set (model card value; set for every MoE entry), else for mixture-of-experts models `params_b * expert_used_count / expert_count`, else `params_b` |
 
 The GGUF fields are read from the first 8 MiB of the model blob with an HTTP
 range request (64 MiB retry if the tokenizer arrays push the needed keys
@@ -35,12 +35,13 @@ quants of one model share an architecture.
 
 ### Known approximations
 
-- **MoE active parameters.** `params_b * expert_used_count / expert_count`
-  ignores the attention and embedding weights that every token uses, so it
-  understates active parameters. Qwen3 30B-A3B comes out at 1.91B against
-  3.3B on the model card; Mixtral 8x7B at 11.68B against about 12.9B;
-  Granite 3.1 MoE 3B at 0.66B against about 0.8B. Speed estimates for these
-  models are optimistic by the same ratio.
+- **MoE active parameters.** Every MoE entry sets `active_params_b` in
+  `sources.yaml` from its model card: Qwen3 30B-A3B 3.3B, Mixtral 8x7B 12.9B,
+  Granite 3.1 MoE 3B 0.8B. The fallback formula
+  `params_b * expert_used_count / expert_count` ignores the attention and
+  embedding weights every token uses, so it understates active parameters
+  (Qwen3 30B-A3B would come out at 1.91B). It applies only to a new MoE entry
+  added without the override; set the field when adding one.
 - **`bits` uses the model-card parameter count.** Small models with large
   vocabularies (Qwen3 0.6B/1.7B, Gemma 3 1B, Gemma 2 2B) show high bits per
   weight because embedding and output tensors are kept at higher precision or

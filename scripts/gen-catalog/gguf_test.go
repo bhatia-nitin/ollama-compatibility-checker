@@ -188,3 +188,17 @@ func TestBits(t *testing.T) {
 		t.Fatalf("bits = %v, want 4.92", got)
 	}
 }
+
+func TestActiveParamsOverride(t *testing.T) {
+	moe := archInfo{ExpertCount: 128, ExpertUsed: 8}
+	override := 3.3
+	if got := activeParams(source{ParamsB: 30.5, ActiveParamsB: &override}, moe); got != 3.3 {
+		t.Errorf("override: active = %v, want 3.3", got)
+	}
+	if got := activeParams(source{ParamsB: 30.5}, moe); got != 1.91 {
+		t.Errorf("formula fallback: active = %v, want 1.91", got)
+	}
+	if got := activeParams(source{ParamsB: 8}, archInfo{}); got != 8 {
+		t.Errorf("dense: active = %v, want 8", got)
+	}
+}

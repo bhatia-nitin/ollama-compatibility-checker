@@ -41,6 +41,7 @@ type source struct {
 	Family        string   `yaml:"family"`
 	Name          string   `yaml:"name"`
 	ParamsB       float64  `yaml:"params_b"`
+	ActiveParamsB *float64 `yaml:"active_params_b"`
 	Quality       int      `yaml:"quality"`
 	QualitySource string   `yaml:"quality_source"`
 	KVQuantOK     *bool    `yaml:"kv_quant_ok"`
@@ -151,13 +152,23 @@ func build(s source) (catalog.Model, error) {
 		return m, errors.New("no tag resolved")
 	}
 	m.Layers, m.KVHeads, m.HeadDim, m.MaxCtx = info.Layers, info.KVHeads, info.HeadDim, info.MaxCtx
-	m.ActiveParamsB = s.ParamsB
-	if info.ExpertCount > 0 && info.ExpertUsed > 0 && info.ExpertUsed < info.ExpertCount {
-		// Approximation: shared attention and embedding weights are ignored.
-		m.ActiveParamsB = round2(s.ParamsB * float64(info.ExpertUsed) / float64(info.ExpertCount))
-	}
+	m.ActiveParamsB = activeParams(s, *info)
 	sort.Slice(m.Variants, func(i, j int) bool { return m.Variants[i].SizeBytes < m.Variants[j].SizeBytes })
 	return m, nil
+}
+
+// activeParams returns the sources.yaml active_params_b when set (model card
+// value), else for MoE models params_b * expert_used_count / expert_count,
+// else params_b.
+func activeParams(s source, info archInfo) float64 {
+	if s.ActiveParamsB != nil {
+		return *s.ActiveParamsB
+	}
+	if info.ExpertCount > 0 && info.ExpertUsed > 0 && info.ExpertUsed < info.ExpertCount {
+		// Approximation: shared attention and embedding weights are ignored.
+		return round2(s.ParamsB * float64(info.ExpertUsed) / float64(info.ExpertCount))
+	}
+	return s.ParamsB
 }
 
 var errNotFound = errors.New("not found")

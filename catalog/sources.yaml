@@ -5,6 +5,8 @@
 #   params_b          total parameters in billions (from the model card)
 #   quality           0-100 cross-family score; see catalog/README.md
 #   quality_source    where the score came from
+#   active_params_b   optional; MoE active parameters from the model card.
+#                     When absent the generator uses params_b * expert_used / expert_count.
 #   kv_quant_ok       optional, default true
 #   tags              Ollama library tags; each is verified against the registry
 #
@@ -63,6 +65,7 @@
 - family: granite3.1-moe
   name: "Granite 3.1 MoE 3B Instruct"
   params_b: 3.3
+  active_params_b: 0.8
   quality: 34
   quality_source: "maintainer-curated estimate, 2026-11-16"
   tags:
@@ -246,6 +249,7 @@
 - family: qwen3
   name: "Qwen3 30B-A3B (MoE)"
   params_b: 30.5
+  active_params_b: 3.3
   quality: 82
   quality_source: "maintainer-curated estimate, 2026-11-16"
   tags:
@@ -286,6 +290,7 @@
 - family: mixtral
   name: "Mixtral 8x7B Instruct v0.1 (MoE)"
   params_b: 46.7
+  active_params_b: 12.9
   quality: 55
   quality_source: "maintainer-curated estimate, 2026-11-16"
   tags:
