@@ -8,3 +8,11 @@ dist/
 *.exe
 .claude-flow/
 .superpowers/
+
+# Local AI agent rule files (caveman init)
+.cursor/
+.windsurf/
+.clinerules/
+.opencode/
+.github/copilot-instructions.md
+AGENTS.md
