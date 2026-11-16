@@ -1,0 +1,6 @@
+TAG                          PARAMS  QUANT   SIZE     MAX CTX  QUALITY
+gemma2:27b-instruct-q4_K_M   27.2B   q4_K_M  16.0 GB  8192     80
+llama3.2:3b-instruct-q4_K_M  3.2B    q4_K_M  2.0 GB   131072   45
+llama3.2:3b-instruct-q8_0    3.2B    q8_0    3.4 GB   131072   45
+qwen2.5:7b-instruct-q4_K_M   7.6B    q4_K_M  4.7 GB   131072   58
+qwen2.5:14b-instruct-q4_K_M  14.8B   q4_K_M  9.0 GB   131072   70

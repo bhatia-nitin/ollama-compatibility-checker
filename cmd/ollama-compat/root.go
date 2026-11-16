@@ -1,20 +1,42 @@
 package main
 
 import (
+	"context"
 	"io"
+	"runtime"
 
 	"github.com/spf13/cobra"
+
+	"github.com/shra26/ollama-compatibility-checker/internal/hw"
 )
 
 // version is set at build time via -ldflags "-X main.version=...".
 var version = "dev"
 
-// newRootCmd builds the root command. Subcommands are attached with AddCommand.
+// detectFunc profiles the host. Commands take it as a parameter so tests can
+// inject synthetic hardware.
+type detectFunc func(context.Context) hw.Hardware
+
+// hostDetect profiles the real machine.
+func hostDetect(ctx context.Context) hw.Hardware {
+	return hw.Detect(ctx, hw.Probes{Run: hw.DefaultRunner, SysRoot: "/", GOOS: runtime.GOOS, GOARCH: runtime.GOARCH})
+}
+
+// newRootCmd builds the root command wired to the real host.
 func newRootCmd(stdout, stderr io.Writer) *cobra.Command {
+	return newRootCmdWith(stdout, stderr, hostDetect)
+}
+
+// newRootCmdWith builds the root command with an injected detector. With no
+// subcommand it runs recommend.
+func newRootCmdWith(stdout, stderr io.Writer, detect detectFunc) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "ollama-compat",
-		Short:   "Recommend Ollama models that fit your hardware",
-		Version: version,
+		Use:          "ollama-compat",
+		Short:        "Recommend Ollama models that fit your hardware",
+		Version:      version,
+		SilenceUsage: true,
+		Args:         cobra.NoArgs,
+		RunE:         recommendRunE(detect),
 	}
 	cmd.SetOut(stdout)
 	cmd.SetErr(stderr)
@@ -24,6 +46,8 @@ func newRootCmd(stdout, stderr io.Writer) *cobra.Command {
 	pf.Bool("json", false, "emit machine-readable JSON")
 	pf.String("catalog", "", "path to a custom model catalog file")
 	pf.Bool("no-color", false, "disable colored output")
+	addRecommendFlags(cmd)
 
+	cmd.AddCommand(newScanCmd(detect), newRecommendCmd(detect), newCatalogCmd())
 	return cmd
 }
