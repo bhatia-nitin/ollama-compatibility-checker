@@ -11,18 +11,42 @@ binary with no runtime dependencies.
 By default it makes no network calls. The optional `bench` command measures
 real speed through a local Ollama server.
 
+New here? Follow the step-by-step
+**[Getting started guide](docs/getting-started.md)**: it covers installing
+Ollama and this tool on macOS, Linux and Windows, reading the output,
+applying the config, and troubleshooting.
+
+## Quick start
+
+```bash
+# 1. Build (needs Go 1.24+ and git); or download a release, see Install below
+git clone https://github.com/shra26/ollama-compatibility-checker.git
+cd ollama-compatibility-checker
+go build -o ollama-compat ./cmd/ollama-compat
+
+# 2. Get recommendations (offline, about one second)
+./ollama-compat
+
+# 3. Use the Balanced pick (copy the exact commands from your output)
+ollama pull <tag from the output>
+# save the Modelfile lines from the output to a file named Modelfile, then:
+ollama create <name from the output> -f Modelfile
+ollama run <name from the output> --verbose
+```
+
+On Windows, build with `go build -o ollama-compat.exe ./cmd/ollama-compat`
+and run `.\ollama-compat.exe`.
+
 ## Install
+
+### Prebuilt binaries
 
 Download the archive for your platform from
 [GitHub Releases](https://github.com/shra26/ollama-compatibility-checker/releases),
 unpack it and put `ollama-compat` on your `PATH`. Builds exist for Linux,
-macOS and Windows on amd64 and arm64.
-
-Or install with Go:
-
-```bash
-go install github.com/shra26/ollama-compatibility-checker/cmd/ollama-compat@latest
-```
+macOS and Windows on amd64 and arm64 (use `darwin_arm64` for Apple Silicon
+Macs and `windows_amd64` for most Windows PCs). If no release is listed yet,
+build from source.
 
 On macOS, a downloaded binary may be blocked by Gatekeeper. Clear the
 quarantine flag once:
@@ -30,6 +54,36 @@ quarantine flag once:
 ```bash
 xattr -d com.apple.quarantine ollama-compat
 ```
+
+On Windows, SmartScreen may warn about an unrecognized app; choose "More
+info", then "Run anyway".
+
+### From source
+
+Requires [Go 1.24 or newer](https://go.dev/dl/).
+
+```bash
+git clone https://github.com/shra26/ollama-compatibility-checker.git
+cd ollama-compatibility-checker
+go build -o ollama-compat ./cmd/ollama-compat
+```
+
+Or install into your Go bin directory (`~/go/bin`, which must be on your
+`PATH`):
+
+```bash
+go install github.com/shra26/ollama-compatibility-checker/cmd/ollama-compat@latest
+```
+
+While the repository is private, cloning and `go install` need GitHub access
+(`gh auth login` or an SSH key) and, for `go install`,
+`GOPRIVATE=github.com/shra26/*`.
+
+### Ollama
+
+`recommend`, `scan` and `catalog` do not need Ollama. To run the recommended
+model, or to use `bench`, install Ollama from <https://ollama.com/download>
+and make sure it is running (`curl http://127.0.0.1:11434/api/version`).
 
 ## Usage
 
@@ -65,7 +119,10 @@ length, and prints three picks, each with runners-up:
 - **Largest**: highest quality reaching at least 5 tok/s, partial offload allowed.
 
 It then prints the Ollama config for the Balanced pick: the `ollama pull`
-command, environment variables, and a Modelfile.
+command, environment variables, a Modelfile and the `ollama create` command.
+Environment variable syntax is shown for your OS. How to apply each part on
+macOS, Linux (systemd) and Windows is in
+[Getting started, step 4](docs/getting-started.md#4-apply-the-recommended-config).
 
 Example output on an Apple M1 with 8 GB of RAM (your numbers will differ):
 
@@ -235,14 +292,40 @@ go run ./scripts/gen-catalog -in catalog/sources.yaml -out internal/catalog/mode
 
 See `catalog/README.md` for where each field comes from.
 
+## Troubleshooting
+
+Common problems (GPU not detected, Ollama not reachable, slow speeds, Windows
+colors, macOS Gatekeeper) are covered in
+[Getting started: Troubleshooting](docs/getting-started.md#troubleshooting).
+
 ## Development
 
 ```bash
 go test ./...
 go vet ./...
+go build -o ollama-compat ./cmd/ollama-compat
 ```
 
-Releases are built by GoReleaser when a `v*` tag is pushed.
+Project layout:
+
+| Path | Contents |
+|---|---|
+| `cmd/ollama-compat` | CLI commands (cobra) |
+| `internal/hw` | Hardware detection per vendor and OS |
+| `internal/catalog` | Embedded model catalog and loader |
+| `internal/estimate` | Memory fit and tok/s estimator |
+| `internal/recommend` | Picks and Ollama config generation |
+| `internal/output` | Text and JSON rendering |
+| `internal/bench` | Ollama API client and the bench flow |
+| `scripts/gen-catalog` | Catalog generator (dev only) |
+| `docs/` | Getting started guide, design spec and implementation plan |
+
+Releases are built by GoReleaser when a `v*` tag is pushed:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
 
 ## License
 
