@@ -133,14 +133,14 @@ func Detect(ctx context.Context, p Probes) Hardware {
 		}
 		hw.CPU = c
 	case "darwin":
-		g, ram, chip, w := DetectApple(ctx, p.Run)
+		g, ram, chip, w := DetectApple(ctx, p.Run, p.GOARCH)
 		add(g, w)
 		hw.RAMBytes = ram
 		hw.CPU = detectDarwinCPU(ctx, p.Run)
 		if hw.CPU.Model == "" {
 			hw.CPU.Model = chip
 		}
-		hw.UnifiedMemory = strings.HasPrefix(chip, "Apple")
+		hw.UnifiedMemory = len(g) > 0 && g[0].Backend == "metal"
 	default:
 		warn("unsupported OS %q, hardware detection skipped", p.GOOS)
 	}

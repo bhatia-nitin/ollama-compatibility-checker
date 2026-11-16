@@ -2,6 +2,7 @@ package hw
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -95,8 +96,49 @@ func TestDetectApple(t *testing.T) {
 		}
 		return js, nil
 	}
-	gpus, ram, chip, warns := DetectApple(context.Background(), run)
+	gpus, ram, chip, warns := DetectApple(context.Background(), run, "arm64")
 	if len(gpus) != 1 || ram != 32*gib || chip != "Apple M2 Pro" || len(warns) != 0 {
 		t.Errorf("gpus=%v ram=%d chip=%q warns=%v", gpus, ram, chip, warns)
+	}
+}
+
+func appleRunner(chip string, spErr error) Runner {
+	return func(ctx context.Context, name string, args ...string) ([]byte, error) {
+		switch {
+		case name == "sysctl" && args[1] == "hw.memsize":
+			return []byte("8589934592\n"), nil
+		case name == "sysctl":
+			return []byte(chip + "\n"), nil
+		}
+		return nil, spErr
+	}
+}
+
+func TestDetectAppleSiliconSurvivesSystemProfilerFailure(t *testing.T) {
+	run := appleRunner("Apple M2", errors.New("exit status 1"))
+	gpus, _, _, _ := DetectApple(context.Background(), run, "arm64")
+	if len(gpus) != 1 || gpus[0].Backend != "metal" || !gpus[0].Supported {
+		t.Fatalf("gpus=%+v", gpus)
+	}
+}
+
+func TestDetectAppleEmptyChipOnArm64(t *testing.T) {
+	run := appleRunner("", errors.New("boom"))
+	gpus, _, _, warns := DetectApple(context.Background(), run, "arm64")
+	if len(gpus) != 1 || gpus[0].Name != "Apple Silicon (unknown chip)" || !gpus[0].BandwidthLowConfidence || gpus[0].BandwidthGBs != 100 {
+		t.Fatalf("gpus=%+v", gpus)
+	}
+	if len(warns) == 0 {
+		t.Error("want warning")
+	}
+}
+
+func TestDetectAppleSysctlFailuresWarn(t *testing.T) {
+	run := func(ctx context.Context, name string, args ...string) ([]byte, error) {
+		return nil, errors.New("denied")
+	}
+	gpus, ram, _, warns := DetectApple(context.Background(), run, "arm64")
+	if ram != 0 || len(warns) < 2 || len(gpus) != 1 {
+		t.Errorf("gpus=%v ram=%d warns=%v", gpus, ram, warns)
 	}
 }

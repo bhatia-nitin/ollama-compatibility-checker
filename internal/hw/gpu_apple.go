@@ -53,6 +53,33 @@ func parseSPVRAM(s string) uint64 {
 	return 0
 }
 
+// buildAppleSilicon builds the Metal GPU from the chip name and RAM alone.
+// An empty chip stands for an Apple Silicon Mac whose brand string could not
+// be read.
+func buildAppleSilicon(chip string, ramBytes uint64) ([]GPU, []string) {
+	name := chip
+	if name == "" {
+		name = "Apple Silicon (unknown chip)"
+	}
+	g := GPU{
+		Vendor:    "apple",
+		Name:      name,
+		VRAMBytes: AppleGPUShare(ramBytes),
+		Backend:   "metal",
+		Supported: true,
+	}
+	g.FreeVRAMBytes = g.VRAMBytes
+	var warns []string
+	bw, ok := LookupAppleBandwidth(chip)
+	if !ok {
+		bw = appleFallbackBandwidthGBs
+		g.BandwidthLowConfidence = true
+		warns = append(warns, fmt.Sprintf("unknown Apple chip %q, assuming %d GB/s memory bandwidth", chip, appleFallbackBandwidthGBs))
+	}
+	g.BandwidthGBs = bw
+	return []GPU{g}, warns
+}
+
 // ParseAppleDisplays turns `system_profiler SPDisplaysDataType -json` output
 // into GPUs. chip is the CPU brand string; a chip not starting with "Apple"
 // means an Intel Mac, where Ollama does not use the GPU.
@@ -62,23 +89,7 @@ func ParseAppleDisplays(js []byte, chip string, ramBytes uint64) ([]GPU, []strin
 		return nil, []string{fmt.Sprintf("system_profiler: unparseable output (%v)", err)}
 	}
 	if strings.HasPrefix(chip, "Apple") {
-		g := GPU{
-			Vendor:    "apple",
-			Name:      chip,
-			VRAMBytes: AppleGPUShare(ramBytes),
-			Backend:   "metal",
-			Supported: true,
-		}
-		g.FreeVRAMBytes = g.VRAMBytes
-		var warns []string
-		bw, ok := LookupAppleBandwidth(chip)
-		if !ok {
-			bw = appleFallbackBandwidthGBs
-			g.BandwidthLowConfidence = true
-			warns = append(warns, fmt.Sprintf("unknown Apple chip %q, assuming %d GB/s memory bandwidth", chip, appleFallbackBandwidthGBs))
-		}
-		g.BandwidthGBs = bw
-		return []GPU{g}, warns
+		return buildAppleSilicon(chip, ramBytes)
 	}
 
 	var gpus []GPU
@@ -109,10 +120,11 @@ func ParseAppleDisplays(js []byte, chip string, ramBytes uint64) ([]GPU, []strin
 	return gpus, warns
 }
 
-// DetectApple queries sysctl and system_profiler. It returns GPUs, total RAM,
+// DetectApple queries sysctl, and system_profiler on Intel Macs only. Apple
+// Silicon GPUs are built from the chip name and RAM alone. It returns GPUs, total RAM,
 // the CPU brand string and warnings. Failures become warnings; a missing
 // binary (non-macOS host) yields zero values without a warning.
-func DetectApple(ctx context.Context, run Runner) ([]GPU, uint64, string, []string) {
+func DetectApple(ctx context.Context, run Runner, goarch string) ([]GPU, uint64, string, []string) {
 	var warns []string
 	var ram uint64
 	if out, err := run(ctx, "sysctl", "-n", "hw.memsize"); err != nil {
@@ -134,6 +146,11 @@ func DetectApple(ctx context.Context, run Runner) ([]GPU, uint64, string, []stri
 		warns = append(warns, fmt.Sprintf("sysctl machdep.cpu.brand_string failed (%v)", err))
 	} else {
 		chip = strings.TrimSpace(string(out))
+	}
+
+	if strings.HasPrefix(chip, "Apple") || (chip == "" && goarch == "arm64") {
+		g, w := buildAppleSilicon(chip, ram)
+		return g, ram, chip, append(warns, w...)
 	}
 
 	out, err := run(ctx, "system_profiler", "SPDisplaysDataType", "-json")
