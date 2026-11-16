@@ -227,8 +227,8 @@ func TestJSONDocs(t *testing.T) {
 			t.Errorf("missing key %q", k)
 		}
 	}
-	if !regexp.MustCompile(`"tok_s"`).Match(b.Bytes()) || !regexp.MustCompile(`"pull_cmd"`).Match(b.Bytes()) {
-		t.Error("expected snake_case keys tok_s and pull_cmd")
+	if !regexp.MustCompile(`"est_tok_s"`).Match(b.Bytes()) || !regexp.MustCompile(`"pull_cmd"`).Match(b.Bytes()) {
+		t.Error("expected snake_case keys est_tok_s and pull_cmd")
 	}
 	b.Reset()
 	if err := WriteJSON(&b, ScanDoc(h)); err != nil {

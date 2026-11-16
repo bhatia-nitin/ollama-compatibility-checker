@@ -65,7 +65,7 @@ type estimateJSON struct {
 	NeedBytes     uint64  `json:"need_bytes"`
 	GPUFraction   float64 `json:"gpu_fraction"`
 	NumGPU        int     `json:"num_gpu"`
-	TokS          float64 `json:"tok_s"`
+	TokS          float64 `json:"est_tok_s"`
 	LowConfidence bool    `json:"low_confidence"`
 }
 
