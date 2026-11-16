@@ -45,7 +45,8 @@ func HostFromEnv() (baseURL string, loopback bool) {
 	}
 	u, err := url.Parse(scheme + "://" + rest)
 	if err != nil || u.Hostname() == "" && !strings.HasPrefix(rest, ":") {
-		return defaultBaseURL, true
+		// Unparseable: we cannot tell where the user points, so never claim loopback.
+		return defaultBaseURL, false
 	}
 	host, port := u.Hostname(), u.Port()
 	if port == "" {

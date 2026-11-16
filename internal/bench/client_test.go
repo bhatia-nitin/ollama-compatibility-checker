@@ -31,6 +31,7 @@ func TestHostFromEnv(t *testing.T) {
 		{"full url", "http://h:1234", true, "http://h:1234", false},
 		{"https default port", "https://example.com", true, "https://example.com:11434", false},
 		{"v6 loopback", "http://[::1]:11434", true, "http://[::1]:11434", true},
+		{"unparseable", "http://[::1", true, "http://127.0.0.1:11434", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
