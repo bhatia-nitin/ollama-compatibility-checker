@@ -135,6 +135,21 @@ func newQuantTags(family string, pageTags []string, have map[string]bool) []stri
 	return out
 }
 
+// skipTags is the set of full tags not to report: those in the catalog and
+// family:tag entries of the ignore file.
+func skipTags(have, ignore map[string]bool) map[string]bool {
+	skip := map[string]bool{}
+	for t := range have {
+		skip[t] = true
+	}
+	for n := range ignore {
+		if strings.Contains(n, ":") {
+			skip[n] = true
+		}
+	}
+	return skip
+}
+
 // newFamilies returns library names that are neither tracked nor ignored.
 func newFamilies(lib []string, tracked, ignore map[string]bool) []string {
 	var out []string
@@ -294,6 +309,8 @@ func run(in, ignorePath, out string) error {
 		}
 	}
 
+	skip := skipTags(have, ignore)
+
 	for _, fam := range sortedKeys(tracked) {
 		page, err := fetchPage(libraryURL + "/" + fam + "/tags")
 		if err != nil {
@@ -303,7 +320,7 @@ func run(in, ignorePath, out string) error {
 		if err != nil {
 			return err
 		}
-		if n := newQuantTags(fam, tags, have); len(n) > 0 {
+		if n := newQuantTags(fam, tags, skip); len(n) > 0 {
 			rep.NewTags[fam] = n
 		}
 	}

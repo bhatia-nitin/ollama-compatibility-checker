@@ -120,3 +120,38 @@ From 2026-11-17 on, measurements are kept as `bench --share` records in
 first record (same M1, 20.1 tok/s for qwen2.5 3B) fits a Metal efficiency of
 0.568, replacing the hand-set 0.60 above.
 
+## Freshness check
+
+`scripts/check-catalog` compares `sources.yaml` with the Ollama library and
+writes a markdown report; it never edits the catalog. It lists tags whose
+registry manifest now 404s (a regen would fail), new `q4_K_M`, `q8_0` and
+`q3_K_M` tags in tracked families, and library models that are not tracked.
+
+```bash
+go run ./scripts/check-catalog -out report.md
+```
+
+The weekly `catalog-check` workflow (Mondays 06:00 UTC, or run it manually)
+keeps one open issue, "Catalog check: Ollama library changes", labelled
+`catalog`, with the latest report, and closes it when nothing is left.
+`catalog/check-ignore.txt` lists what was reviewed and not tracked: model
+names, or full `family:tag` names for single tags. It starts with a
+2026-11-17 baseline of the whole library, minus a short watch list of newer
+models worth adding (gemma4, qwen3.5 to 3.8, granite4, llama4 and others),
+so the issue shows only those plus anything released later. The tool scrapes
+ollama.com HTML, so a page that parses to zero entries fails the run instead
+of reporting nothing new.
+
+## Added 2026-11-17
+
+gpt-oss 20B, Qwen3 4B and 30B-A3B 2507 (instruct and thinking), Qwen3 Coder
+30B-A3B, Devstral Small 24B, Magistral Small 24B, Phi-4 Reasoning 14B and
+Mini Reasoning 3.8B, the DeepSeek-R1 0528 Qwen3 8B distill, Qwen2.5-VL 3B,
+7B and 32B, and Qwen3-VL 2B, 4B, 8B, 30B-A3B and 32B. Their quality scores
+are maintainer-curated estimates on the same scale. Known approximations:
+gpt-oss alternates sliding-window and full attention, so its KV cache is
+overstated (conservative); `gpt-oss:20b` has no quant suffix and is marked
+`mxfp4` through the `quant` field. Newer families with hybrid attention
+(for example Mamba or linear-attention layers) are left out until the KV
+cache formula handles them.
+
