@@ -39,6 +39,10 @@ a separate terminal.
 
 ### Option A: prebuilt binary
 
+Quickest: `brew install --cask shra26/tap/ollama-compat` on macOS or Linux,
+or `scoop bucket add shra26 https://github.com/shra26/scoop-bucket` then
+`scoop install ollama-compat` on Windows. Otherwise:
+
 Download the archive for your platform from
 [GitHub Releases](https://github.com/shra26/ollama-compatibility-checker/releases):
 

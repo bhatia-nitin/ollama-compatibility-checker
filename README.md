@@ -45,6 +45,19 @@ and run `.\ollama-compat.exe`.
 
 ## Install
 
+### Homebrew (macOS, Linux)
+
+```bash
+brew install --cask shra26/tap/ollama-compat
+```
+
+### Scoop (Windows)
+
+```powershell
+scoop bucket add shra26 https://github.com/shra26/scoop-bucket
+scoop install ollama-compat
+```
+
 ### Install script
 
 macOS and Linux (installs to `~/.local/bin`; set `INSTALL_DIR` or `VERSION`
