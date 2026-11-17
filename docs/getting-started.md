@@ -118,7 +118,7 @@ finishes in about a second. You get three blocks:
   - **Largest**: the best quality that is still usable (at least 5 tok/s), even if part of it runs on the CPU.
 - **Config for Balanced**: copy-paste commands for Ollama (next step).
 
-Every speed is an estimate and is marked `est.`. Read `100% GPU` as "fits
+Every speed is an estimate with its expected error, such as `~21 tok/s ±15%`. Read `100% GPU` as "fits
 entirely in GPU memory"; a lower percentage means part of the model runs on
 the CPU, which is much slower.
 

@@ -71,6 +71,7 @@ func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
 		}
 		h := detect(cmd.Context())
 		picks := recommend.Recommend(h, ms, o)
+		up := recommend.NearMiss(h, ms, o, picks)
 		var cfg recommend.Config
 		if e := output.ConfigTarget(picks); e != nil {
 			cfg = recommend.BuildConfig(h, *e, o)
@@ -78,9 +79,10 @@ func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
 		if asJSON, _ := f.GetBool("json"); asJSON {
 			doc := output.RecommendDoc(h, picks, cfg)
 			doc.Task = o.Task
+			doc.WithNearMiss(up)
 			return output.WriteJSON(cmd.OutOrStdout(), doc)
 		}
-		output.RenderRecommend(cmd.OutOrStdout(), h, picks, cfg, o, useColor(cmd))
+		output.RenderRecommend(cmd.OutOrStdout(), h, picks, cfg, o, up, useColor(cmd))
 		return nil
 	}
 }

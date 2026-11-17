@@ -152,20 +152,20 @@ Hardware
   RAM    8.6 GB  ~68 GB/s
   CPU    Apple M1  8C/8T
 
-Recommendations  (ctx 8192, estimates)
+Recommendations  (ctx 8192, estimates ± expected error)
   Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.
-  Fastest   qwen2.5:3b-instruct-q4_K_M   ~21 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~20 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q8_0              ~18 tok/s est.  3.2 GB  100% GPU
-      also  phi4-mini:3.8b-q4_K_M        ~16 tok/s est.  3.6 GB  100% GPU
-  Balanced  qwen2.5:3b-instruct-q4_K_M   ~21 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~20 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q4_K_M            ~30 tok/s est.  2.4 GB  100% GPU
-      also  granite3.3:2b                ~26 tok/s est.  2.4 GB  100% GPU
-  Largest   qwen3:8b-q4_K_M              ~8 tok/s est.   6.4 GB  75% GPU
-      also  qwen3:4b-q8_0                ~9 tok/s est.   5.5 GB  86% GPU
-      also  qwen3:4b-q4_K_M              ~16 tok/s est.  3.8 GB  100% GPU
-      also  qwen2.5:7b-instruct-q4_K_M   ~9 tok/s est.   5.5 GB  86% GPU
+  Fastest   qwen2.5:3b-instruct-q4_K_M        ~21 tok/s ±15%  2.6 GB  100% GPU
+      also  llama3.2:3b-instruct-q4_K_M       ~20 tok/s ±15%  3.0 GB  100% GPU
+      also  qwen3:1.7b-q8_0                   ~18 tok/s ±15%  3.2 GB  100% GPU
+      also  phi4-mini:3.8b-q4_K_M             ~16 tok/s ±15%  3.6 GB  100% GPU
+  Balanced  qwen2.5:3b-instruct-q4_K_M        ~21 tok/s ±15%  2.6 GB  100% GPU
+      also  llama3.2:3b-instruct-q4_K_M       ~20 tok/s ±15%  3.0 GB  100% GPU
+      also  qwen2.5-coder:3b-instruct-q4_K_M  ~21 tok/s ±15%  2.6 GB  100% GPU
+      also  qwen3:1.7b-q4_K_M                 ~30 tok/s ±15%  2.4 GB  100% GPU
+  Largest   qwen3:8b-q4_K_M                   ~8 tok/s ±40%   6.4 GB  75% GPU
+      also  qwen3:4b-q8_0                     ~9 tok/s ±40%   5.5 GB  86% GPU
+      also  qwen3:4b-q4_K_M                   ~16 tok/s ±15%  3.8 GB  100% GPU
+      also  qwen2.5:7b-instruct-q4_K_M        ~9 tok/s ±40%   5.5 GB  86% GPU
 
 Config for Balanced
   ollama pull qwen2.5:3b-instruct-q4_K_M
@@ -301,6 +301,27 @@ on an M1 with 8 GB, where estimates now land within about 5 percent; other
 chips and NVIDIA or AMD cards are not yet measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
 drivers can be further off. Run `ollama-compat bench` to measure the real
 number on your machine. See `catalog/README.md` for the calibration log.
+
+Each speed carries its expected error, for example `~21 tok/s ±15%`:
+
+| Case | Range |
+|---|---|
+| Apple Silicon, fully on GPU (calibrated) | ±15% |
+| Other GPUs fully on GPU, or CPU only (not yet measured) | ±30% |
+| Partial offload (part GPU, part CPU) | ±40% |
+| Unknown GPU (bandwidth guessed, marked low confidence) | ±50% |
+
+With `--json`, each estimate has `est_tok_s_low`, `est_tok_s_high` and
+`error_pct`.
+
+When twice the memory that limits you (unified memory on a Mac, VRAM on a
+discrete GPU, RAM without a GPU) would unlock a better Largest pick, a line
+under the picks says so, for example
+`With 24 GB VRAM, Largest would be gemma2:27b-instruct-q4_K_M (~20 tok/s ±50%, needs 18.1 GB).`
+It also appears when the current Largest pick would run fully on GPU at
+least 25 percent faster. Bandwidth is kept the same, so on a bandwidth-bound
+machine (such as an 8 GB M1) more memory often unlocks nothing usable and
+the line is left out. `--json` reports it as `near_miss`.
 
 Quality scores in the catalog are maintainer-curated estimates, not benchmark
 results; see `catalog/README.md`.

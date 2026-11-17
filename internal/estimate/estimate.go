@@ -50,6 +50,36 @@ type Estimate struct {
 	TokS          float64
 	Excluded      bool
 	LowConfidence bool
+	ErrPct        int // expected error of TokS in percent, see errPct
+}
+
+// Expected error of the speed estimate, in percent. Metal is calibrated
+// (bench within about 5 percent on an M1); other backends are not yet
+// measured, so they get the README's plus or minus 30 percent target.
+// Partial offload and unknown GPUs (guessed bandwidth) are less predictable.
+const (
+	errCalibrated = 15
+	errDefault    = 30
+	errPartial    = 40
+	errLowConf    = 50
+)
+
+func errPct(backend string, gpuFraction float64, lowConf bool) int {
+	switch {
+	case lowConf:
+		return errLowConf
+	case gpuFraction > 0 && gpuFraction < 1:
+		return errPartial
+	case backend == "metal" && gpuFraction == 1:
+		return errCalibrated
+	}
+	return errDefault
+}
+
+// TokSRange is TokS minus and plus ErrPct.
+func (e Estimate) TokSRange() (low, high float64) {
+	f := float64(e.ErrPct) / 100
+	return e.TokS * (1 - f), e.TokS * (1 + f)
 }
 
 // KVBytes is the KV cache size at ctx tokens (q8_0: 1 byte/elem, f16: 2).
@@ -153,6 +183,7 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 	if t := tGPU + tCPU; t > 0 {
 		e.TokS = 1 / t
 	}
+	e.ErrPct = errPct(g.Backend, e.GPUFraction, e.LowConfidence)
 	return e
 }
 

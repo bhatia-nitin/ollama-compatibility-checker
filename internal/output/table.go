@@ -121,7 +121,17 @@ func fitStr(e estimate.Estimate) string {
 }
 
 func estRow(tw io.Writer, first, indent string, e estimate.Estimate) {
-	fmt.Fprintf(tw, "%s%s\t%s\t~%.0f tok/s est.\t%s\t%s\n", indent, first, e.Variant.Tag, e.TokS, gbStr(e.NeedBytes), fitStr(e))
+	fmt.Fprintf(tw, "%s%s\t%s\t%s\t%s\t%s\n", indent, first, e.Variant.Tag, speedStr(e), gbStr(e.NeedBytes), fitStr(e))
+}
+
+// speedStr is the estimated tok/s with its expected error, e.g. "~21 tok/s ±15%".
+func speedStr(e estimate.Estimate) string {
+	return fmt.Sprintf("~%.0f tok/s ±%d%%", e.TokS, e.ErrPct)
+}
+
+// memLabel rounds a memory size to whole GiB, the way RAM and cards are sold.
+func memLabel(b uint64) string {
+	return fmt.Sprintf("%d GB", (b+1<<29)>>30)
 }
 
 // ConfigTarget is the estimate that Config is built for: Balanced Best, or
@@ -140,7 +150,7 @@ func ConfigTarget(picks []recommend.Pick) *estimate.Estimate {
 }
 
 // RenderRecommend writes Hardware, Recommendations, Config and the bench footer.
-func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg recommend.Config, o recommend.Options, color bool) {
+func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg recommend.Config, o recommend.Options, up *recommend.Upgrade, color bool) {
 	RenderScan(w, h, color)
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, paint(color, ansiBold, recHeader(o)))
@@ -169,6 +179,14 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 		}
 	}
 	tw.Flush()
+	switch {
+	case up != nil && up.FullGPU:
+		fmt.Fprintf(w, "  With %s %s, %s would run fully on GPU (%s).\n",
+			memLabel(up.MemBytes), up.MemKind, up.Largest.Variant.Tag, speedStr(up.Largest))
+	case up != nil:
+		fmt.Fprintf(w, "  With %s %s, Largest would be %s (%s, needs %s).\n",
+			memLabel(up.MemBytes), up.MemKind, up.Largest.Variant.Tag, speedStr(up.Largest), gbStr(up.Largest.NeedBytes))
+	}
 
 	if t := ConfigTarget(picks); t != nil && cfg.PullCmd != "" {
 		heading := "Config for Balanced"
@@ -304,7 +322,7 @@ func RenderCatalog(w io.Writer, ms []catalog.Model) {
 // recHeader is the Recommendations title, naming the task filter when set.
 func recHeader(o recommend.Options) string {
 	if o.Task != "" {
-		return fmt.Sprintf("Recommendations  (ctx %d, estimates, task: %s)", o.Ctx, o.Task)
+		return fmt.Sprintf("Recommendations  (ctx %d, estimates ± expected error, task: %s)", o.Ctx, o.Task)
 	}
-	return fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)
+	return fmt.Sprintf("Recommendations  (ctx %d, estimates ± expected error)", o.Ctx)
 }

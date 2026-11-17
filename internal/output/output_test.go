@@ -91,7 +91,7 @@ func renderRec(t *testing.T, h hw.Hardware, o recommend.Options) string {
 		cfg = recommend.BuildConfig(h, *e, o)
 	}
 	var b bytes.Buffer
-	RenderRecommend(&b, h, picks, cfg, o, false)
+	RenderRecommend(&b, h, picks, cfg, o, recommend.NearMiss(h, testCatalog(t), o, picks), false)
 	return b.String()
 }
 
@@ -111,8 +111,8 @@ func TestRecommendAssertions(t *testing.T) {
 	for name, h := range map[string]hw.Hardware{"gpu": gpuHW(), "cpu": cpuHW(), "slow": slowHW()} {
 		out := renderRec(t, h, opts)
 		for _, line := range strings.Split(out, "\n") {
-			if strings.Contains(line, "~") && strings.Contains(line, "tok/s") && !strings.Contains(line, "tok/s est.") {
-				t.Errorf("%s: tok/s without est.: %q", name, line)
+			if strings.Contains(line, "~") && strings.Contains(line, "tok/s") && !regexp.MustCompile(`tok/s ±\d+%`).MatchString(line) {
+				t.Errorf("%s: tok/s without error range: %q", name, line)
 			}
 		}
 		if strings.ContainsRune(out, 0x2014) {
@@ -251,7 +251,7 @@ func TestMetalNoteOnlyForMetal(t *testing.T) {
 		GPUs: []hw.GPU{{Vendor: "apple", Name: "Apple M1", VRAMBytes: 10 * gb, BandwidthGBs: 68, Backend: "metal", Supported: true}},
 	}
 	got := renderRec(t, mac, opts)
-	if !strings.Contains(got, "Recommendations  (ctx 8192, estimates)\n  "+note+"\n") {
+	if !strings.Contains(got, "Recommendations  (ctx 8192, estimates ± expected error)\n  "+note+"\n") {
 		t.Errorf("metal note missing or misplaced:\n%s", got)
 	}
 	if strings.Contains(renderRec(t, gpuHW(), opts), "calibrated on one M1") {

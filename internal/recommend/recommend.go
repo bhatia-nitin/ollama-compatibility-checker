@@ -14,6 +14,10 @@ import (
 const (
 	fastestMinScore = 40 // keeps toy models out of the Fastest pick
 	largestMinTPS   = 5  // usable but slow
+	// fullGPUGain is the speedup a full-GPU fit must bring to be worth a
+	// near-miss line. On unified memory it is usually small: CPU and GPU
+	// share one memory bus.
+	fullGPUGain = 1.25
 )
 
 // Options controls the picks.
@@ -125,4 +129,70 @@ func pickLargest(cands []estimate.Estimate, o Options) Pick {
 		return unmet("largest", cands, fmt.Sprintf("No model reaches %d tok/s on this hardware; closest shown.", largestMinTPS))
 	}
 	return pickFrom("largest", set, byScore, o.Top, "")
+}
+
+// Upgrade is the Largest pick this machine would get with twice the memory
+// that limits it: unified memory on Apple Silicon, VRAM on a discrete GPU,
+// RAM when there is no GPU.
+type Upgrade struct {
+	MemBytes uint64 // the doubled memory size
+	MemKind  string // "unified memory" | "VRAM" | "RAM"
+	Largest  estimate.Estimate
+	// FullGPU is set when Largest is the current Largest model, which would
+	// move from partial offload to running fully on GPU.
+	FullGPU bool
+}
+
+// NearMiss returns the Upgrade when doubling memory unlocks a higher-scoring
+// Largest pick, or lets the current one run fully on GPU; else nil.
+func NearMiss(h hw.Hardware, ms []catalog.Model, o Options, current []Pick) *Upgrade {
+	up, kind, size := doubled(h)
+	var cur *estimate.Estimate
+	for _, p := range current {
+		if p.Kind == "largest" && p.Met {
+			cur = p.Best
+		}
+	}
+	for _, p := range Recommend(up, ms, o) {
+		if p.Kind != "largest" || !p.Met {
+			continue
+		}
+		switch {
+		case cur == nil || Score(*p.Best) > Score(*cur):
+			return &Upgrade{MemBytes: size, MemKind: kind, Largest: *p.Best}
+		case p.Best.Variant.Tag == cur.Variant.Tag && cur.GPUFraction < 1 && p.Best.GPUFraction == 1 &&
+			p.Best.TokS >= fullGPUGain*cur.TokS:
+			return &Upgrade{MemBytes: size, MemKind: kind, Largest: *p.Best, FullGPU: true}
+		}
+	}
+	return nil
+}
+
+// doubled copies h with its limiting memory pool doubled. Bandwidth is kept.
+func doubled(h hw.Hardware) (hw.Hardware, string, uint64) {
+	up := h
+	up.GPUs = append([]hw.GPU(nil), h.GPUs...)
+	gi := -1
+	for i, g := range up.GPUs {
+		if g.Supported {
+			gi = i
+			break
+		}
+	}
+	switch {
+	case h.UnifiedMemory:
+		up.RAMBytes *= 2
+		if gi >= 0 {
+			up.GPUs[gi].VRAMBytes *= 2
+			up.GPUs[gi].FreeVRAMBytes = 0
+		}
+		return up, "unified memory", up.RAMBytes
+	case gi >= 0:
+		up.GPUs[gi].VRAMBytes *= 2
+		up.GPUs[gi].FreeVRAMBytes = 0
+		return up, "VRAM", up.GPUs[gi].VRAMBytes
+	default:
+		up.RAMBytes *= 2
+		return up, "RAM", up.RAMBytes
+	}
 }
