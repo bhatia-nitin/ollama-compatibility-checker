@@ -1,5 +1,14 @@
 # ollama-compat
 
+[![CI](https://github.com/shra26/ollama-compatibility-checker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/shra26/ollama-compatibility-checker/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/shra26/ollama-compatibility-checker)](https://github.com/shra26/ollama-compatibility-checker/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/shra26/ollama-compatibility-checker/total)](https://github.com/shra26/ollama-compatibility-checker/releases)
+[![Go](https://img.shields.io/github/go-mod/go-version/shra26/ollama-compatibility-checker)](go.mod)
+[![License: MIT](https://img.shields.io/github/license/shra26/ollama-compatibility-checker)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-blue)](#install)
+[![Homebrew](https://img.shields.io/badge/brew-shra26%2Ftap-orange)](#homebrew-macos-linux)
+[![Telemetry: none](https://img.shields.io/badge/telemetry-none-brightgreen)](#privacy)
+
 Find out which Ollama models your machine can run, and how fast.
 
 https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
