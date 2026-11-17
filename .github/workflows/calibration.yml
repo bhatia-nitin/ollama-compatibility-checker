@@ -1,0 +1,107 @@
+# Turns a calibration issue into a pull request that adds the record to
+# calibration/data and refits internal/calib/factors.json. Nothing is merged
+# automatically: review the PR and merge it yourself.
+#
+# The issue body is untrusted. It reaches the job only through an environment
+# variable and a file, is parsed by scripts/add-calibration (JSON only, unknown
+# fields rejected), and is written back from the parsed struct.
+#
+# Needs: Settings > Actions > General > "Allow GitHub Actions to create and
+# approve pull requests". PRs opened with GITHUB_TOKEN do not trigger the ci
+# workflow, so this job runs the tests itself before opening the PR.
+name: calibration
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: calibration-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  add-record:
+    if: github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'calibration')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ISSUE: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Save issue body
+        env:
+          BODY: ${{ github.event.issue.body }}
+        run: printf '%s' "$BODY" > "$RUNNER_TEMP/body.md"
+
+      - name: Read the record
+        id: add
+        run: |
+          if path=$(go run ./scripts/add-calibration -body "$RUNNER_TEMP/body.md" -issue "$ISSUE" 2> "$RUNNER_TEMP/err.txt"); then
+            echo "path=$path" >> "$GITHUB_OUTPUT"
+          else
+            echo "failed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Explain what went wrong
+        if: steps.add.outputs.failed == 'true'
+        run: |
+          {
+            echo "Thanks for measuring! I could not read a calibration record from this issue:"
+            echo
+            echo '```'
+            head -c 2000 "$RUNNER_TEMP/err.txt"
+            echo
+            echo '```'
+            echo
+            echo 'Please edit the issue and paste the whole file that `ollama-compat bench --share` saved. I will try again automatically.'
+          } > "$RUNNER_TEMP/comment.md"
+          gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/comment.md"
+          exit 1
+
+      - name: Refit and test
+        run: |
+          go run ./scripts/fit-calibration 2> "$RUNNER_TEMP/fit.txt"
+          cat "$RUNNER_TEMP/fit.txt"
+          go test ./...
+
+      - name: Open or update the pull request
+        env:
+          RECORD: ${{ steps.add.outputs.path }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+        run: |
+          branch="calibration/issue-$ISSUE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add "$RECORD" internal/calib/factors.json
+          git commit -m "calibration: add record from #$ISSUE"
+          git push --force origin "$branch"
+          {
+            echo "Adds the calibration record from #$ISSUE (shared by @$AUTHOR) and refits the speed factors."
+            echo
+            echo "Fit after this record:"
+            echo '```'
+            cat "$RUNNER_TEMP/fit.txt"
+            echo '```'
+            echo
+            echo "\`go test ./...\` passed in the calibration workflow (PRs opened by Actions do not trigger the ci workflow)."
+            echo "Check the record for signs of memory pressure (a speed far below the estimate) before merging."
+            echo
+            echo "Closes #$ISSUE"
+          } > "$RUNNER_TEMP/pr.md"
+          if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --body-file "$RUNNER_TEMP/pr.md"
+            gh issue comment "$ISSUE" --body "Updated the pull request with your edited record. Thanks!"
+          else
+            url=$(gh pr create --head "$branch" --base main --title "calibration: add record from #$ISSUE" --body-file "$RUNNER_TEMP/pr.md")
+            gh issue comment "$ISSUE" --body "Thanks! Your record is valid and is in $url. It will be part of the next release once merged."
+          fi

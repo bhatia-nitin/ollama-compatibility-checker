@@ -19,10 +19,16 @@ Backends with no data keep the default factor and `±30%`.
 
 ## Adding a record (maintainers)
 
-1. Copy the JSON from the issue to `data/YYYY-MM-DD-<chip>-<memory>.json`,
-   for example `data/2026-11-17-apple-m1-8gb.json`.
-2. Run `go run ./scripts/fit-calibration` and commit both the record and the
-   updated `internal/calib/factors.json`.
+Automatic: when a `calibration` issue is opened or edited, the
+`calibration` workflow parses the pasted JSON with `scripts/add-calibration`
+(unknown fields, implausible numbers and markup are rejected), saves it as
+`data/YYYY-MM-DD-<hardware>-<ram>gb-issue<N>.json`, refits, runs the tests and
+opens a pull request that closes the issue. If the record cannot be read, it
+comments on the issue with the reason. Review the PR (watch for speeds far
+below the estimate, a sign of memory pressure) and merge it.
+
+Manual: copy the JSON to `data/`, run `go run ./scripts/fit-calibration`,
+and commit the record and `internal/calib/factors.json` together.
 
 `go test ./...` (and so CI) fails if `factors.json` does not match a fresh fit
 of `data/`, or if any record is malformed.
