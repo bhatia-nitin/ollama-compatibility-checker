@@ -45,7 +45,7 @@ megadolphin
 
 # Baseline 2026-11-17: library models that existed when the check was added
 # and were reviewed and not tracked. Delete a line to have it reported again.
-# Left out on purpose (still reported, worth adding): cogito-2.1, devstral-small-2, gemma3n, gemma4, glm-4.7-flash, granite4, granite4.1, granite4.2, lfm2, lfm2.5, lfm3, llama4, ministral-3, mistral-small3.1, nemotron-3-nano, olmo-3, olmo-3.1, qwen3-next, qwen3.5, qwen3.6, qwen3.8, smollm2
+# Left out on purpose (still reported, worth adding): cogito-2.1, devstral-small-2, gemma3n, glm-4.7-flash, granite4, granite4.1, granite4.2, lfm2, lfm2.5, lfm3, llama4, ministral-3, mistral-small3.1, nemotron-3-nano, olmo-3, olmo-3.1, qwen3-next, qwen3.6, qwen3.8, smollm2
 alfred
 athene-v2
 autotrust-jev
@@ -376,3 +376,17 @@ qwen3:235b-a22b-q4_K_M
 qwen3:235b-a22b-q8_0
 qwen3:235b-a22b-thinking-2507-q4_K_M
 qwen3:235b-a22b-thinking-2507-q8_0
+
+# 2026-11-17: Gemma 4 and Qwen3.5 tags not added. MTP builds bundle a draft
+# model for speculative decoding; 122B is beyond the catalog's size range.
+gemma4:26b-a4b-it-mtp-q4_K_M
+qwen3.5:0.8b-mtp-q8_0
+qwen3.5:122b-a10b-q4_K_M
+qwen3.5:27b-mtp-q4_K_M
+qwen3.5:2b-mtp-q4_K_M
+qwen3.5:2b-mtp-q8_0
+qwen3.5:35b-a3b-mtp-q4_K_M
+qwen3.5:4b-mtp-q4_K_M
+qwen3.5:4b-mtp-q8_0
+qwen3.5:9b-mtp-q4_K_M
+qwen3.5:9b-mtp-q8_0

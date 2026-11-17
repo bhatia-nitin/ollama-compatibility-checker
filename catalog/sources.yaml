@@ -550,3 +550,106 @@
   tags:
     - "qwen3-vl:32b-instruct-q4_K_M"
     - "qwen3-vl:32b-instruct-q8_0"
+
+- family: gemma4
+  name: "Gemma 4 E2B"
+  params_b: 4.6
+  active_params_b: 2.0  # effective size; per-layer embeddings are looked up, not streamed
+  quality: 50
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "gemma4:e2b-it-q4_K_M"
+    - "gemma4:e2b-it-q8_0"
+- family: gemma4
+  name: "Gemma 4 E4B"
+  params_b: 7.5
+  active_params_b: 4.0  # effective size; per-layer embeddings are looked up, not streamed
+  quality: 64
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "gemma4:e4b-it-q4_K_M"
+    - "gemma4:e4b-it-q8_0"
+- family: gemma4
+  name: "Gemma 4 12B"
+  params_b: 12
+  quality: 78
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "gemma4:12b-it-q4_K_M"
+    - "gemma4:12b-it-q8_0"
+- family: gemma4
+  name: "Gemma 4 26B A4B (MoE)"
+  params_b: 26
+  active_params_b: 4.0  # from the model name
+  quality: 84
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "gemma4:26b-a4b-it-q4_K_M"
+    - "gemma4:26b-a4b-it-q8_0"
+- family: gemma4
+  name: "Gemma 4 31B"
+  params_b: 31
+  quality: 90
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "gemma4:31b-it-q4_K_M"
+    - "gemma4:31b-it-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 0.8B"
+  params_b: 0.75
+  quality: 30
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:0.8b-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 2B"
+  params_b: 1.9
+  quality: 46
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:2b-q4_K_M"
+    - "qwen3.5:2b-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 4B"
+  params_b: 4.2
+  quality: 66
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:4b-q4_K_M"
+    - "qwen3.5:4b-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 27B"
+  params_b: 27
+  quality: 90
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:27b-q4_K_M"
+    - "qwen3.5:27b-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 35B A3B (MoE)"
+  params_b: 35
+  active_params_b: 3.0  # from the model name
+  quality: 88
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:35b-a3b-q4_K_M"
+    - "qwen3.5:35b-a3b-q8_0"
+- family: qwen3.5
+  name: "Qwen3.5 9B"
+  params_b: 9.0
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.5:9b-q4_K_M"
+    - "qwen3.5:9b-q8_0"

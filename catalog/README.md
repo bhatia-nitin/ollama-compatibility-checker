@@ -151,7 +151,37 @@ Mini Reasoning 3.8B, the DeepSeek-R1 0528 Qwen3 8B distill, Qwen2.5-VL 3B,
 are maintainer-curated estimates on the same scale. Known approximations:
 gpt-oss alternates sliding-window and full attention, so its KV cache is
 overstated (conservative); `gpt-oss:20b` has no quant suffix and is marked
-`mxfp4` through the `quant` field. Newer families with hybrid attention
-(for example Mamba or linear-attention layers) are left out until the KV
-cache formula handles them.
+`mxfp4` through the `quant` field. Hybrid-attention families are handled since the
+Gemma 4 and Qwen3.5 additions below.
+
+## Gemma 4 and Qwen3.5 (2026-11-17)
+
+Gemma 4 (E2B, E4B, 12B, 26B A4B, 31B) and Qwen3.5 (0.8B, 2B, 4B, 9B, 27B,
+35B A3B) use hybrid attention, so `gen-catalog` now reads the KV layout from
+the GGUF instead of assuming every layer caches every token:
+
+| Field | Meaning | From |
+|---|---|---|
+| `kv_full_elems` | K+V elements per token in layers whose cache grows with the context | per-layer `head_count_kv`, `key_length`, `value_length`; skips recurrent and shared-KV layers |
+| `kv_swa_elems`, `swa_window` | same for sliding-window layers, capped at the window | `sliding_window_pattern`, `key_length_swa`, `sliding_window` |
+| `state_bytes` | fixed memory for recurrent (gated delta net) layers | `ssm.*` sizes x recurrent layers x 25 copies |
+| `variants[].extra_bytes` | vision projector, loaded with the model but not read per token | the manifest's projector layer |
+
+Models without these GGUF keys keep the plain formula and are unchanged.
+Gemma 3 and Qwen3-VL 2B to 30B gained `extra_bytes` (their projector, about
+0.85 GB, was not counted before).
+
+Checked against Ollama 0.24.0 on an M1 8 GB with qwen3.5:4b: its KV cache
+grew 32 KB per token from 2K to 32K context, matching `kv_full_elems` at f16,
+on top of a fixed 1.25 GiB that matches `state_bytes` (Ollama keeps about 25
+checkpoint copies of the recurrent state). Ollama also reported 0.3 to 0.7 GB
+more compute graph than the 0.5 GB runtime overhead allows for, so hybrid and
+vision models can need somewhat more memory than estimated. Gemma 4's
+sliding-window layout is computed the same way but not yet measured.
+
+Quality scores for both families are provisional estimates: they are newer
+than the benchmark data the maintainer scored the rest of the catalog with.
+Active parameters for the E-models are their effective sizes (per-layer
+embeddings are looked up, not streamed), and for the MoE models come from
+the model names (A4B, A3B).
 

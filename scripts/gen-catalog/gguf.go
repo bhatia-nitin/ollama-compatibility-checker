@@ -35,8 +35,14 @@ type ggufArrayInfo struct {
 	Len      uint64
 }
 
+// maxKeptArray is the longest integer or bool array kept in ggufMeta; longer
+// arrays (vocabularies, merges) are skipped. Per-layer arrays are short.
+const maxKeptArray = 4096
+
 // ggufMeta is the decoded key/value header. Unsigned integers are stored as
-// uint64, signed as int64, floats as float64; arrays as ggufArrayInfo.
+// uint64, signed as int64, floats as float64. Integer and bool arrays up to
+// maxKeptArray elements are kept as []int64 (bool as 0 or 1); other arrays
+// are skipped and recorded as ggufArrayInfo.
 type ggufMeta struct {
 	Version uint32
 	KV      map[string]any
@@ -53,6 +59,12 @@ func (m ggufMeta) Uint(key string) (uint64, bool) {
 		}
 	}
 	return 0, false
+}
+
+// Ints returns an integer or bool array value.
+func (m ggufMeta) Ints(key string) ([]int64, bool) {
+	v, ok := m.KV[key].([]int64)
+	return v, ok
 }
 
 // String returns a string value.
@@ -208,6 +220,30 @@ func (g ggufReader) skipArray(elem uint32, n uint64) error {
 	return g.skip(n * size)
 }
 
+// intLike reports whether t is an integer or bool type.
+func intLike(t uint32) bool {
+	switch t {
+	case ggufUint8, ggufInt8, ggufUint16, ggufInt16, ggufUint32, ggufInt32, ggufUint64, ggufInt64, ggufBool:
+		return true
+	}
+	return false
+}
+
+// toInt converts a decoded integer or bool scalar to int64.
+func toInt(v any) int64 {
+	switch x := v.(type) {
+	case uint64:
+		return int64(x)
+	case int64:
+		return x
+	case bool:
+		if x {
+			return 1
+		}
+	}
+	return 0
+}
+
 // parseGGUF decodes the GGUF (v2 or v3, little endian) key/value header.
 // If the input ends early it returns the keys decoded so far together with
 // an error wrapping io.ErrUnexpectedEOF, so callers can retry with more bytes.
@@ -261,6 +297,18 @@ func parseGGUF(r io.Reader) (ggufMeta, error) {
 			if err != nil {
 				return fail(err)
 			}
+			if intLike(et) && n <= maxKeptArray {
+				vals := make([]int64, n)
+				for j := range vals {
+					x, err := g.scalar(et)
+					if err != nil {
+						return fail(err)
+					}
+					vals[j] = toInt(x)
+				}
+				meta.KV[key] = vals
+				continue
+			}
 			if err := g.skipArray(et, n); err != nil {
 				return fail(err)
 			}
@@ -286,7 +334,21 @@ type archInfo struct {
 	ExpertCount int
 	ExpertUsed  int
 	FileType    uint64
+	// Set only for hybrid or sliding-window attention (see kvSplit): K+V
+	// elements per token in layers whose cache grows with the context, and in
+	// sliding-window layers whose cache stops at SWAWindow tokens.
+	KVFullElems int
+	KVSWAElems  int
+	SWAWindow   int
+	// StateBytes is fixed memory for recurrent layers (see recurrentState).
+	StateBytes uint64
 }
+
+// ollamaStateCopies is how many copies of the recurrent state Ollama keeps
+// (it checkpoints the state for prompt caching). Measured on Ollama 0.24.0
+// with qwen3.5:4b: a fixed 1.25 GiB at every context length, which is 25
+// copies of the 50 MiB state the GGUF describes.
+const ollamaStateCopies = 25
 
 // archInfoFrom extracts the architecture fields, keyed by general.architecture.
 // head_dim is attention.key_length, else embedding_length / head_count.
@@ -314,9 +376,15 @@ func archInfoFrom(m ggufMeta) (archInfo, error) {
 			info.HeadDim = get("embedding_length") / heads
 		}
 	}
+	if kvh, ok := m.Ints(arch + ".attention.head_count_kv"); ok { // per-layer
+		for _, h := range kvh {
+			info.KVHeads = max(info.KVHeads, int(h))
+		}
+	}
 	if info.KVHeads == 0 { // head_count_kv absent means no GQA
 		info.KVHeads = get("attention.head_count")
 	}
+	kvSplit(m, arch, &info)
 	missing := ""
 	switch {
 	case info.Layers == 0:
@@ -342,4 +410,75 @@ var fileTypeNames = map[uint64]string{
 	22: "iq3_xs", 23: "iq3_xxs", 24: "iq1_s", 25: "iq4_nl", 26: "iq3_s", 27: "iq3_m",
 	28: "iq2_s", 29: "iq2_m", 30: "iq4_xs", 31: "iq1_m", 32: "bf16", 36: "tq1_0",
 	37: "tq2_0", 38: "mxfp4",
+}
+
+// kvSplit fills the KV fields for models whose cache is not simply
+// layers x kv_heads x head_dim: per-layer KV head counts, sliding-window
+// layers (attention.sliding_window_pattern, true = sliding), recurrent layers
+// with a fixed-size state instead of a KV cache (attention.recurrent_layers,
+// or every layer but each full_attention_interval-th), and trailing layers
+// that reuse an earlier layer's cache (attention.shared_kv_layers). Models
+// with none of these keys keep the plain formula and get zeros here.
+func kvSplit(m ggufMeta, arch string, info *archInfo) {
+	k := func(s string) string { return arch + "." + s }
+	get := func(s string) int { v, _ := m.Uint(k(s)); return int(v) }
+	kvhArr, perLayer := m.Ints(k("attention.head_count_kv"))
+	swaPat, hasSWA := m.Ints(k("attention.sliding_window_pattern"))
+	rec, hasRec := m.Ints(k("attention.recurrent_layers"))
+	interval := get("full_attention_interval")
+	shared := get("attention.shared_kv_layers")
+	window := get("attention.sliding_window")
+	if !perLayer && !hasSWA && !hasRec && interval == 0 && shared == 0 {
+		return
+	}
+	L := info.Layers
+	kl, vl := info.HeadDim, get("attention.value_length")
+	if vl == 0 {
+		vl = kl
+	}
+	ks, vs := get("attention.key_length_swa"), get("attention.value_length_swa")
+	if ks == 0 {
+		ks = kl
+	}
+	if vs == 0 {
+		vs = ks
+	}
+	at := func(a []int64, i int) int64 {
+		if i < len(a) {
+			return a[i]
+		}
+		return 0
+	}
+	recurrentLayers := 0
+	for i := 0; i < L-shared; i++ {
+		recurrent := at(rec, i) == 1 || (!hasRec && interval > 0 && (i+1)%interval != 0)
+		if recurrent {
+			recurrentLayers++
+			continue
+		}
+		heads := info.KVHeads
+		if perLayer && i < len(kvhArr) {
+			heads = int(kvhArr[i])
+		}
+		if at(swaPat, i) == 1 && window > 0 {
+			info.KVSWAElems += heads * (ks + vs)
+		} else {
+			info.KVFullElems += heads * (kl + vl)
+		}
+	}
+	if info.KVSWAElems > 0 {
+		info.SWAWindow = window
+	}
+	info.StateBytes = uint64(recurrentLayers) * recurrentState(get) * ollamaStateCopies
+}
+
+// recurrentState is the f32 state of one gated-delta-net / Mamba-style
+// layer: the conv window, (conv_kernel-1) x (inner + 2 x groups x state),
+// plus the recurrent matrix, state_size x inner.
+func recurrentState(get func(string) int) uint64 {
+	k, inner, groups, state := get("ssm.conv_kernel"), get("ssm.inner_size"), get("ssm.group_count"), get("ssm.state_size")
+	if k == 0 || inner == 0 || state == 0 {
+		return 0
+	}
+	return 4 * uint64((k-1)*(inner+2*groups*state)+state*inner)
 }

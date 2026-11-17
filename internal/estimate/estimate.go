@@ -87,10 +87,16 @@ func (e Estimate) TokSRange() (low, high float64) {
 }
 
 // KVBytes is the KV cache size at ctx tokens (q8_0: 1 byte/elem, f16: 2).
+// Hybrid and sliding-window models use their recorded layout: full layers
+// grow with ctx, sliding-window layers stop at the window.
 func KVBytes(m catalog.Model, ctx int, q8 bool) uint64 {
 	per := uint64(2)
 	if q8 {
 		per = 1
+	}
+	if m.KVFullElems > 0 || m.KVSWAElems > 0 {
+		swaCtx := min(ctx, m.SWAWindow)
+		return (uint64(m.KVFullElems)*uint64(ctx) + uint64(m.KVSWAElems)*uint64(swaCtx)) * per
 	}
 	return 2 * uint64(m.Layers) * uint64(m.KVHeads) * uint64(m.HeadDim) * uint64(ctx) * per
 }
@@ -153,7 +159,7 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 		e.LowConfidence = g.BandwidthLowConfidence
 	}
 	kv := KVBytes(m, e.Ctx, e.KVQuant)
-	e.NeedBytes = v.SizeBytes + kv + runtimeOverhead
+	e.NeedBytes = v.SizeBytes + v.ExtraBytes + m.StateBytes + kv + runtimeOverhead
 	usable := UsableVRAM(h)
 
 	switch {
@@ -162,7 +168,13 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 	case e.NeedBytes <= usable:
 		e.GPUFraction, e.NumGPU = 1, 99
 	default:
-		e.NumGPU = NumGPULayers(m, v, usable, kv)
+		room := usable // the projector sits on the GPU before any layer
+		if v.ExtraBytes < room {
+			room -= v.ExtraBytes
+		} else {
+			room = 0
+		}
+		e.NumGPU = NumGPULayers(m, v, room, kv)
 		e.GPUFraction = float64(e.NumGPU) / float64(m.Layers)
 	}
 

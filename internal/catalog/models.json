@@ -325,13 +325,15 @@
         "tag": "gemma3:4b-it-q4_K_M",
         "size_bytes": 2499012288,
         "bits": 4.65,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 851251104
       },
       {
         "tag": "gemma3:4b-it-q8_0",
         "size_bytes": 4139481376,
         "bits": 7.7,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 851251104
       }
     ]
   },
@@ -354,13 +356,15 @@
         "tag": "gemma3:12b-it-q4_K_M",
         "size_bytes": 7309830496,
         "bits": 4.79,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 854200224
       },
       {
         "tag": "gemma3:12b-it-q8_0",
         "size_bytes": 12519206144,
         "bits": 8.21,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 854200224
       }
     ]
   },
@@ -383,13 +387,189 @@
         "tag": "gemma3:27b-it-q4_K_M",
         "size_bytes": 16555661472,
         "bits": 4.83,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 857739168
       },
       {
         "tag": "gemma3:27b-it-q8_0",
         "size_bytes": 28716862912,
         "bits": 8.38,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 857739168
+      }
+    ]
+  },
+  {
+    "family": "gemma4",
+    "name": "Gemma 4 E2B",
+    "params_b": 4.6,
+    "active_params_b": 2,
+    "layers": 35,
+    "kv_heads": 1,
+    "head_dim": 512,
+    "max_ctx": 131072,
+    "quality": 50,
+    "kv_quant_ok": true,
+    "kv_full_elems": 3072,
+    "kv_swa_elems": 6144,
+    "swa_window": 512,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gemma4:e2b-it-q4_K_M",
+        "size_bytes": 3502493472,
+        "bits": 6.09,
+        "quant": "q4_K_M",
+        "extra_bytes": 986833664
+      },
+      {
+        "tag": "gemma4:e2b-it-q8_0",
+        "size_bytes": 4967497152,
+        "bits": 8.64,
+        "quant": "q8_0",
+        "extra_bytes": 986833664
+      }
+    ]
+  },
+  {
+    "family": "gemma4",
+    "name": "Gemma 4 E4B",
+    "params_b": 7.5,
+    "active_params_b": 4,
+    "layers": 42,
+    "kv_heads": 2,
+    "head_dim": 512,
+    "max_ctx": 131072,
+    "quality": 64,
+    "kv_quant_ok": true,
+    "kv_full_elems": 8192,
+    "kv_swa_elems": 20480,
+    "swa_window": 512,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gemma4:e4b-it-q4_K_M",
+        "size_bytes": 5493439296,
+        "bits": 5.86,
+        "quant": "q4_K_M",
+        "extra_bytes": 991552256
+      },
+      {
+        "tag": "gemma4:e4b-it-q8_0",
+        "size_bytes": 8031242688,
+        "bits": 8.57,
+        "quant": "q8_0",
+        "extra_bytes": 991552256
+      }
+    ]
+  },
+  {
+    "family": "gemma4",
+    "name": "Gemma 4 12B",
+    "params_b": 12,
+    "active_params_b": 12,
+    "layers": 48,
+    "kv_heads": 8,
+    "head_dim": 512,
+    "max_ctx": 262144,
+    "quality": 78,
+    "kv_quant_ok": true,
+    "kv_full_elems": 8192,
+    "kv_swa_elems": 163840,
+    "swa_window": 1024,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gemma4:12b-it-q4_K_M",
+        "size_bytes": 7381383680,
+        "bits": 4.92,
+        "quant": "q4_K_M",
+        "extra_bytes": 175115616
+      },
+      {
+        "tag": "gemma4:12b-it-q8_0",
+        "size_bytes": 12669645728,
+        "bits": 8.45,
+        "quant": "q8_0",
+        "extra_bytes": 175115584
+      }
+    ]
+  },
+  {
+    "family": "gemma4",
+    "name": "Gemma 4 26B A4B (MoE)",
+    "params_b": 26,
+    "active_params_b": 4,
+    "layers": 30,
+    "kv_heads": 8,
+    "head_dim": 512,
+    "max_ctx": 262144,
+    "quality": 84,
+    "kv_quant_ok": true,
+    "kv_full_elems": 10240,
+    "kv_swa_elems": 102400,
+    "swa_window": 1024,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gemma4:26b-a4b-it-q4_K_M",
+        "size_bytes": 17987569344,
+        "bits": 5.53,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "gemma4:26b-a4b-it-q8_0",
+        "size_bytes": 26859860992,
+        "bits": 8.26,
+        "quant": "q8_0",
+        "extra_bytes": 1194828160
+      }
+    ]
+  },
+  {
+    "family": "gemma4",
+    "name": "Gemma 4 31B",
+    "params_b": 31,
+    "active_params_b": 31,
+    "layers": 60,
+    "kv_heads": 16,
+    "head_dim": 512,
+    "max_ctx": 262144,
+    "quality": 90,
+    "kv_quant_ok": true,
+    "kv_full_elems": 40960,
+    "kv_swa_elems": 409600,
+    "swa_window": 1024,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gemma4:31b-it-q4_K_M",
+        "size_bytes": 18670033120,
+        "bits": 4.82,
+        "quant": "q4_K_M",
+        "extra_bytes": 1200726368
+      },
+      {
+        "tag": "gemma4:31b-it-q8_0",
+        "size_bytes": 32635676896,
+        "bits": 8.42,
+        "quant": "q8_0",
+        "extra_bytes": 1200726368
       }
     ]
   },
@@ -1555,13 +1735,15 @@
         "tag": "qwen3-vl:2b-instruct-q4_K_M",
         "size_bytes": 1108016576,
         "bits": 4.16,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 822540352
       },
       {
         "tag": "qwen3-vl:2b-instruct-q8_0",
         "size_bytes": 1835034048,
         "bits": 6.89,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 822540352
       }
     ]
   },
@@ -1584,13 +1766,15 @@
         "tag": "qwen3-vl:4b-instruct-q4_K_M",
         "size_bytes": 2497888288,
         "bits": 4.5,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 839325760
       },
       {
         "tag": "qwen3-vl:4b-instruct-q8_0",
         "size_bytes": 4281012768,
         "bits": 7.71,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 839325760
       }
     ]
   },
@@ -1613,13 +1797,15 @@
         "tag": "qwen3-vl:8b-instruct-q4_K_M",
         "size_bytes": 5028391520,
         "bits": 4.59,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 1162568672
       },
       {
         "tag": "qwen3-vl:8b-instruct-q8_0",
         "size_bytes": 8710126176,
         "bits": 7.95,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 1162568672
       }
     ]
   },
@@ -1642,13 +1828,15 @@
         "tag": "qwen3-vl:30b-a3b-instruct-q4_K_M",
         "size_bytes": 18557293888,
         "bits": 4.77,
-        "quant": "q4_K_M"
+        "quant": "q4_K_M",
+        "extra_bytes": 1087038432
       },
       {
         "tag": "qwen3-vl:30b-a3b-instruct-q8_0",
         "size_bytes": 32484539712,
         "bits": 8.36,
-        "quant": "q8_0"
+        "quant": "q8_0",
+        "extra_bytes": 1087038432
       }
     ]
   },
@@ -1678,6 +1866,203 @@
         "size_bytes": 35976227872,
         "bits": 8.62,
         "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 0.8B",
+    "params_b": 0.75,
+    "active_params_b": 0.75,
+    "layers": 24,
+    "kv_heads": 2,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 30,
+    "kv_quant_ok": true,
+    "kv_full_elems": 6144,
+    "state_bytes": 505036800,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:0.8b-q8_0",
+        "size_bytes": 811843520,
+        "bits": 8.66,
+        "quant": "q8_0",
+        "extra_bytes": 207346304
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 2B",
+    "params_b": 1.9,
+    "active_params_b": 1.9,
+    "layers": 24,
+    "kv_heads": 2,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 46,
+    "kv_quant_ok": true,
+    "kv_full_elems": 6144,
+    "state_bytes": 505036800,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:2b-q4_K_M",
+        "size_bytes": 1274396992,
+        "bits": 5.37,
+        "quant": "q4_K_M",
+        "extra_bytes": 671372768
+      },
+      {
+        "tag": "qwen3.5:2b-q8_0",
+        "size_bytes": 2012012448,
+        "bits": 8.47,
+        "quant": "q8_0",
+        "extra_bytes": 671372768
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 4B",
+    "params_b": 4.2,
+    "active_params_b": 4.2,
+    "layers": 32,
+    "kv_heads": 4,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 66,
+    "kv_quant_ok": true,
+    "kv_full_elems": 16384,
+    "state_bytes": 1317273600,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:4b-q4_K_M",
+        "size_bytes": 2648593216,
+        "bits": 5.04,
+        "quant": "q4_K_M",
+        "extra_bytes": 675569120
+      },
+      {
+        "tag": "qwen3.5:4b-q8_0",
+        "size_bytes": 4482403136,
+        "bits": 8.54,
+        "quant": "q8_0",
+        "extra_bytes": 675569120
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 9B",
+    "params_b": 9,
+    "active_params_b": 9,
+    "layers": 32,
+    "kv_heads": 4,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "kv_full_elems": 16384,
+    "state_bytes": 1317273600,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:9b-q4_K_M",
+        "size_bytes": 5629109120,
+        "bits": 5,
+        "quant": "q4_K_M",
+        "extra_bytes": 921704832
+      },
+      {
+        "tag": "qwen3.5:9b-q8_0",
+        "size_bytes": 9527501696,
+        "bits": 8.47,
+        "quant": "q8_0",
+        "extra_bytes": 921704832
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 27B",
+    "params_b": 27,
+    "active_params_b": 27,
+    "layers": 64,
+    "kv_heads": 4,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 90,
+    "kv_quant_ok": true,
+    "kv_full_elems": 32768,
+    "state_bytes": 3922329600,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:27b-q4_K_M",
+        "size_bytes": 16547399008,
+        "bits": 4.9,
+        "quant": "q4_K_M",
+        "extra_bytes": 931145984
+      },
+      {
+        "tag": "qwen3.5:27b-q8_0",
+        "size_bytes": 29048075200,
+        "bits": 8.61,
+        "quant": "q8_0",
+        "extra_bytes": 931145568
+      }
+    ]
+  },
+  {
+    "family": "qwen3.5",
+    "name": "Qwen3.5 35B A3B (MoE)",
+    "params_b": 35,
+    "active_params_b": 3,
+    "layers": 40,
+    "kv_heads": 2,
+    "head_dim": 256,
+    "max_ctx": 262144,
+    "quality": 88,
+    "kv_quant_ok": true,
+    "kv_full_elems": 10240,
+    "state_bytes": 1646592000,
+    "tasks": [
+      "vision",
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3.5:35b-a3b-q4_K_M",
+        "size_bytes": 21166758176,
+        "bits": 4.84,
+        "quant": "q4_K_M",
+        "extra_bytes": 902822400
+      },
+      {
+        "tag": "qwen3.5:35b-a3b-q8_0",
+        "size_bytes": 37802973248,
+        "bits": 8.64,
+        "quant": "q8_0",
+        "extra_bytes": 902821728
       }
     ]
   }

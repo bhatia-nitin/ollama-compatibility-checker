@@ -23,22 +23,35 @@ type Variant struct {
 	SizeBytes uint64  `json:"size_bytes"`
 	Bits      float64 `json:"bits"`
 	Quant     string  `json:"quant"`
+	// ExtraBytes is loaded with the model but not read per token, such as a
+	// vision projector.
+	ExtraBytes uint64 `json:"extra_bytes,omitempty"`
 }
 
 // Model is one catalog entry with the architecture facts the estimator needs.
 type Model struct {
-	Family        string    `json:"family"`
-	Name          string    `json:"name"`
-	ParamsB       float64   `json:"params_b"`
-	ActiveParamsB float64   `json:"active_params_b"`
-	Layers        int       `json:"layers"`
-	KVHeads       int       `json:"kv_heads"`
-	HeadDim       int       `json:"head_dim"`
-	MaxCtx        int       `json:"max_ctx"`
-	Quality       int       `json:"quality"`
-	KVQuantOK     bool      `json:"kv_quant_ok"`
-	Tasks         []string  `json:"tasks,omitempty"` // subset of Tasks
-	Variants      []Variant `json:"variants"`
+	Family        string  `json:"family"`
+	Name          string  `json:"name"`
+	ParamsB       float64 `json:"params_b"`
+	ActiveParamsB float64 `json:"active_params_b"`
+	Layers        int     `json:"layers"`
+	KVHeads       int     `json:"kv_heads"`
+	HeadDim       int     `json:"head_dim"`
+	MaxCtx        int     `json:"max_ctx"`
+	Quality       int     `json:"quality"`
+	KVQuantOK     bool    `json:"kv_quant_ok"`
+	// KV cache layout for hybrid and sliding-window models, from the GGUF:
+	// K+V elements per token in layers whose cache grows with the context
+	// and in sliding-window layers capped at SWAWindow tokens. Both zero
+	// means the plain 2 x layers x kv_heads x head_dim.
+	KVFullElems int `json:"kv_full_elems,omitempty"`
+	KVSWAElems  int `json:"kv_swa_elems,omitempty"`
+	SWAWindow   int `json:"swa_window,omitempty"`
+	// StateBytes is fixed memory for recurrent (linear attention) layers,
+	// independent of context length, as Ollama allocates it.
+	StateBytes uint64    `json:"state_bytes,omitempty"`
+	Tasks      []string  `json:"tasks,omitempty"` // subset of Tasks
+	Variants   []Variant `json:"variants"`
 }
 
 // Tasks lists the task tags a catalog entry may carry: coding (code-tuned
@@ -152,6 +165,8 @@ func Validate(ms []Model) error {
 			return fmt.Errorf("catalog: %s: head_dim must be > 0", id)
 		case m.MaxCtx <= 0:
 			return fmt.Errorf("catalog: %s: max_ctx must be > 0", id)
+		case m.KVSWAElems > 0 && m.SWAWindow <= 0:
+			return fmt.Errorf("catalog: %s: kv_swa_elems needs swa_window", id)
 		case m.Quality < 0 || m.Quality > 100:
 			return fmt.Errorf("catalog: %s: quality %d outside 0-100", id, m.Quality)
 		}

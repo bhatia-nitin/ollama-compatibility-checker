@@ -147,10 +147,11 @@ func build(s source) (catalog.Model, error) {
 			}
 		}
 		m.Variants = append(m.Variants, catalog.Variant{
-			Tag:       tag,
-			SizeBytes: layer.Size,
-			Bits:      bits(layer.Size, s.ParamsB),
-			Quant:     quant,
+			Tag:        tag,
+			SizeBytes:  layer.Size,
+			Bits:       bits(layer.Size, s.ParamsB),
+			Quant:      quant,
+			ExtraBytes: layer.Extra,
 		})
 		log.Printf("ok %s %d bytes %s", tag, layer.Size, quant)
 	}
@@ -158,6 +159,8 @@ func build(s source) (catalog.Model, error) {
 		return m, errors.New("no tag resolved")
 	}
 	m.Layers, m.KVHeads, m.HeadDim, m.MaxCtx = info.Layers, info.KVHeads, info.HeadDim, info.MaxCtx
+	m.KVFullElems, m.KVSWAElems, m.SWAWindow = info.KVFullElems, info.KVSWAElems, info.SWAWindow
+	m.StateBytes = info.StateBytes
 	m.ActiveParamsB = activeParams(s, *info)
 	sort.Slice(m.Variants, func(i, j int) bool { return m.Variants[i].SizeBytes < m.Variants[j].SizeBytes })
 	return m, nil
@@ -190,7 +193,10 @@ func splitTag(tag string) (model, ref string) {
 type modelLayer struct {
 	Digest string
 	Size   uint64
+	Extra  uint64 // vision projector layers, loaded with the model
 }
+
+const projectorMediaType = "application/vnd.ollama.image.projector"
 
 func fetchManifest(tag string) (modelLayer, error) {
 	model, ref := splitTag(tag)
@@ -215,12 +221,19 @@ func fetchManifest(tag string) (modelLayer, error) {
 	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&mf); err != nil {
 		return modelLayer{}, fmt.Errorf("manifest: %w", err)
 	}
+	var out modelLayer
 	for _, l := range mf.Layers {
-		if l.MediaType == modelMediaType {
-			return modelLayer{Digest: l.Digest, Size: l.Size}, nil
+		switch l.MediaType {
+		case modelMediaType:
+			out.Digest, out.Size = l.Digest, l.Size
+		case projectorMediaType:
+			out.Extra += l.Size
 		}
 	}
-	return modelLayer{}, errors.New("manifest: no model layer")
+	if out.Digest == "" {
+		return modelLayer{}, errors.New("manifest: no model layer")
+	}
+	return out, nil
 }
 
 // fetchArchInfo reads the GGUF header from the start of the blob, retrying
