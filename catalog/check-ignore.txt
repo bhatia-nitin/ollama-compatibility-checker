@@ -45,7 +45,7 @@ megadolphin
 
 # Baseline 2026-11-17: library models that existed when the check was added
 # and were reviewed and not tracked. Delete a line to have it reported again.
-# Left out on purpose (still reported, worth adding): cogito-2.1, devstral-small-2, gemma3n, glm-4.7-flash, granite4, granite4.1, granite4.2, lfm2, lfm2.5, lfm3, llama4, ministral-3, mistral-small3.1, nemotron-3-nano, olmo-3, olmo-3.1, qwen3-next, qwen3.6, qwen3.8, smollm2
+# The watch list of newer families was added to the catalog on 2026-11-17.
 alfred
 athene-v2
 autotrust-jev
@@ -390,3 +390,32 @@ qwen3.5:4b-mtp-q4_K_M
 qwen3.5:4b-mtp-q8_0
 qwen3.5:9b-mtp-q4_K_M
 qwen3.5:9b-mtp-q8_0
+
+# 2026-11-17: watch-list families reviewed and not added
+cogito-2.1
+
+# 2026-11-17: variants of the watch-list families not added: aliases of
+# tracked tags, 3-bit builds of small models, MTP builds, and sizes too large
+# (Llama 4 Maverick, Scout at q8_0).
+granite4.1:30b-q3_K_M
+granite4.1:3b-q3_K_M
+granite4.1:8b-q3_K_M
+granite4.2:30b-q3_K_M
+granite4.2:3b-q3_K_M
+granite4.2:8b-q3_K_M
+granite4:1b-h-q8_0
+granite4:350m-h-q8_0
+llama4:17b-maverick-128e-instruct-q4_K_M
+llama4:17b-maverick-128e-instruct-q8_0
+llama4:17b-scout-16e-instruct-q8_0
+qwen3.6:27b-coding-mtp-q4_K_M
+qwen3.6:27b-mtp-q4_K_M
+qwen3.6:27b-mtp-q8_0
+qwen3.6:35b-a3b-coding-mtp-q4_K_M
+qwen3.6:35b-a3b-mtp-q4_K_M
+qwen3.6:35b-a3b-mtp-q8_0
+qwen3.8:27b-mtp-q4_K_M
+qwen3.8:27b-mtp-q8_0
+smollm2:1.7b-instruct-q3_K_M
+smollm2:135m-instruct-q3_K_M
+smollm2:360m-instruct-q3_K_M

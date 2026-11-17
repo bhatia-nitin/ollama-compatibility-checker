@@ -58,7 +58,46 @@ type manifest struct {
 	} `json:"layers"`
 }
 
-var client = &http.Client{Timeout: 2 * time.Minute}
+var client = &http.Client{Timeout: 2 * time.Minute, Transport: retryTransport{http.DefaultTransport}}
+
+// retry runs f up to 3 times while it fails with anything but a 404, for
+// timeouts that happen while reading a response body.
+func retry(f func() error) error {
+	var err error
+	for i := 0; i < 3; i++ {
+		if i > 0 {
+			log.Printf("retrying after: %v", err)
+			time.Sleep(time.Duration(i) * 3 * time.Second)
+		}
+		if err = f(); err == nil || errors.Is(err, errNotFound) {
+			return err
+		}
+	}
+	return err
+}
+
+// retryTransport retries GET requests that fail at the network level or with
+// a 5xx status, so one slow registry response does not drop a model.
+type retryTransport struct{ next http.RoundTripper }
+
+func (t retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	const attempts = 3
+	var resp *http.Response
+	var err error
+	for i := 0; i < attempts; i++ {
+		if i > 0 {
+			time.Sleep(time.Duration(i) * 2 * time.Second)
+		}
+		resp, err = t.next.RoundTrip(req)
+		if err == nil && resp.StatusCode < 500 {
+			return resp, nil
+		}
+		if err == nil && i < attempts-1 {
+			resp.Body.Close()
+		}
+	}
+	return resp, err
+}
 
 func main() {
 	in := flag.String("in", "catalog/sources.yaml", "input source list")
@@ -122,7 +161,8 @@ func build(s source) (catalog.Model, error) {
 	}
 	var info *archInfo
 	for _, tag := range s.Tags {
-		layer, err := fetchManifest(tag)
+		var layer modelLayer
+		err := retry(func() (err error) { layer, err = fetchManifest(tag); return err })
 		if errors.Is(err, errNotFound) {
 			log.Printf("DROP tag %s: 404", tag)
 			continue
@@ -132,7 +172,8 @@ func build(s source) (catalog.Model, error) {
 		}
 		quant := quantFromTag(tag)
 		if info == nil || quant == "" {
-			ai, err := fetchArchInfo(tag, layer.Digest)
+			var ai archInfo
+			err := retry(func() (err error) { ai, err = fetchArchInfo(tag, layer.Digest); return err })
 			if err != nil {
 				return m, fmt.Errorf("%s: %w", tag, err)
 			}
@@ -281,7 +322,9 @@ func fetchRange(url string, n int64) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(resp.Body, n))
 }
 
-var quantSuffix = regexp.MustCompile(`(?i)-((?:i?q\d[a-z0-9_]*)|fp16|f16|bf16|f32|mxfp4)$`)
+// quantSuffix matches a quant at the end of a tag ref, after a dash or as the
+// whole ref ("glm-4.7-flash:q8_0").
+var quantSuffix = regexp.MustCompile(`(?i)(?:^|-)((?:i?q\d[a-z0-9_]*)|fp16|f16|bf16|f32|mxfp4)$`)
 
 // quantFromTag returns the quant suffix of a tag, e.g. "q4_K_M", or "".
 func quantFromTag(tag string) string {

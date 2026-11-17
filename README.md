@@ -193,14 +193,14 @@ Hardware
 
 Recommendations  (ctx 8192, estimates ± expected error)
   Note: Apple Silicon speeds are fitted from 1 bench run on 1 machine. Add yours: `ollama-compat bench --share`.
-  Fastest   qwen3.5:2b-q4_K_M                 ~30 tok/s ±25%  3.0 GB  100% GPU
-      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
-      also  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±25%  2.6 GB  100% GPU
-      also  qwen3.5:2b-q8_0                   ~19 tok/s ±25%  3.8 GB  100% GPU
-  Balanced  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+  Fastest   granite4:7b-a1b-h                 ~64 tok/s ±25%  4.9 GB  100% GPU
+      also  lfm3:1.7b-q4_K_M                  ~35 tok/s ±25%  1.7 GB  100% GPU
       also  qwen3.5:2b-q4_K_M                 ~30 tok/s ±25%  3.0 GB  100% GPU
-      also  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±25%  2.6 GB  100% GPU
-      also  qwen2.5-coder:3b-instruct-q4_K_M  ~20 tok/s ±25%  2.6 GB  100% GPU
+      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+  Balanced  lfm2.5:8b-a1b-q4_K_M              ~62 tok/s ±40%  5.7 GB  79% GPU
+      also  granite4:7b-a1b-h                 ~64 tok/s ±25%  4.9 GB  100% GPU
+      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+      also  lfm3:1.7b-q8_0                    ~21 tok/s ±25%  2.4 GB  100% GPU
   Largest   deepseek-r1:8b-0528-qwen3-q4_K_M  ~7 tok/s ±40%   6.4 GB  75% GPU
       also  qwen3:4b-thinking-2507-q8_0       ~9 tok/s ±40%   5.4 GB  89% GPU
       also  qwen3:8b-q4_K_M                   ~7 tok/s ±40%   6.4 GB  75% GPU
@@ -208,7 +208,7 @@ Recommendations  (ctx 8192, estimates ± expected error)
   With 16 GB unified memory, Largest would be qwen3.5:9b-q4_K_M (~7 tok/s ±25%, needs 8.5 GB).
 
 Config for Balanced
-  ollama pull gemma4:e2b-it-q4_K_M
+  ollama pull lfm2.5:8b-a1b-q4_K_M
   env:
     export OLLAMA_FLASH_ATTENTION=1
     export OLLAMA_KV_CACHE_TYPE=q8_0
@@ -219,12 +219,12 @@ Config for Balanced
     # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
   Restart Ollama after setting these.
   Modelfile:
-    FROM gemma4:e2b-it-q4_K_M
+    FROM lfm2.5:8b-a1b-q4_K_M
     PARAMETER num_ctx 8192
-    PARAMETER num_gpu 99
-  ollama create gemma4-e2b-it-q4_K_M-tuned -f Modelfile
+    PARAMETER num_gpu 19
+  ollama create lfm2.5-8b-a1b-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads up to ~10.0 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~14.6 GB, asks first).
 ```
 
 Useful flags: `--ctx 16384` sizes the KV cache for a longer context,

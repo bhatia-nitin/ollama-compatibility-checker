@@ -162,6 +162,15 @@ func TestHeadDimFallback(t *testing.T) {
 	}
 }
 
+func TestQuantFromBareTag(t *testing.T) {
+	if got := quantFromTag("glm-4.7-flash:q8_0"); got != "q8_0" {
+		t.Errorf("got %q", got)
+	}
+	if got := quantFromTag("granite4:3b-h"); got != "" {
+		t.Errorf("size tag got %q", got)
+	}
+}
+
 func TestQuantName(t *testing.T) {
 	cases := []struct {
 		tag      string

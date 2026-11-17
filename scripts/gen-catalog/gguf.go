@@ -344,11 +344,28 @@ type archInfo struct {
 	StateBytes uint64
 }
 
-// ollamaStateCopies is how many copies of the recurrent state Ollama keeps
-// (it checkpoints the state for prompt caching). Measured on Ollama 0.24.0
-// with qwen3.5:4b: a fixed 1.25 GiB at every context length, which is 25
-// copies of the 50 MiB state the GGUF describes.
-const ollamaStateCopies = 25
+// defaultFullAttnInterval covers hybrids whose GGUF omits
+// full_attention_interval; llama.cpp hard-codes it per architecture.
+// Qwen3-Next: 3 gated delta net layers, then 1 attention layer.
+var defaultFullAttnInterval = map[string]int{"qwen3next": 4}
+
+// chunkedGlobalEvery: in Llama 4 every 4th layer is global (no RoPE) and the
+// others use chunked attention (llama.cpp hard-codes the same pattern).
+const chunkedGlobalEvery = 4
+
+// stateCopies is how many copies of the recurrent state Ollama keeps for an
+// architecture. Its own engine checkpoints the state for prompt caching:
+// with qwen3.5:4b (Ollama 0.24.0) a fixed 1.25 GiB at every context length,
+// 25 copies of the 50 MiB state the GGUF describes. Architectures it runs on
+// its llama.cpp runner keep one copy: granite4:350m-h allocated 21.6 MiB,
+// one copy of what the GGUF describes.
+func stateCopies(arch string) uint64 {
+	switch arch {
+	case "qwen35", "qwen35moe", "qwen3next":
+		return 25
+	}
+	return 1
+}
 
 // archInfoFrom extracts the architecture fields, keyed by general.architecture.
 // head_dim is attention.key_length, else embedding_length / head_count.
@@ -426,12 +443,24 @@ func kvSplit(m ggufMeta, arch string, info *archInfo) {
 	swaPat, hasSWA := m.Ints(k("attention.sliding_window_pattern"))
 	rec, hasRec := m.Ints(k("attention.recurrent_layers"))
 	interval := get("full_attention_interval")
+	if interval == 0 && !hasRec && get("ssm.inner_size") > 0 {
+		interval = defaultFullAttnInterval[arch] // not written to the GGUF
+	}
 	shared := get("attention.shared_kv_layers")
 	window := get("attention.sliding_window")
-	if !perLayer && !hasSWA && !hasRec && interval == 0 && shared == 0 {
+	// Chunked attention (Llama 4): local layers keep at most one chunk, like a
+	// sliding window; every chunkedGlobalEvery-th layer attends globally.
+	chunk := get("attention.chunk_size")
+	if chunk > 0 && !hasSWA {
+		window = chunk
+	}
+	mla := get("attention.kv_lora_rank") > 0 && get("attention.key_length_mla") > 0
+	if !perLayer && !hasSWA && !hasRec && interval == 0 && shared == 0 && chunk == 0 && !mla {
 		return
 	}
-	L := info.Layers
+	// Multi-token-prediction layers are counted in block_count but are not
+	// run during normal decoding.
+	L := info.Layers - get("nextn_predict_layers")
 	kl, vl := info.HeadDim, get("attention.value_length")
 	if vl == 0 {
 		vl = kl
@@ -460,16 +489,24 @@ func kvSplit(m ggufMeta, arch string, info *archInfo) {
 		if perLayer && i < len(kvhArr) {
 			heads = int(kvhArr[i])
 		}
-		if at(swaPat, i) == 1 && window > 0 {
+		if heads == 0 { // no attention in this layer (Mamba, conv): state only
+			recurrentLayers++
+			continue
+		}
+		local := at(swaPat, i) == 1 || (chunk > 0 && !hasSWA && (i+1)%chunkedGlobalEvery != 0)
+		switch {
+		case mla: // one compressed latent (kv_lora_rank + rope dims) per layer
+			info.KVFullElems += get("attention.key_length_mla")
+		case local && window > 0:
 			info.KVSWAElems += heads * (ks + vs)
-		} else {
+		default:
 			info.KVFullElems += heads * (kl + vl)
 		}
 	}
 	if info.KVSWAElems > 0 {
 		info.SWAWindow = window
 	}
-	info.StateBytes = uint64(recurrentLayers) * recurrentState(get) * ollamaStateCopies
+	info.StateBytes = uint64(recurrentLayers) * recurrentState(get) * stateCopies(arch)
 }
 
 // recurrentState is the f32 state of one gated-delta-net / Mamba-style

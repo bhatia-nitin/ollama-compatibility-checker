@@ -653,3 +653,343 @@
   tags:
     - "qwen3.5:9b-q4_K_M"
     - "qwen3.5:9b-q8_0"
+- family: granite4
+  name: "Granite 4.0 H 350M"
+  params_b: 0.35
+  quality: 18
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4:350m-h"
+- family: granite4
+  name: "Granite 4.0 H 1B"
+  params_b: 1.5
+  quality: 32
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4:1b-h"
+- family: granite4
+  name: "Granite 4.0 H Micro 3B"
+  params_b: 3.2
+  quality: 50
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4:3b-h"
+- family: granite4
+  name: "Granite 4.0 H Tiny 7B-A1B (MoE)"
+  params_b: 7
+  active_params_b: 1
+  quality: 54
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4:7b-a1b-h"
+- family: granite4
+  name: "Granite 4.0 H Small 32B-A9B (MoE)"
+  params_b: 32
+  active_params_b: 9
+  quality: 76
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4:32b-a9b-h"
+- family: granite4.1
+  name: "Granite 4.1 3B"
+  params_b: 3
+  quality: 50
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.1:3b-q4_K_M"
+    - "granite4.1:3b-q8_0"
+- family: granite4.1
+  name: "Granite 4.1 8B"
+  params_b: 8
+  quality: 66
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.1:8b-q4_K_M"
+    - "granite4.1:8b-q8_0"
+- family: granite4.1
+  name: "Granite 4.1 30B"
+  params_b: 30
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.1:30b-q4_K_M"
+    - "granite4.1:30b-q8_0"
+- family: granite4.2
+  name: "Granite 4.2 3B"
+  params_b: 3
+  quality: 52
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.2:3b-q4_K_M"
+    - "granite4.2:3b-q8_0"
+- family: granite4.2
+  name: "Granite 4.2 8B"
+  params_b: 8
+  quality: 68
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.2:8b-q4_K_M"
+    - "granite4.2:8b-q8_0"
+- family: granite4.2
+  name: "Granite 4.2 30B"
+  params_b: 30
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "granite4.2:30b-q4_K_M"
+    - "granite4.2:30b-q8_0"
+- family: nemotron-3-nano
+  name: "Nemotron 3 Nano 4B"
+  params_b: 3.97
+  quality: 56
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "nemotron-3-nano:4b-q4_K_M"
+    - "nemotron-3-nano:4b-q8_0"
+- family: nemotron-3-nano
+  name: "Nemotron 3 Nano 30B-A3B (MoE)"
+  params_b: 31.6
+  active_params_b: 3
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "nemotron-3-nano:30b-a3b-q4_K_M"
+    - "nemotron-3-nano:30b-a3b-q8_0"
+- family: lfm2
+  name: "LFM2 24B-A2B (MoE)"
+  params_b: 23.8
+  active_params_b: 2
+  quality: 68
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "lfm2:24b-q4_K_M"
+    - "lfm2:24b-q8_0"
+- family: lfm2.5
+  name: "LFM2.5 8B-A1B (MoE)"
+  params_b: 8.3
+  active_params_b: 1
+  quality: 60
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "lfm2.5:8b-a1b-q4_K_M"
+    - "lfm2.5:8b-a1b-q8_0"
+- family: lfm2.5
+  name: "LFM2.5 24B-A2B (MoE)"
+  params_b: 24
+  active_params_b: 2
+  quality: 72
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "lfm2.5:24b-a2b-q4_K_M"
+    - "lfm2.5:24b-a2b-q8_0"
+- family: lfm3
+  name: "LFM3 1.7B"
+  params_b: 1.7
+  quality: 46
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "lfm3:1.7b-q4_K_M"
+    - "lfm3:1.7b-q8_0"
+- family: qwen3-next
+  name: "Qwen3-Next 80B-A3B Instruct (MoE)"
+  params_b: 80
+  active_params_b: 3
+  quality: 88
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "qwen3-next:80b-a3b-instruct-q4_K_M"
+    - "qwen3-next:80b-a3b-instruct-q8_0"
+- family: qwen3-next
+  name: "Qwen3-Next 80B-A3B Thinking (MoE)"
+  params_b: 80
+  active_params_b: 3
+  quality: 89
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "qwen3-next:80b-a3b-thinking-q4_K_M"
+    - "qwen3-next:80b-a3b-thinking-q8_0"
+- family: qwen3.6
+  name: "Qwen3.6 27B"
+  params_b: 27.8
+  quality: 91
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.6:27b-q4_K_M"
+    - "qwen3.6:27b-q8_0"
+- family: qwen3.6
+  name: "Qwen3.6 35B-A3B (MoE)"
+  params_b: 36
+  active_params_b: 3
+  quality: 89
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.6:35b-a3b-q4_K_M"
+    - "qwen3.6:35b-a3b-q8_0"
+- family: qwen3.8
+  name: "Qwen3.8 27B"
+  params_b: 27
+  quality: 92
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision, reasoning]
+  tags:
+    - "qwen3.8:27b-q4_K_M"
+    - "qwen3.8:27b-q8_0"
+- family: glm-4.7-flash
+  name: "GLM-4.7-Flash 30B-A3B (MoE)"
+  params_b: 29.9
+  active_params_b: 3
+  quality: 86
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "glm-4.7-flash:q4_K_M"
+    - "glm-4.7-flash:q8_0"
+- family: llama4
+  name: "Llama 4 Scout 109B-A17B (MoE)"
+  params_b: 109
+  active_params_b: 17
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "llama4:17b-scout-16e-instruct-q4_K_M"
+- family: gemma3n
+  name: "Gemma 3n E2B"
+  params_b: 5.4
+  active_params_b: 2.0
+  quality: 48
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "gemma3n:e2b-it-q4_K_M"
+    - "gemma3n:e2b-it-q8_0"
+- family: gemma3n
+  name: "Gemma 3n E4B"
+  params_b: 7.8
+  active_params_b: 4.0
+  quality: 60
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "gemma3n:e4b-it-q4_K_M"
+    - "gemma3n:e4b-it-q8_0"
+- family: olmo-3
+  name: "OLMo 3 7B Instruct"
+  params_b: 7.3
+  quality: 58
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "olmo-3:7b-instruct-q4_K_M"
+    - "olmo-3:7b-instruct-q8_0"
+- family: olmo-3
+  name: "OLMo 3 7B Think"
+  params_b: 7.3
+  quality: 62
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "olmo-3:7b-think-q4_K_M"
+    - "olmo-3:7b-think-q8_0"
+- family: olmo-3
+  name: "OLMo 3 32B Think"
+  params_b: 32.2
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "olmo-3:32b-think-q4_K_M"
+    - "olmo-3:32b-think-q8_0"
+- family: olmo-3.1
+  name: "OLMo 3.1 32B Instruct"
+  params_b: 32.2
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "olmo-3.1:32b-instruct-q4_K_M"
+    - "olmo-3.1:32b-instruct-q8_0"
+- family: olmo-3.1
+  name: "OLMo 3.1 32B Think"
+  params_b: 32.2
+  quality: 84
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [reasoning]
+  tags:
+    - "olmo-3.1:32b-think-q4_K_M"
+    - "olmo-3.1:32b-think-q8_0"
+- family: ministral-3
+  name: "Ministral 3 3B"
+  params_b: 3.85
+  quality: 50
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "ministral-3:3b-instruct-2512-q4_K_M"
+    - "ministral-3:3b-instruct-2512-q8_0"
+- family: ministral-3
+  name: "Ministral 3 8B"
+  params_b: 8.9
+  quality: 66
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "ministral-3:8b-instruct-2512-q4_K_M"
+    - "ministral-3:8b-instruct-2512-q8_0"
+- family: ministral-3
+  name: "Ministral 3 14B"
+  params_b: 13.9
+  quality: 76
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "ministral-3:14b-instruct-2512-q4_K_M"
+    - "ministral-3:14b-instruct-2512-q8_0"
+- family: mistral-small3.1
+  name: "Mistral Small 3.1 24B"
+  params_b: 24
+  quality: 78
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [vision]
+  tags:
+    - "mistral-small3.1:24b-instruct-2503-q4_K_M"
+    - "mistral-small3.1:24b-instruct-2503-q8_0"
+- family: devstral-small-2
+  name: "Devstral Small 2 24B"
+  params_b: 24
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tasks: [coding, vision]
+  tags:
+    - "devstral-small-2:24b-instruct-2512-q4_K_M"
+    - "devstral-small-2:24b-instruct-2512-q8_0"
+- family: smollm2
+  name: "SmolLM2 135M"
+  params_b: 0.135
+  quality: 8
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "smollm2:135m-instruct-q4_K_M"
+    - "smollm2:135m-instruct-q8_0"
+- family: smollm2
+  name: "SmolLM2 360M"
+  params_b: 0.36
+  quality: 14
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "smollm2:360m-instruct-q4_K_M"
+    - "smollm2:360m-instruct-q8_0"
+- family: smollm2
+  name: "SmolLM2 1.7B"
+  params_b: 1.7
+  quality: 34
+  quality_source: "maintainer-curated estimate, 2026-11-17; provisional, newer than the maintainer's benchmark data"
+  tags:
+    - "smollm2:1.7b-instruct-q4_K_M"
+    - "smollm2:1.7b-instruct-q8_0"

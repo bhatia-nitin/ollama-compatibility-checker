@@ -185,3 +185,37 @@ Active parameters for the E-models are their effective sizes (per-layer
 embeddings are looked up, not streamed), and for the MoE models come from
 the model names (A4B, A3B).
 
+## Watch list families (2026-11-17)
+
+Added: Granite 4.0 H (350M, 1B, Micro 3B, Tiny 7B-A1B, Small 32B-A9B),
+Granite 4.1 and 4.2 (3B, 8B, 30B), Nemotron 3 Nano (4B, 30B-A3B), LFM2
+24B-A2B, LFM2.5 (8B-A1B, 24B-A2B), LFM3 1.7B, Qwen3-Next 80B-A3B (instruct and
+thinking), Qwen3.6 (27B, 35B-A3B), Qwen3.8 27B, GLM-4.7-Flash 30B-A3B, Llama 4
+Scout 109B-A17B, Gemma 3n (E2B, E4B), OLMo 3 (7B instruct and think, 32B
+think), OLMo 3.1 32B (instruct and think), Ministral 3 (3B, 8B, 14B), Mistral
+Small 3.1 24B, Devstral Small 2 24B and SmolLM2 (135M, 360M, 1.7B). Quality
+scores are provisional. Granite 4.2 describes a thinking mode but Ollama shows
+no thinking badge for it, so it carries no `reasoning` task. Left out:
+Cogito 2.1 (671B) and Llama 4 Maverick (245 GB at q4), as too large.
+
+More KV layouts `gen-catalog` now reads from the GGUF:
+
+| Layout | Families | Rule |
+|---|---|---|
+| Layers with zero KV heads (Mamba2 or short-conv) | Granite 4.0 H, Nemotron 3 Nano, LFM2/2.5/3, Qwen3.6 | no KV cache; Mamba2 layers add fixed state |
+| Linear attention with no interval key | Qwen3-Next | every 4th layer is attention (llama.cpp's rule) |
+| Multi-token-prediction layers | Qwen3.8 | `nextn_predict_layers` are not counted |
+| MLA (compressed KV) | GLM-4.7-Flash | one `key_length_mla` latent per layer, as llama.cpp caches it |
+| Chunked attention | Llama 4 | 3 of 4 layers keep at most `chunk_size` tokens |
+
+Recurrent state copies depend on which Ollama engine runs the model: its own
+engine keeps about 25 checkpoint copies (Qwen3.5, Qwen3.6, Qwen3.8,
+Qwen3-Next), while models on its llama.cpp runner keep one. Checked with
+granite4:350m-h on Ollama 0.24.0: 21.6 MiB of state (one copy of the 22.8 MB
+the GGUF describes) and a KV cache on exactly its 4 attention layers. Not yet
+measured: Nemotron 3 Nano's engine (assumed llama.cpp, one copy), GLM-4.7-Flash
+(assumes Ollama caches the compressed MLA latent; if it caches full K and V
+the KV cache is about 18 times larger) and Llama 4's chunked layers.
+`gen-catalog` also retries a registry fetch up to 3 times, and reads tags whose
+whole ref is a quant (`glm-4.7-flash:q8_0`).
+
