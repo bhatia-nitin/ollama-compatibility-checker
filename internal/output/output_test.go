@@ -244,7 +244,7 @@ func TestJSONDocs(t *testing.T) {
 }
 
 func TestMetalNoteOnlyForMetal(t *testing.T) {
-	const note = "Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure."
+	const note = "Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure."
 	mac := hw.Hardware{
 		OS: "darwin", Arch: "arm64", RAMBytes: 16 * gb, RAMBandwidthGBs: 100, UnifiedMemory: true,
 		CPU:  hw.CPU{Model: "Apple M1", Cores: 8, Threads: 8},
@@ -254,7 +254,7 @@ func TestMetalNoteOnlyForMetal(t *testing.T) {
 	if !strings.Contains(got, "Recommendations  (ctx 8192, estimates)\n  "+note+"\n") {
 		t.Errorf("metal note missing or misplaced:\n%s", got)
 	}
-	if strings.Contains(renderRec(t, gpuHW(), opts), "uncalibrated") {
+	if strings.Contains(renderRec(t, gpuHW(), opts), "calibrated on one M1") {
 		t.Error("note must not appear for cuda")
 	}
 }

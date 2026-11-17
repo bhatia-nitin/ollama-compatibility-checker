@@ -135,18 +135,18 @@ Hardware
   CPU    Apple M1  8C/8T
 
 Recommendations  (ctx 8192, estimates)
-  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.
-  Fastest   qwen2.5:3b-instruct-q4_K_M   ~23 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~22 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q8_0              ~20 tok/s est.  3.2 GB  100% GPU
-      also  phi4-mini:3.8b-q4_K_M        ~18 tok/s est.  3.6 GB  100% GPU
-  Balanced  qwen2.5:3b-instruct-q4_K_M   ~23 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~22 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q4_K_M            ~33 tok/s est.  2.4 GB  100% GPU
-      also  granite3.3:2b                ~29 tok/s est.  2.4 GB  100% GPU
+  Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.
+  Fastest   qwen2.5:3b-instruct-q4_K_M   ~21 tok/s est.  2.6 GB  100% GPU
+      also  llama3.2:3b-instruct-q4_K_M  ~20 tok/s est.  3.0 GB  100% GPU
+      also  qwen3:1.7b-q8_0              ~18 tok/s est.  3.2 GB  100% GPU
+      also  phi4-mini:3.8b-q4_K_M        ~16 tok/s est.  3.6 GB  100% GPU
+  Balanced  qwen2.5:3b-instruct-q4_K_M   ~21 tok/s est.  2.6 GB  100% GPU
+      also  llama3.2:3b-instruct-q4_K_M  ~20 tok/s est.  3.0 GB  100% GPU
+      also  qwen3:1.7b-q4_K_M            ~30 tok/s est.  2.4 GB  100% GPU
+      also  granite3.3:2b                ~26 tok/s est.  2.4 GB  100% GPU
   Largest   qwen3:8b-q4_K_M              ~8 tok/s est.   6.4 GB  75% GPU
-      also  qwen3:4b-q8_0                ~10 tok/s est.  5.5 GB  86% GPU
-      also  qwen3:4b-q4_K_M              ~17 tok/s est.  3.8 GB  100% GPU
+      also  qwen3:4b-q8_0                ~9 tok/s est.   5.5 GB  86% GPU
+      also  qwen3:4b-q4_K_M              ~16 tok/s est.  3.8 GB  100% GPU
       also  qwen2.5:7b-instruct-q4_K_M   ~9 tok/s est.   5.5 GB  86% GPU
 
 Config for Balanced
@@ -235,16 +235,16 @@ token reads the active weights once. The tool computes:
 
 1. **Memory needed** = model file size + KV cache for your context length + 0.5 GB runtime overhead.
 2. **GPU fraction** = how much of that fits in usable VRAM (VRAM minus 10 percent headroom), rounded to whole layers. On Apple Silicon the GPU shares system RAM, so usable memory is about 66 percent of RAM (75 percent above 36 GB).
-3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor (0.65 for GPU, 0.55 for CPU). For mixture-of-experts models only the active parameters count.
+3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor (0.65 for discrete GPUs, 0.60 for Apple Silicon, 0.55 for CPU). For mixture-of-experts models only the active parameters count.
 
 Bandwidth comes from lookup tables of known GPUs and chips, not from a
 measurement. Models that cannot fit in VRAM plus 80 percent of RAM are
 excluded.
 
 Estimates are a rough guide (target within about plus or minus 30 percent,
-not yet met on every machine). The one Apple Silicon machine measured so far
-(M1, 8 GB) ran at about half the estimated speed; other machines are not yet
-measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
+not yet met on every machine). The Apple Silicon factor comes from bench runs
+on an M1 with 8 GB, where estimates now land within about 5 percent; other
+chips and NVIDIA or AMD cards are not yet measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
 drivers can be further off. Run `ollama-compat bench` to measure the real
 number on your machine. See `catalog/README.md` for the calibration log.
 

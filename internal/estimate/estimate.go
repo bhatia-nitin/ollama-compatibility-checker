@@ -17,13 +17,25 @@ const (
 
 // Params tunes the estimator.
 type Params struct {
-	Ctx    int
-	EffGPU float64
-	EffCPU float64
+	Ctx      int
+	EffGPU   float64
+	EffMetal float64 // Apple Silicon GPU; replaces EffGPU on the metal backend
+	EffCPU   float64
 }
 
-// DefaultParams returns the starting constants.
-func DefaultParams() Params { return Params{Ctx: 8192, EffGPU: 0.65, EffCPU: 0.55} }
+// DefaultParams returns the starting constants. EffMetal comes from bench
+// runs on an M1 8 GB (decode efficiency 0.58 to 0.61); see catalog/README.md.
+func DefaultParams() Params {
+	return Params{Ctx: 8192, EffGPU: 0.65, EffMetal: 0.60, EffCPU: 0.55}
+}
+
+// gpuEff is the bandwidth efficiency for g's backend.
+func (p Params) gpuEff(g hw.GPU) float64 {
+	if g.Backend == "metal" && p.EffMetal > 0 {
+		return p.EffMetal
+	}
+	return p.EffGPU
+}
 
 // Estimate is the fit and speed prediction for one variant.
 type Estimate struct {
@@ -133,7 +145,7 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 	}
 	var tGPU, tCPU float64
 	if e.GPUFraction > 0 {
-		tGPU = bpt * e.GPUFraction / (g.BandwidthGBs * 1e9 * p.EffGPU)
+		tGPU = bpt * e.GPUFraction / (g.BandwidthGBs * 1e9 * p.gpuEff(g))
 	}
 	if e.GPUFraction < 1 {
 		tCPU = bpt * (1 - e.GPUFraction) / (h.RAMBandwidthGBs * 1e9 * p.EffCPU)

@@ -98,3 +98,19 @@ The constants (`EffGPU 0.65`) are unchanged for v1 because one data point on a
 memory-constrained machine is not enough to recalibrate. More data points,
 especially from 16 GB and larger Apple Silicon and NVIDIA machines, are needed.
 Users can contribute with `ollama-compat bench --json`.
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-17 |
+| Hardware | Apple M1, 8 GB unified memory, Metal, 68.25 GB/s (same machine as above) |
+| Ollama | 0.24.0, default server settings |
+| Models | qwen2.5:3b-instruct-q4_K_M (1.93 GB), tinyllama:latest (0.64 GB), ctx 8192 |
+| Measured decode | qwen2.5 3B: 20.6 tok/s (`bench --installed-only`, median of 3), 21.4 and 21.8 via the API; tinyllama: 64.5 and 65.3 via the API |
+| Implied efficiency | tok/s x model bytes / bandwidth: 0.58 to 0.61 (qwen2.5 3B), 0.61 (tinyllama) |
+| Estimate before | 23.0 tok/s for qwen2.5 3B (EffGPU 0.65) |
+
+Result: the 10.8 tok/s entry above was memory pressure, not the model. On an
+idle machine the bandwidth model holds for both a 0.6 GB and a 1.9 GB model, so
+Metal gets its own factor, `EffMetal 0.60` (qwen2.5 3B now estimates 21 tok/s).
+Discrete GPUs keep `EffGPU 0.65` until someone measures one.
+

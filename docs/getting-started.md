@@ -268,9 +268,9 @@ experimental Vulkan backend may use them; run `bench` to measure.
 
 **Speeds in practice are much lower than the estimate.** Estimates assume
 the machine is otherwise idle. Close memory-heavy apps and try again, and use
-`ollama run <model> --verbose` or `bench` to measure. On Apple Silicon the
-estimates are not yet calibrated; an M1 with 8 GB measured about half the
-estimate.
+`ollama run <model> --verbose` or `bench` to measure. On an M1 with 8 GB,
+memory pressure from other apps once halved the measured speed (10.8 against
+21 tok/s on an idle machine).
 
 **A recommended model runs partly on the CPU.** Check with `ollama ps`: the
 `PROCESSOR` column shows the GPU and CPU split. Lower the context with

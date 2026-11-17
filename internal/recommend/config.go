@@ -45,7 +45,9 @@ func BuildConfig(h hw.Hardware, e estimate.Estimate, o Options) Config {
 			if ctx >= e.Ctx {
 				continue
 			}
-			r := estimate.EstimateVariant(h, e.Model, e.Variant, estimate.Params{Ctx: ctx, EffGPU: 0.65, EffCPU: 0.55})
+			p := estimate.DefaultParams()
+			p.Ctx = ctx
+			r := estimate.EstimateVariant(h, e.Model, e.Variant, p)
 			if r.GPUFraction == 1 {
 				final = r
 				notes = append(notes, fmt.Sprintf("reduced from %d to %d so the model fits fully on GPU", e.Ctx, ctx))

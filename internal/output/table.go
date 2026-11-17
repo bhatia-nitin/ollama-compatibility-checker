@@ -145,7 +145,7 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, paint(color, ansiBold, fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)))
 	if usesMetal(h) {
-		fmt.Fprintln(w, "  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.")
+		fmt.Fprintln(w, "  Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.")
 	}
 	tw := newTab(w)
 	for _, p := range picks {
