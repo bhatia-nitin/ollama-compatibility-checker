@@ -8,8 +8,8 @@ go run ./scripts/gen-catalog -in catalog/sources.yaml -out internal/catalog/mode
 ```
 
 `catalog/sources.yaml` is the hand-maintained input: family, display name,
-`params_b`, `quality`, `quality_source`, optional `kv_quant_ok` (default true)
-and a list of Ollama library tags. The generator is a dev-only tool that needs
+`params_b`, `quality`, `quality_source`, optional `kv_quant_ok` (default true),
+optional `tasks` and a list of Ollama library tags. The generator is a dev-only tool that needs
 network access to `registry.ollama.ai`; the shipped binary never runs it and
 makes no network calls for the catalog.
 
@@ -19,6 +19,7 @@ makes no network calls for the catalog.
 |---|---|
 | `family`, `name`, `params_b` | `sources.yaml` (`params_b` from the model card) |
 | `quality` | `sources.yaml`, see "Quality scores" below |
+| `tasks` | `sources.yaml`: `coding` for code-tuned models, `reasoning` for models with a thinking mode, `vision` for models that accept images in Ollama. Facts from the model card, not quality judgments |
 | `variants[].size_bytes` | registry manifest, size of the `application/vnd.ollama.image.model` layer |
 | `variants[].bits` | `size_bytes * 8 / (params_b * 1e9)`, rounded to 2 decimals |
 | `variants[].quant` | tag suffix (for example `q4_K_M`); if the tag has none, the GGUF `general.file_type` |

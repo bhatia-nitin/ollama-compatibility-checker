@@ -54,19 +54,20 @@ type hardwareJSON struct {
 }
 
 type estimateJSON struct {
-	Family        string  `json:"family"`
-	Name          string  `json:"name"`
-	Tag           string  `json:"tag"`
-	Quant         string  `json:"quant"`
-	SizeBytes     uint64  `json:"size_bytes"`
-	Ctx           int     `json:"ctx"`
-	CtxReduced    bool    `json:"ctx_reduced"`
-	KVQuant       bool    `json:"kv_quant"`
-	NeedBytes     uint64  `json:"need_bytes"`
-	GPUFraction   float64 `json:"gpu_fraction"`
-	NumGPU        int     `json:"num_gpu"`
-	TokS          float64 `json:"est_tok_s"`
-	LowConfidence bool    `json:"low_confidence"`
+	Family        string   `json:"family"`
+	Name          string   `json:"name"`
+	Tag           string   `json:"tag"`
+	Quant         string   `json:"quant"`
+	SizeBytes     uint64   `json:"size_bytes"`
+	Ctx           int      `json:"ctx"`
+	CtxReduced    bool     `json:"ctx_reduced"`
+	KVQuant       bool     `json:"kv_quant"`
+	NeedBytes     uint64   `json:"need_bytes"`
+	GPUFraction   float64  `json:"gpu_fraction"`
+	NumGPU        int      `json:"num_gpu"`
+	TokS          float64  `json:"est_tok_s"`
+	Tasks         []string `json:"tasks,omitempty"`
+	LowConfidence bool     `json:"low_confidence"`
 }
 
 type pickJSON struct {
@@ -102,6 +103,7 @@ type ScanDocument struct {
 // RecommendDocument is the JSON shape of `recommend --json`.
 type RecommendDocument struct {
 	SchemaVersion int          `json:"schema_version"`
+	Task          string       `json:"task,omitempty"`
 	Hardware      hardwareJSON `json:"hardware"`
 	Picks         []pickJSON   `json:"picks"`
 	Config        *configJSON  `json:"config"`
@@ -163,5 +165,5 @@ func mapEstimate(e estimate.Estimate) estimateJSON {
 	return estimateJSON{Family: e.Model.Family, Name: e.Model.Name, Tag: e.Variant.Tag, Quant: e.Variant.Quant,
 		SizeBytes: e.Variant.SizeBytes, Ctx: e.Ctx, CtxReduced: e.CtxReduced, KVQuant: e.KVQuant,
 		NeedBytes: e.NeedBytes, GPUFraction: e.GPUFraction, NumGPU: e.NumGPU, TokS: e.TokS,
-		LowConfidence: e.LowConfidence}
+		LowConfidence: e.LowConfidence, Tasks: e.Model.Tasks}
 }

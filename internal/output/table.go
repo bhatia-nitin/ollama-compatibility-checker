@@ -143,7 +143,7 @@ func ConfigTarget(picks []recommend.Pick) *estimate.Estimate {
 func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg recommend.Config, o recommend.Options, color bool) {
 	RenderScan(w, h, color)
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, paint(color, ansiBold, fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)))
+	fmt.Fprintln(w, paint(color, ansiBold, recHeader(o)))
 	if usesMetal(h) {
 		fmt.Fprintln(w, "  Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.")
 	}
@@ -299,4 +299,12 @@ func RenderCatalog(w io.Writer, ms []catalog.Model) {
 		fmt.Fprintf(tw, "%s\t%.1fB\t%s\t%s\t%d\t%d\n", r.tag, r.params, r.quant, gbStr(r.size), r.ctx, r.q)
 	}
 	tw.Flush()
+}
+
+// recHeader is the Recommendations title, naming the task filter when set.
+func recHeader(o recommend.Options) string {
+	if o.Task != "" {
+		return fmt.Sprintf("Recommendations  (ctx %d, estimates, task: %s)", o.Ctx, o.Task)
+	}
+	return fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)
 }

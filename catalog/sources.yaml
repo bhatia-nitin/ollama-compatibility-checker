@@ -8,6 +8,8 @@
 #   active_params_b   optional; MoE active parameters from the model card.
 #                     When absent the generator uses params_b * expert_used / expert_count.
 #   kv_quant_ok       optional, default true
+#   tasks             optional; any of coding (code-tuned), reasoning (thinking mode),
+#                     vision (accepts images in Ollama)
 #   tags              Ollama library tags; each is verified against the registry
 #
 # Quant policy: q4_K_M always; q8_0 for <= 14B (and 24B); q3_K_M for >= 27B where
@@ -20,6 +22,7 @@
   params_b: 0.6
   quality: 22
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:0.6b-q4_K_M"
     - "qwen3:0.6b-q8_0"
@@ -44,6 +47,7 @@
   params_b: 1.7
   quality: 40
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:1.7b-q4_K_M"
     - "qwen3:1.7b-q8_0"
@@ -100,6 +104,7 @@
   params_b: 4.0
   quality: 62
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:4b-q4_K_M"
     - "qwen3:4b-q8_0"
@@ -108,6 +113,7 @@
   params_b: 4.3
   quality: 52
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [vision]
   tags:
     - "gemma3:4b-it-q4_K_M"
     - "gemma3:4b-it-q8_0"
@@ -132,6 +138,7 @@
   params_b: 7.62
   quality: 58
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "deepseek-r1:7b-qwen-distill-q4_K_M"
     - "deepseek-r1:7b-qwen-distill-q8_0"
@@ -148,6 +155,7 @@
   params_b: 8.03
   quality: 56
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "deepseek-r1:8b-llama-distill-q4_K_M"
     - "deepseek-r1:8b-llama-distill-q8_0"
@@ -156,6 +164,7 @@
   params_b: 8.19
   quality: 72
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:8b-q4_K_M"
     - "qwen3:8b-q8_0"
@@ -187,6 +196,7 @@
   params_b: 12.2
   quality: 70
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [vision]
   tags:
     - "gemma3:12b-it-q4_K_M"
     - "gemma3:12b-it-q8_0"
@@ -211,6 +221,7 @@
   params_b: 14.8
   quality: 80
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:14b-q4_K_M"
     - "qwen3:14b-q8_0"
@@ -219,6 +230,7 @@
   params_b: 14.8
   quality: 74
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "deepseek-r1:14b-qwen-distill-q4_K_M"
     - "deepseek-r1:14b-qwen-distill-q8_0"
@@ -227,6 +239,7 @@
   params_b: 24.0
   quality: 77
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [vision]
   tags:
     - "mistral-small3.2:24b-instruct-2506-q4_K_M"
     - "mistral-small3.2:24b-instruct-2506-q8_0"
@@ -243,6 +256,7 @@
   params_b: 27.4
   quality: 80
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [vision]
   tags:
     - "gemma3:27b-it-q4_K_M"
     - "gemma3:27b-it-q8_0"
@@ -252,6 +266,7 @@
   active_params_b: 3.3
   quality: 82
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:30b-a3b-q4_K_M"
     - "qwen3:30b-a3b-q8_0"
@@ -264,10 +279,47 @@
     - "qwen2.5:32b-instruct-q3_K_M"
     - "qwen2.5:32b-instruct-q4_K_M"
 - family: qwen2.5-coder
+  name: "Qwen2.5 Coder 1.5B Instruct"
+  params_b: 1.54
+  quality: 32
+  quality_source: "maintainer-curated estimate, 2026-11-17 (general Qwen2.5 score at that size minus 4, as for 32B)"
+  tasks: [coding]
+  tags:
+    - "qwen2.5-coder:1.5b-instruct-q4_K_M"
+    - "qwen2.5-coder:1.5b-instruct-q8_0"
+- family: qwen2.5-coder
+  name: "Qwen2.5 Coder 3B Instruct"
+  params_b: 3.09
+  quality: 42
+  quality_source: "maintainer-curated estimate, 2026-11-17 (general Qwen2.5 score at that size minus 4, as for 32B)"
+  tasks: [coding]
+  tags:
+    - "qwen2.5-coder:3b-instruct-q4_K_M"
+    - "qwen2.5-coder:3b-instruct-q8_0"
+- family: qwen2.5-coder
+  name: "Qwen2.5 Coder 7B Instruct"
+  params_b: 7.62
+  quality: 58
+  quality_source: "maintainer-curated estimate, 2026-11-17 (general Qwen2.5 score at that size minus 4, as for 32B)"
+  tasks: [coding]
+  tags:
+    - "qwen2.5-coder:7b-instruct-q4_K_M"
+    - "qwen2.5-coder:7b-instruct-q8_0"
+- family: qwen2.5-coder
+  name: "Qwen2.5 Coder 14B Instruct"
+  params_b: 14.7
+  quality: 68
+  quality_source: "maintainer-curated estimate, 2026-11-17 (general Qwen2.5 score at that size minus 4, as for 32B)"
+  tasks: [coding]
+  tags:
+    - "qwen2.5-coder:14b-instruct-q4_K_M"
+    - "qwen2.5-coder:14b-instruct-q8_0"
+- family: qwen2.5-coder
   name: "Qwen2.5 Coder 32B Instruct"
   params_b: 32.8
   quality: 76
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [coding]
   tags:
     - "qwen2.5-coder:32b-instruct-q3_K_M"
     - "qwen2.5-coder:32b-instruct-q4_K_M"
@@ -276,6 +328,7 @@
   params_b: 32.8
   quality: 90
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "qwen3:32b-q4_K_M"
     - "qwen3:32b-q8_0"
@@ -284,6 +337,7 @@
   params_b: 32.8
   quality: 84
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "deepseek-r1:32b-qwen-distill-q4_K_M"
     - "deepseek-r1:32b-qwen-distill-q8_0"
@@ -309,6 +363,7 @@
   params_b: 70.6
   quality: 84
   quality_source: "maintainer-curated estimate, 2026-11-16"
+  tasks: [reasoning]
   tags:
     - "deepseek-r1:70b-llama-distill-q4_K_M"
     - "deepseek-r1:70b-llama-distill-q8_0"

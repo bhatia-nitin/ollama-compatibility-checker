@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/shra26/ollama-compatibility-checker/internal/catalog"
 	"github.com/shra26/ollama-compatibility-checker/internal/output"
 	"github.com/shra26/ollama-compatibility-checker/internal/recommend"
 )
@@ -19,6 +20,7 @@ func addRecommendFlags(cmd *cobra.Command) {
 	f.Float64("min-tps", 20, "Balanced pick must reach this estimated tok/s")
 	f.Int("ctx", 8192, "context length to size the KV cache for")
 	f.Int("top", 3, "how many alternatives to list per pick")
+	f.String("task", "", "only recommend models tagged for this task: "+strings.Join(catalog.Tasks, ", "))
 	f.String("runtime", recommend.RuntimeOllama, "runtime to print config for: "+strings.Join(recommend.Runtimes, ", "))
 }
 
@@ -39,6 +41,7 @@ func recommendOptions(f *pflag.FlagSet) (recommend.Options, error) {
 	ctx, _ := f.GetInt("ctx")
 	top, _ := f.GetInt("top")
 	rt, _ := f.GetString("runtime")
+	task, _ := f.GetString("task")
 	switch {
 	case minTPS < 0:
 		return recommend.Options{}, errors.New("--min-tps must not be negative")
@@ -48,8 +51,10 @@ func recommendOptions(f *pflag.FlagSet) (recommend.Options, error) {
 		return recommend.Options{}, errors.New("--top must not be negative")
 	case !recommend.ValidRuntime(rt):
 		return recommend.Options{}, fmt.Errorf("--runtime %q is not valid; use one of: %s", rt, strings.Join(recommend.Runtimes, ", "))
+	case task != "" && !catalog.ValidTask(task):
+		return recommend.Options{}, fmt.Errorf("--task %q is not valid; use one of: %s", task, strings.Join(catalog.Tasks, ", "))
 	}
-	return recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top, Runtime: rt}, nil
+	return recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top, Runtime: rt, Task: task}, nil
 }
 
 func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
@@ -71,7 +76,9 @@ func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
 			cfg = recommend.BuildConfig(h, *e, o)
 		}
 		if asJSON, _ := f.GetBool("json"); asJSON {
-			return output.WriteJSON(cmd.OutOrStdout(), output.RecommendDoc(h, picks, cfg))
+			doc := output.RecommendDoc(h, picks, cfg)
+			doc.Task = o.Task
+			return output.WriteJSON(cmd.OutOrStdout(), doc)
 		}
 		output.RenderRecommend(cmd.OutOrStdout(), h, picks, cfg, o, useColor(cmd))
 		return nil

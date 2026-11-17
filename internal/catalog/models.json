@@ -10,6 +10,9 @@
     "max_ctx": 131072,
     "quality": 58,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "deepseek-r1:7b-qwen-distill-q4_K_M",
@@ -36,6 +39,9 @@
     "max_ctx": 131072,
     "quality": 56,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "deepseek-r1:8b-llama-distill-q4_K_M",
@@ -62,6 +68,9 @@
     "max_ctx": 131072,
     "quality": 74,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "deepseek-r1:14b-qwen-distill-q4_K_M",
@@ -88,6 +97,9 @@
     "max_ctx": 131072,
     "quality": 84,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "deepseek-r1:32b-qwen-distill-q4_K_M",
@@ -114,6 +126,9 @@
     "max_ctx": 131072,
     "quality": 84,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "deepseek-r1:70b-llama-distill-q4_K_M",
@@ -244,6 +259,9 @@
     "max_ctx": 131072,
     "quality": 52,
     "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
     "variants": [
       {
         "tag": "gemma3:4b-it-q4_K_M",
@@ -270,6 +288,9 @@
     "max_ctx": 131072,
     "quality": 70,
     "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
     "variants": [
       {
         "tag": "gemma3:12b-it-q4_K_M",
@@ -296,6 +317,9 @@
     "max_ctx": 131072,
     "quality": 80,
     "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
     "variants": [
       {
         "tag": "gemma3:27b-it-q4_K_M",
@@ -544,6 +568,9 @@
     "max_ctx": 131072,
     "quality": 77,
     "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
     "variants": [
       {
         "tag": "mistral-small3.2:24b-instruct-2506-q4_K_M",
@@ -769,6 +796,122 @@
   },
   {
     "family": "qwen2.5-coder",
+    "name": "Qwen2.5 Coder 1.5B Instruct",
+    "params_b": 1.54,
+    "active_params_b": 1.54,
+    "layers": 28,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 32,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5-coder:1.5b-instruct-q4_K_M",
+        "size_bytes": 986048576,
+        "bits": 5.12,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5-coder:1.5b-instruct-q8_0",
+        "size_bytes": 1646573120,
+        "bits": 8.55,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5-coder",
+    "name": "Qwen2.5 Coder 3B Instruct",
+    "params_b": 3.09,
+    "active_params_b": 3.09,
+    "layers": 36,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 42,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5-coder:3b-instruct-q4_K_M",
+        "size_bytes": 1929903072,
+        "bits": 5,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5-coder:3b-instruct-q8_0",
+        "size_bytes": 3285476320,
+        "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5-coder",
+    "name": "Qwen2.5 Coder 7B Instruct",
+    "params_b": 7.62,
+    "active_params_b": 7.62,
+    "layers": 28,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 58,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5-coder:7b-instruct-q4_K_M",
+        "size_bytes": 4683074048,
+        "bits": 4.92,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5-coder:7b-instruct-q8_0",
+        "size_bytes": 8098525696,
+        "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5-coder",
+    "name": "Qwen2.5 Coder 14B Instruct",
+    "params_b": 14.7,
+    "active_params_b": 14.7,
+    "layers": 48,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 68,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5-coder:14b-instruct-q4_K_M",
+        "size_bytes": 8988110784,
+        "bits": 4.89,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5-coder:14b-instruct-q8_0",
+        "size_bytes": 15701598144,
+        "bits": 8.55,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5-coder",
     "name": "Qwen2.5 Coder 32B Instruct",
     "params_b": 32.8,
     "active_params_b": 32.8,
@@ -778,6 +921,9 @@
     "max_ctx": 32768,
     "quality": 76,
     "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
     "variants": [
       {
         "tag": "qwen2.5-coder:32b-instruct-q3_K_M",
@@ -804,6 +950,9 @@
     "max_ctx": 40960,
     "quality": 22,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:0.6b-q4_K_M",
@@ -830,6 +979,9 @@
     "max_ctx": 40960,
     "quality": 40,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:1.7b-q4_K_M",
@@ -856,6 +1008,9 @@
     "max_ctx": 40960,
     "quality": 62,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:4b-q4_K_M",
@@ -882,6 +1037,9 @@
     "max_ctx": 40960,
     "quality": 72,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:8b-q4_K_M",
@@ -908,6 +1066,9 @@
     "max_ctx": 40960,
     "quality": 80,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:14b-q4_K_M",
@@ -934,6 +1095,9 @@
     "max_ctx": 40960,
     "quality": 82,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:30b-a3b-q4_K_M",
@@ -960,6 +1124,9 @@
     "max_ctx": 40960,
     "quality": 90,
     "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
     "variants": [
       {
         "tag": "qwen3:32b-q4_K_M",

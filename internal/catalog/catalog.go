@@ -37,7 +37,46 @@ type Model struct {
 	MaxCtx        int       `json:"max_ctx"`
 	Quality       int       `json:"quality"`
 	KVQuantOK     bool      `json:"kv_quant_ok"`
+	Tasks         []string  `json:"tasks,omitempty"` // subset of Tasks
 	Variants      []Variant `json:"variants"`
+}
+
+// Tasks lists the task tags a catalog entry may carry: coding (code-tuned
+// model), reasoning (has a thinking mode) and vision (accepts images in Ollama).
+var Tasks = []string{"coding", "reasoning", "vision"}
+
+// ValidTask reports whether t is one of Tasks.
+func ValidTask(t string) bool {
+	for _, k := range Tasks {
+		if k == t {
+			return true
+		}
+	}
+	return false
+}
+
+// HasTask reports whether m is tagged with task t.
+func (m Model) HasTask(t string) bool {
+	for _, k := range m.Tasks {
+		if k == t {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterTask returns the models tagged with task t, or ms unchanged when t is empty.
+func FilterTask(ms []Model, t string) []Model {
+	if t == "" {
+		return ms
+	}
+	var out []Model
+	for _, m := range ms {
+		if m.HasTask(t) {
+			out = append(out, m)
+		}
+	}
+	return out
 }
 
 // UnmarshalJSON decodes a Model, defaulting kv_quant_ok to true when absent.
@@ -115,6 +154,11 @@ func Validate(ms []Model) error {
 			return fmt.Errorf("catalog: %s: max_ctx must be > 0", id)
 		case m.Quality < 0 || m.Quality > 100:
 			return fmt.Errorf("catalog: %s: quality %d outside 0-100", id, m.Quality)
+		}
+		for _, t := range m.Tasks {
+			if !ValidTask(t) {
+				return fmt.Errorf("catalog: %s: unknown task %q (valid: %s)", id, t, strings.Join(Tasks, ", "))
+			}
 		}
 		for _, v := range m.Variants {
 			switch {

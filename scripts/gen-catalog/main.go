@@ -45,6 +45,7 @@ type source struct {
 	Quality       int      `yaml:"quality"`
 	QualitySource string   `yaml:"quality_source"`
 	KVQuantOK     *bool    `yaml:"kv_quant_ok"`
+	Tasks         []string `yaml:"tasks"`
 	Tags          []string `yaml:"tags"`
 }
 
@@ -113,6 +114,7 @@ func build(s source) (catalog.Model, error) {
 		ParamsB:   s.ParamsB,
 		Quality:   s.Quality,
 		KVQuantOK: s.KVQuantOK == nil || *s.KVQuantOK,
+		Tasks:     s.Tasks,
 	}
 	if s.ParamsB <= 0 {
 		return m, errors.New("params_b must be > 0")

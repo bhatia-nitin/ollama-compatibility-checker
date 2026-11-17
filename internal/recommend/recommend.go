@@ -21,6 +21,7 @@ type Options struct {
 	MinTPS   float64
 	Ctx, Top int
 	Runtime  string // "" or RuntimeOllama, RuntimeLlamaCpp, RuntimeLMStudio
+	Task     string // "" for all models, else one of catalog.Tasks
 }
 
 // Pick is one recommendation slot. When Met is false, Best is nil and
@@ -44,7 +45,7 @@ func Recommend(h hw.Hardware, ms []catalog.Model, o Options) []Pick {
 	p := estimate.DefaultParams()
 	p.Ctx = o.Ctx
 	var cands []estimate.Estimate
-	for _, e := range estimate.EstimateAll(h, ms, p) {
+	for _, e := range estimate.EstimateAll(h, catalog.FilterTask(ms, o.Task), p) {
 		if !e.Excluded {
 			cands = append(cands, e)
 		}
