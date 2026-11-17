@@ -45,6 +45,22 @@ and run `.\ollama-compat.exe`.
 
 ## Install
 
+### Install script
+
+macOS and Linux (installs to `~/.local/bin`; set `INSTALL_DIR` or `VERSION`
+to override). It verifies the SHA-256 checksum before installing:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/shra26/ollama-compatibility-checker/main/scripts/install.sh | sh
+```
+
+Windows PowerShell (installs to `%LOCALAPPDATA%\Programs\ollama-compat`; save
+the script and run `./install.ps1 -Version v0.1.1 -AddToPath` for options):
+
+```powershell
+irm https://raw.githubusercontent.com/shra26/ollama-compatibility-checker/main/scripts/install.ps1 | iex
+```
+
 ### Prebuilt binaries
 
 Download the archive for your platform from
@@ -105,6 +121,8 @@ Flags:
       --json             emit machine-readable JSON
       --min-tps float    Balanced pick must reach this estimated tok/s (default 20)
       --no-color         disable colored output
+      --runtime string   runtime to print config for: ollama, llamacpp, lmstudio (default "ollama")
+      --task string      only recommend models tagged for this task: coding, reasoning, vision
       --top int          how many alternatives to list per pick (default 3)
   -v, --version          version for ollama-compat
 ```
@@ -172,6 +190,42 @@ Run `ollama-compat bench` to measure these (downloads up to ~7.2 GB, asks first)
 Useful flags: `--ctx 16384` sizes the KV cache for a longer context,
 `--min-tps 30` raises the speed bar for the Balanced pick, `--top 5` lists
 more runners-up, `--json` prints machine-readable output.
+
+#### Picks for a task
+
+`--task` limits the picks to catalog models tagged for one job:
+
+| Task | Models | Meaning |
+|---|---|---|
+| `coding` | Qwen2.5 Coder 1.5B to 32B | code-tuned |
+| `reasoning` | Qwen3, DeepSeek-R1 distills | has a thinking mode |
+| `vision` | Gemma 3 4B/12B/27B, Mistral Small 3.2 | accepts images in Ollama |
+
+```bash
+ollama-compat --task coding
+```
+
+The same rules apply inside the smaller set, so a pick can come back empty
+(for example no vision model reaches 20 tok/s on an 8 GB Mac). Vision sizes
+cover the language model only; the image encoder adds a little memory.
+
+#### Other runtimes
+
+The config block is for Ollama by default. `--runtime` prints the same
+choices (context, GPU layers, flash attention, KV cache type) for another
+runtime:
+
+```bash
+ollama-compat --runtime llamacpp   # a llama-server command
+ollama-compat --runtime lmstudio   # an lms load command
+```
+
+The catalog only knows Ollama tags, so the model path is a placeholder such
+as `/path/to/Qwen2.5-7B-Instruct-Q4_K_M.gguf`; any GGUF of that model at that
+quant works. `lms load` has no flags for flash attention or KV cache
+quantization, so those are listed as settings to apply in the LM Studio app.
+With `--json`, the config object gains `runtime`, and for llama.cpp and
+LM Studio also `runtime_command`, `runtime_settings` and `runtime_notes`.
 
 ### scan
 
