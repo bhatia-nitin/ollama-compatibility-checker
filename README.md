@@ -40,7 +40,7 @@ ollama-compat
   for your OS and a Modelfile, or a `llama-server` / `lms load` command with
   `--runtime`.
 - **It is honest about speed.** Every estimate carries its expected error
-  (`~20 tok/s ±15%`), fitted from real bench runs people share. `bench`
+  (`~20 tok/s ±25%`), fitted from real bench runs people share. `bench`
   measures the real number on your machine.
 - **It fits in scripts.** `--json` output, one binary for macOS, Linux and
   Windows on amd64 and arm64, MIT licensed.
@@ -193,21 +193,22 @@ Hardware
 
 Recommendations  (ctx 8192, estimates ± expected error)
   Note: Apple Silicon speeds are fitted from 1 bench run on 1 machine. Add yours: `ollama-compat bench --share`.
-  Fastest   qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±15%  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M       ~19 tok/s ±15%  3.0 GB  100% GPU
-      also  qwen3:1.7b-q8_0                   ~17 tok/s ±15%  3.2 GB  100% GPU
-      also  phi4-mini:3.8b-q4_K_M             ~16 tok/s ±15%  3.6 GB  100% GPU
-  Balanced  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±15%  2.6 GB  100% GPU
-      also  qwen2.5-coder:3b-instruct-q4_K_M  ~20 tok/s ±15%  2.6 GB  100% GPU
-      also  qwen3:1.7b-q4_K_M                 ~29 tok/s ±15%  2.4 GB  100% GPU
-      also  granite3.3:2b                     ~25 tok/s ±15%  2.4 GB  100% GPU
-  Largest   qwen3:8b-q4_K_M                   ~7 tok/s ±40%   6.4 GB  75% GPU
-      also  qwen3:4b-q8_0                     ~9 tok/s ±40%   5.5 GB  86% GPU
-      also  qwen3:4b-q4_K_M                   ~15 tok/s ±15%  3.8 GB  100% GPU
-      also  qwen2.5:7b-instruct-q4_K_M        ~8 tok/s ±40%   5.5 GB  86% GPU
+  Fastest   qwen3.5:2b-q4_K_M                 ~30 tok/s ±25%  3.0 GB  100% GPU
+      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+      also  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±25%  2.6 GB  100% GPU
+      also  qwen3.5:2b-q8_0                   ~19 tok/s ±25%  3.8 GB  100% GPU
+  Balanced  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+      also  qwen3.5:2b-q4_K_M                 ~30 tok/s ±25%  3.0 GB  100% GPU
+      also  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±25%  2.6 GB  100% GPU
+      also  qwen2.5-coder:3b-instruct-q4_K_M  ~20 tok/s ±25%  2.6 GB  100% GPU
+  Largest   deepseek-r1:8b-0528-qwen3-q4_K_M  ~7 tok/s ±40%   6.4 GB  75% GPU
+      also  qwen3:4b-thinking-2507-q8_0       ~9 tok/s ±40%   5.4 GB  89% GPU
+      also  qwen3:8b-q4_K_M                   ~7 tok/s ±40%   6.4 GB  75% GPU
+      also  qwen3:4b-instruct-2507-q8_0       ~9 tok/s ±40%   5.4 GB  89% GPU
+  With 16 GB unified memory, Largest would be qwen3.5:9b-q4_K_M (~7 tok/s ±25%, needs 8.5 GB).
 
 Config for Balanced
-  ollama pull qwen2.5:3b-instruct-q4_K_M
+  ollama pull gemma4:e2b-it-q4_K_M
   env:
     export OLLAMA_FLASH_ATTENTION=1
     export OLLAMA_KV_CACHE_TYPE=q8_0
@@ -218,12 +219,12 @@ Config for Balanced
     # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
   Restart Ollama after setting these.
   Modelfile:
-    FROM qwen2.5:3b-instruct-q4_K_M
+    FROM gemma4:e2b-it-q4_K_M
     PARAMETER num_ctx 8192
     PARAMETER num_gpu 99
-  ollama create qwen2.5-3b-instruct-q4_K_M-tuned -f Modelfile
+  ollama create gemma4-e2b-it-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads up to ~7.2 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~10.0 GB, asks first).
 ```
 
 Useful flags: `--ctx 16384` sizes the KV cache for a longer context,
@@ -343,11 +344,11 @@ low confidence) and unusual drivers can be further off. Run
 `ollama-compat bench` to measure the real
 number on your machine. See `catalog/README.md` for the calibration log.
 
-Each speed carries its expected error, for example `~21 tok/s ±15%`:
+Each speed carries its expected error, for example `~20 tok/s ±25%`:
 
 | Case | Range |
 |---|---|
-| Fully on GPU, backend with bench records (Apple Silicon today) | the fitted error, at least ±15% |
+| Fully on GPU, backend with bench records (Apple Silicon and NVIDIA today) | the fitted error: at least ±25% until 3 machines have shared data, then at least ±15% |
 | Fully on GPU, backend without records, or CPU only | ±30% |
 | Partial offload (part GPU, part CPU) | ±40% |
 | Unknown GPU (bandwidth guessed, marked low confidence) | ±50% |

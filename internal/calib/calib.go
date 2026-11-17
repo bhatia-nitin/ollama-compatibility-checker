@@ -119,6 +119,15 @@ type Table map[string]Factor
 // one machine vary by a few percent, and machines with the same chip differ.
 const MinErrPct = 15
 
+// FewMachinesErrPct is the floor while a backend has data from fewer than
+// MinMachines machines: one machine's fit says little about other chips of
+// the same backend (a laptop GPU versus a big desktop card, an M1 versus an
+// M3 Max).
+const (
+	FewMachinesErrPct = 25
+	MinMachines       = 3
+)
+
 // usable reports whether a run measures pure GPU decode efficiency: fully on
 // GPU both estimated and measured, on a GPU with known bandwidth.
 func usable(r Record, u Run) bool {
@@ -134,7 +143,8 @@ func efficiency(bwGBs float64, u Run) float64 {
 // Fit computes one Factor per backend from fully-on-GPU runs. Call
 // RefreshBandwidth on each record first. Eff is the
 // median efficiency; ErrPct is the largest relative error that Eff makes on
-// those runs, rounded up to 5 and at least MinErrPct.
+// those runs, rounded up to 5 and at least MinErrPct, or FewMachinesErrPct
+// while fewer than MinMachines machines contributed.
 func Fit(rs []Record) Table {
 	effs := map[string][]float64{}
 	machines := map[string]map[string]bool{}
@@ -159,9 +169,11 @@ func Fit(rs []Record) Table {
 			worst = math.Max(worst, math.Abs(e/m-1))
 		}
 		pct := int(math.Ceil(worst*100/5)) * 5
-		if pct < MinErrPct {
-			pct = MinErrPct
+		floor := MinErrPct
+		if len(machines[b]) < MinMachines {
+			floor = FewMachinesErrPct
 		}
+		pct = max(pct, floor)
 		t[b] = Factor{Eff: math.Round(m*1000) / 1000, ErrPct: pct, Runs: len(v), Machines: len(machines[b])}
 	}
 	return t

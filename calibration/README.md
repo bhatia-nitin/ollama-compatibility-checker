@@ -12,7 +12,7 @@ that were fully on GPU (estimated and measured) on a GPU with known bandwidth:
   factor is the median over all such runs. It replaces the default (0.65) for
   that backend.
 - **Error** = the largest relative miss of that median on the same runs,
-  rounded up to 5 percent, never below 15. It is the `±` shown next to every
+  rounded up to 5 percent, never below 15, and never below 25 while fewer than 3 machines contributed (one machine says little about other chips on the same backend). It is the `±` shown next to every
   fully-on-GPU speed on that backend.
 
 Backends with no data keep the default factor and `±30%`.

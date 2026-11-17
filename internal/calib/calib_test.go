@@ -29,9 +29,9 @@ func TestFit(t *testing.T) {
 	}
 	got := Fit(rs)
 	want := Table{
-		// median 0.60; worst miss 0.5/0.6 = 16.7% -> 20
-		"cuda":  {Eff: 0.6, ErrPct: 20, Runs: 3, Machines: 2},
-		"metal": {Eff: 0.57, ErrPct: MinErrPct, Runs: 1, Machines: 1},
+		// median 0.60; worst miss 0.5/0.6 = 16.7% -> 20, but only 2 machines -> 25
+		"cuda":  {Eff: 0.6, ErrPct: FewMachinesErrPct, Runs: 3, Machines: 2},
+		"metal": {Eff: 0.57, ErrPct: FewMachinesErrPct, Runs: 1, Machines: 1},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got  %+v\nwant %+v", got, want)
@@ -99,5 +99,17 @@ func TestRefreshBandwidth(t *testing.T) {
 	m.RefreshBandwidth()
 	if m.GPU.BandwidthGBs != 68.25 {
 		t.Errorf("apple: got %v", m.GPU.BandwidthGBs)
+	}
+}
+
+func TestFitErrorFloorAtThreeMachines(t *testing.T) {
+	rs := []Record{
+		rec("A", "cuda", 100, false, run(0.60)),
+		rec("B", "cuda", 100, false, run(0.61)),
+		rec("C", "cuda", 100, false, run(0.62)),
+	}
+	// worst miss 1.6% rounds to 5, below both floors; 3 machines -> MinErrPct
+	if got := Fit(rs)["cuda"].ErrPct; got != MinErrPct {
+		t.Errorf("ErrPct = %d, want %d", got, MinErrPct)
 	}
 }

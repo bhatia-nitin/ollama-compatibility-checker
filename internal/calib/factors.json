@@ -1,13 +1,13 @@
 {
   "cuda": {
     "eff": 0.802,
-    "err_pct": 15,
+    "err_pct": 25,
     "runs": 1,
     "machines": 1
   },
   "metal": {
     "eff": 0.568,
-    "err_pct": 15,
+    "err_pct": 25,
     "runs": 1,
     "machines": 1
   }
