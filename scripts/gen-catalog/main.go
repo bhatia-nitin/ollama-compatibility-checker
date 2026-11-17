@@ -46,6 +46,7 @@ type source struct {
 	QualitySource string   `yaml:"quality_source"`
 	KVQuantOK     *bool    `yaml:"kv_quant_ok"`
 	Tasks         []string `yaml:"tasks"`
+	Quant         string   `yaml:"quant"` // for tags with no quant suffix whose GGUF file type has no name
 	Tags          []string `yaml:"tags"`
 }
 
@@ -137,6 +138,9 @@ func build(s source) (catalog.Model, error) {
 			}
 			if info == nil {
 				info = &ai
+			}
+			if quant == "" && s.Quant != "" {
+				quant = s.Quant
 			}
 			if quant == "" {
 				quant = quantName(tag, ai.FileType)

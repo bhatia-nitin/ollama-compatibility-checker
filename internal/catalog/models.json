@@ -59,6 +59,35 @@
   },
   {
     "family": "deepseek-r1",
+    "name": "DeepSeek-R1 0528 Distill Qwen3 8B",
+    "params_b": 8.19,
+    "active_params_b": 8.19,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 76,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "deepseek-r1:8b-0528-qwen3-q4_K_M",
+        "size_bytes": 5225373760,
+        "bits": 5.1,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "deepseek-r1:8b-0528-qwen3-q8_0",
+        "size_bytes": 8851075136,
+        "bits": 8.65,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "deepseek-r1",
     "name": "DeepSeek-R1 Distill Qwen 14B",
     "params_b": 14.8,
     "active_params_b": 14.8,
@@ -140,6 +169,35 @@
         "tag": "deepseek-r1:70b-llama-distill-q8_0",
         "size_bytes": 74975051616,
         "bits": 8.5,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "devstral",
+    "name": "Devstral Small 24B 2505",
+    "params_b": 23.6,
+    "active_params_b": 23.6,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 74,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "devstral:24b-small-2505-q4_K_M",
+        "size_bytes": 14333909728,
+        "bits": 4.86,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "devstral:24b-small-2505-q8_0",
+        "size_bytes": 25054780128,
+        "bits": 8.49,
         "quant": "q8_0"
       }
     ]
@@ -336,6 +394,29 @@
     ]
   },
   {
+    "family": "gpt-oss",
+    "name": "gpt-oss 20B (MoE)",
+    "params_b": 20.9,
+    "active_params_b": 3.6,
+    "layers": 24,
+    "kv_heads": 8,
+    "head_dim": 64,
+    "max_ctx": 131072,
+    "quality": 84,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "gpt-oss:20b",
+        "size_bytes": 13793422816,
+        "bits": 5.28,
+        "quant": "mxfp4"
+      }
+    ]
+  },
+  {
     "family": "granite3.1-moe",
     "name": "Granite 3.1 MoE 3B Instruct",
     "params_b": 3.3,
@@ -506,6 +587,35 @@
     ]
   },
   {
+    "family": "magistral",
+    "name": "Magistral Small 24B 2506",
+    "params_b": 23.6,
+    "active_params_b": 23.6,
+    "layers": 40,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 40000,
+    "quality": 78,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "magistral:24b-small-2506-q4_K_M",
+        "size_bytes": 14333907488,
+        "bits": 4.86,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "magistral:24b-small-2506-q8_0",
+        "size_bytes": 25054777888,
+        "bits": 8.49,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
     "family": "mistral",
     "name": "Mistral 7B Instruct v0.3",
     "params_b": 7.25,
@@ -660,6 +770,64 @@
         "tag": "phi4-mini:3.8b-q8_0",
         "size_bytes": 4084611392,
         "bits": 8.51,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "phi4-mini-reasoning",
+    "name": "Phi-4 Mini Reasoning 3.8B",
+    "params_b": 3.84,
+    "active_params_b": 3.84,
+    "layers": 32,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 131072,
+    "quality": 52,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "phi4-mini-reasoning:3.8b-q4_K_M",
+        "size_bytes": 3152477440,
+        "bits": 6.57,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "phi4-mini-reasoning:3.8b-q8_0",
+        "size_bytes": 4556470528,
+        "bits": 9.49,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "phi4-reasoning",
+    "name": "Phi-4 Reasoning 14B",
+    "params_b": 14.7,
+    "active_params_b": 14.7,
+    "layers": 40,
+    "kv_heads": 10,
+    "head_dim": 128,
+    "max_ctx": 32768,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "phi4-reasoning:14b-q4_K_M",
+        "size_bytes": 11117500000,
+        "bits": 6.05,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "phi4-reasoning:14b-q8_0",
+        "size_bytes": 17055061600,
+        "bits": 9.28,
         "quant": "q8_0"
       }
     ]
@@ -940,6 +1108,93 @@
     ]
   },
   {
+    "family": "qwen2.5vl",
+    "name": "Qwen2.5-VL 3B Instruct",
+    "params_b": 3.75,
+    "active_params_b": 3.75,
+    "layers": 36,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "max_ctx": 128000,
+    "quality": 46,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5vl:3b-q4_K_M",
+        "size_bytes": 3200614720,
+        "bits": 6.83,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5vl:3b-q8_0",
+        "size_bytes": 4575356736,
+        "bits": 9.76,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5vl",
+    "name": "Qwen2.5-VL 7B Instruct",
+    "params_b": 8.29,
+    "active_params_b": 8.29,
+    "layers": 28,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 128000,
+    "quality": 62,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5vl:7b-q4_K_M",
+        "size_bytes": 5969233408,
+        "bits": 5.76,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5vl:7b-q8_0",
+        "size_bytes": 9404141056,
+        "bits": 9.08,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen2.5vl",
+    "name": "Qwen2.5-VL 32B Instruct",
+    "params_b": 33.5,
+    "active_params_b": 33.5,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 128000,
+    "quality": 80,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen2.5vl:32b-q4_K_M",
+        "size_bytes": 21159298208,
+        "bits": 5.05,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen2.5vl:32b-q8_0",
+        "size_bytes": 36151090848,
+        "bits": 8.63,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
     "family": "qwen3",
     "name": "Qwen3 0.6B",
     "params_b": 0.6,
@@ -1022,6 +1277,61 @@
         "tag": "qwen3:4b-q8_0",
         "size_bytes": 4368878272,
         "bits": 8.74,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 4B Instruct 2507",
+    "params_b": 4.02,
+    "active_params_b": 4.02,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 68,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:4b-instruct-2507-q4_K_M",
+        "size_bytes": 2497280480,
+        "bits": 4.97,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:4b-instruct-2507-q8_0",
+        "size_bytes": 4280404960,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 4B Thinking 2507",
+    "params_b": 4.02,
+    "active_params_b": 4.02,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 70,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3:4b-thinking-2507-q4_K_M",
+        "size_bytes": 2497280480,
+        "bits": 4.97,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:4b-thinking-2507-q8_0",
+        "size_bytes": 4280404960,
+        "bits": 8.52,
         "quant": "q8_0"
       }
     ]
@@ -1115,6 +1425,61 @@
   },
   {
     "family": "qwen3",
+    "name": "Qwen3 30B-A3B Instruct 2507 (MoE)",
+    "params_b": 30.5,
+    "active_params_b": 3.3,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 86,
+    "kv_quant_ok": true,
+    "variants": [
+      {
+        "tag": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+        "size_bytes": 18556685856,
+        "bits": 4.87,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:30b-a3b-instruct-2507-q8_0",
+        "size_bytes": 32483931680,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
+    "name": "Qwen3 30B-A3B Thinking 2507 (MoE)",
+    "params_b": 30.5,
+    "active_params_b": 3.3,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 87,
+    "kv_quant_ok": true,
+    "tasks": [
+      "reasoning"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3:30b-a3b-thinking-2507-q4_K_M",
+        "size_bytes": 18556685856,
+        "bits": 4.87,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3:30b-a3b-thinking-2507-q8_0",
+        "size_bytes": 32483931680,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3",
     "name": "Qwen3 32B",
     "params_b": 32.8,
     "active_params_b": 32.8,
@@ -1138,6 +1503,180 @@
         "tag": "qwen3:32b-q8_0",
         "size_bytes": 35132291680,
         "bits": 8.57,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-coder",
+    "name": "Qwen3 Coder 30B-A3B (MoE)",
+    "params_b": 30.5,
+    "active_params_b": 3.3,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 82,
+    "kv_quant_ok": true,
+    "tasks": [
+      "coding"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-coder:30b-a3b-q4_K_M",
+        "size_bytes": 18556688736,
+        "bits": 4.87,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-coder:30b-a3b-q8_0",
+        "size_bytes": 32483934560,
+        "bits": 8.52,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-vl",
+    "name": "Qwen3-VL 2B Instruct",
+    "params_b": 2.13,
+    "active_params_b": 2.13,
+    "layers": 28,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 38,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-vl:2b-instruct-q4_K_M",
+        "size_bytes": 1108016576,
+        "bits": 4.16,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-vl:2b-instruct-q8_0",
+        "size_bytes": 1835034048,
+        "bits": 6.89,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-vl",
+    "name": "Qwen3-VL 4B Instruct",
+    "params_b": 4.44,
+    "active_params_b": 4.44,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 62,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-vl:4b-instruct-q4_K_M",
+        "size_bytes": 2497888288,
+        "bits": 4.5,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-vl:4b-instruct-q8_0",
+        "size_bytes": 4281012768,
+        "bits": 7.71,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-vl",
+    "name": "Qwen3-VL 8B Instruct",
+    "params_b": 8.77,
+    "active_params_b": 8.77,
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 72,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-vl:8b-instruct-q4_K_M",
+        "size_bytes": 5028391520,
+        "bits": 4.59,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-vl:8b-instruct-q8_0",
+        "size_bytes": 8710126176,
+        "bits": 7.95,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-vl",
+    "name": "Qwen3-VL 30B-A3B Instruct (MoE)",
+    "params_b": 31.1,
+    "active_params_b": 3.3,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 82,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-vl:30b-a3b-instruct-q4_K_M",
+        "size_bytes": 18557293888,
+        "bits": 4.77,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-vl:30b-a3b-instruct-q8_0",
+        "size_bytes": 32484539712,
+        "bits": 8.36,
+        "quant": "q8_0"
+      }
+    ]
+  },
+  {
+    "family": "qwen3-vl",
+    "name": "Qwen3-VL 32B Instruct",
+    "params_b": 33.4,
+    "active_params_b": 33.4,
+    "layers": 64,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "max_ctx": 262144,
+    "quality": 88,
+    "kv_quant_ok": true,
+    "tasks": [
+      "vision"
+    ],
+    "variants": [
+      {
+        "tag": "qwen3-vl:32b-instruct-q4_K_M",
+        "size_bytes": 20910274592,
+        "bits": 5.01,
+        "quant": "q4_K_M"
+      },
+      {
+        "tag": "qwen3-vl:32b-instruct-q8_0",
+        "size_bytes": 35976227872,
+        "bits": 8.62,
         "quant": "q8_0"
       }
     ]

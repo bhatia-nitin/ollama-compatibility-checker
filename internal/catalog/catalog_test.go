@@ -71,7 +71,7 @@ func TestValidateRejects(t *testing.T) {
 func TestQuantPenalty(t *testing.T) {
 	cases := map[string]int{
 		"q8_0": 0, "q6_K": -1, "q5_K_M": -2, "q4_K_M": -3, "q4_0": -3,
-		"q3_K_M": -8, "q2_K": -15, "unknown": 0,
+		"q3_K_M": -8, "q2_K": -15, "unknown": 0, "mxfp4": -3,
 	}
 	for q, want := range cases {
 		if got := QuantPenalty(q); got != want {

@@ -8,6 +8,7 @@
 #   active_params_b   optional; MoE active parameters from the model card.
 #                     When absent the generator uses params_b * expert_used / expert_count.
 #   kv_quant_ok       optional, default true
+#   quant             optional; quant name for tags without a quant suffix
 #   tasks             optional; any of coding (code-tuned), reasoning (thinking mode),
 #                     vision (accepts images in Ollama)
 #   tags              Ollama library tags; each is verified against the registry
@@ -375,3 +376,177 @@
   tags:
     - "qwen2.5:72b-instruct-q3_K_M"
     - "qwen2.5:72b-instruct-q4_K_M"
+- family: gpt-oss
+  name: "gpt-oss 20B (MoE)"
+  params_b: 20.9
+  active_params_b: 3.6
+  quality: 84
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  quant: mxfp4 # experts in MXFP4; the GGUF file type does not say so
+  tags:
+    - "gpt-oss:20b"
+- family: qwen3
+  name: "Qwen3 4B Instruct 2507"
+  params_b: 4.02
+  quality: 68
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tags:
+    - "qwen3:4b-instruct-2507-q4_K_M"
+    - "qwen3:4b-instruct-2507-q8_0"
+- family: qwen3
+  name: "Qwen3 4B Thinking 2507"
+  params_b: 4.02
+  quality: 70
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "qwen3:4b-thinking-2507-q4_K_M"
+    - "qwen3:4b-thinking-2507-q8_0"
+- family: qwen3
+  name: "Qwen3 30B-A3B Instruct 2507 (MoE)"
+  params_b: 30.5
+  active_params_b: 3.3
+  quality: 86
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tags:
+    - "qwen3:30b-a3b-instruct-2507-q4_K_M"
+    - "qwen3:30b-a3b-instruct-2507-q8_0"
+- family: qwen3
+  name: "Qwen3 30B-A3B Thinking 2507 (MoE)"
+  params_b: 30.5
+  active_params_b: 3.3
+  quality: 87
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "qwen3:30b-a3b-thinking-2507-q4_K_M"
+    - "qwen3:30b-a3b-thinking-2507-q8_0"
+- family: qwen3-coder
+  name: "Qwen3 Coder 30B-A3B (MoE)"
+  params_b: 30.5
+  active_params_b: 3.3
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [coding]
+  tags:
+    - "qwen3-coder:30b-a3b-q4_K_M"
+    - "qwen3-coder:30b-a3b-q8_0"
+- family: devstral
+  name: "Devstral Small 24B 2505"
+  params_b: 23.6
+  quality: 74
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [coding]
+  tags:
+    - "devstral:24b-small-2505-q4_K_M"
+    - "devstral:24b-small-2505-q8_0"
+- family: magistral
+  name: "Magistral Small 24B 2506"
+  params_b: 23.6
+  quality: 78
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "magistral:24b-small-2506-q4_K_M"
+    - "magistral:24b-small-2506-q8_0"
+- family: phi4-reasoning
+  name: "Phi-4 Reasoning 14B"
+  params_b: 14.7
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "phi4-reasoning:14b-q4_K_M"
+    - "phi4-reasoning:14b-q8_0"
+- family: phi4-mini-reasoning
+  name: "Phi-4 Mini Reasoning 3.8B"
+  params_b: 3.84
+  quality: 52
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "phi4-mini-reasoning:3.8b-q4_K_M"
+    - "phi4-mini-reasoning:3.8b-q8_0"
+- family: deepseek-r1
+  name: "DeepSeek-R1 0528 Distill Qwen3 8B"
+  params_b: 8.19
+  quality: 76
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [reasoning]
+  tags:
+    - "deepseek-r1:8b-0528-qwen3-q4_K_M"
+    - "deepseek-r1:8b-0528-qwen3-q8_0"
+- family: qwen2.5vl
+  name: "Qwen2.5-VL 3B Instruct"
+  params_b: 3.75
+  quality: 46
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen2.5vl:3b-q4_K_M"
+    - "qwen2.5vl:3b-q8_0"
+- family: qwen2.5vl
+  name: "Qwen2.5-VL 7B Instruct"
+  params_b: 8.29
+  quality: 62
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen2.5vl:7b-q4_K_M"
+    - "qwen2.5vl:7b-q8_0"
+- family: qwen2.5vl
+  name: "Qwen2.5-VL 32B Instruct"
+  params_b: 33.5
+  quality: 80
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen2.5vl:32b-q4_K_M"
+    - "qwen2.5vl:32b-q8_0"
+- family: qwen3-vl
+  name: "Qwen3-VL 2B Instruct"
+  params_b: 2.13
+  quality: 38
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen3-vl:2b-instruct-q4_K_M"
+    - "qwen3-vl:2b-instruct-q8_0"
+- family: qwen3-vl
+  name: "Qwen3-VL 4B Instruct"
+  params_b: 4.44
+  quality: 62
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen3-vl:4b-instruct-q4_K_M"
+    - "qwen3-vl:4b-instruct-q8_0"
+- family: qwen3-vl
+  name: "Qwen3-VL 8B Instruct"
+  params_b: 8.77
+  quality: 72
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen3-vl:8b-instruct-q4_K_M"
+    - "qwen3-vl:8b-instruct-q8_0"
+- family: qwen3-vl
+  name: "Qwen3-VL 30B-A3B Instruct (MoE)"
+  params_b: 31.1
+  active_params_b: 3.3
+  quality: 82
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen3-vl:30b-a3b-instruct-q4_K_M"
+    - "qwen3-vl:30b-a3b-instruct-q8_0"
+- family: qwen3-vl
+  name: "Qwen3-VL 32B Instruct"
+  params_b: 33.4
+  quality: 88
+  quality_source: "maintainer-curated estimate, 2026-11-17"
+  tasks: [vision]
+  tags:
+    - "qwen3-vl:32b-instruct-q4_K_M"
+    - "qwen3-vl:32b-instruct-q8_0"

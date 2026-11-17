@@ -181,7 +181,7 @@ func Validate(ms []Model) error {
 }
 
 // QuantPenalty is the quality adjustment for a quantization level:
-// q8 0, q6 -1, q5 -2, q4 -3, q3 -8, q2 -15. Unknown or unquantized types get 0.
+// q8 0, q6 -1, q5 -2, q4 and mxfp4 -3, q3 -8, q2 -15. Unknown or unquantized types get 0.
 func QuantPenalty(quant string) int {
 	q := strings.TrimPrefix(strings.ToLower(quant), "i") // iq4_xs ranks with q4
 	switch {
@@ -191,7 +191,7 @@ func QuantPenalty(quant string) int {
 		return -1
 	case strings.HasPrefix(q, "q5"):
 		return -2
-	case strings.HasPrefix(q, "q4"):
+	case strings.HasPrefix(q, "q4"), q == "mxfp4":
 		return -3
 	case strings.HasPrefix(q, "q3"):
 		return -8
