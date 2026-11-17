@@ -1,0 +1,53 @@
+# Weekly check that catalog/sources.yaml has not drifted from the Ollama
+# library. Reports only: it never edits the catalog. Findings go into one
+# tracking issue, which is updated in place and closed when the drift is gone.
+#
+# Fetched content never reaches the shell: the report is a file, and the issue
+# body is read from it with --body-file.
+name: catalog-check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: catalog-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TITLE: "Catalog check: Ollama library changes"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run catalog check
+        run: go run ./scripts/check-catalog -out "$RUNNER_TEMP/report.md"
+
+      - name: Update tracking issue
+        run: |
+          set -eu
+          report="$RUNNER_TEMP/report.md"
+          gh label create catalog --color 0e8a16 --description "Catalog freshness" || true
+          num=$(gh issue list --label catalog --state open --search "\"$TITLE\" in:title" \
+            --json number,title --jq "map(select(.title == env.TITLE)) | .[0].number // empty")
+          if grep -q '^No drift found\.$' "$report"; then
+            if [ -n "$num" ]; then
+              gh issue comment "$num" --body "Latest weekly check found no drift. Closing."
+              gh issue close "$num"
+            fi
+          elif [ -n "$num" ]; then
+            gh issue edit "$num" --body-file "$report"
+          else
+            gh issue create --title "$TITLE" --label catalog --body-file "$report"
+          fi

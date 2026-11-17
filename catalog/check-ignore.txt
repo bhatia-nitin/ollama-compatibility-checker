@@ -1,0 +1,44 @@
+# Library models that scripts/check-catalog should not report as "new families".
+# One name per line; # starts a comment. Grow this as you decide.
+
+# Embedding models
+all-minilm
+bge-large
+bge-m3
+embeddinggemma
+embeddinggemma-2
+granite-embedding
+mxbai-embed-large
+nomic-embed-text
+nomic-embed-text-v2-moe
+paraphrase-multilingual
+qwen3-embedding
+snowflake-arctic-embed
+snowflake-arctic-embed2
+
+# Safety and guard models
+granite3-guardian
+granite4.1-guardian
+gpt-oss-safeguard
+llama-guard3
+shieldgemma
+
+# OCR, document and specialty models
+deepseek-ocr
+glm-ocr
+reader-lm
+nuextract
+duckdb-nsql
+sqlcoder
+bespoke-minicheck
+
+# Roleplay, uncensored and merge variants
+dolphin-llama3
+dolphin-mistral
+dolphin-mixtral
+dolphin-phi
+llama2-uncensored
+wizardlm-uncensored
+wizard-vicuna-uncensored
+goliath
+megadolphin
