@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -17,6 +19,7 @@ func addRecommendFlags(cmd *cobra.Command) {
 	f.Float64("min-tps", 20, "Balanced pick must reach this estimated tok/s")
 	f.Int("ctx", 8192, "context length to size the KV cache for")
 	f.Int("top", 3, "how many alternatives to list per pick")
+	f.String("runtime", recommend.RuntimeOllama, "runtime to print config for: "+strings.Join(recommend.Runtimes, ", "))
 }
 
 func newRecommendCmd(detect detectFunc) *cobra.Command {
@@ -35,6 +38,7 @@ func recommendOptions(f *pflag.FlagSet) (recommend.Options, error) {
 	minTPS, _ := f.GetFloat64("min-tps")
 	ctx, _ := f.GetInt("ctx")
 	top, _ := f.GetInt("top")
+	rt, _ := f.GetString("runtime")
 	switch {
 	case minTPS < 0:
 		return recommend.Options{}, errors.New("--min-tps must not be negative")
@@ -42,8 +46,10 @@ func recommendOptions(f *pflag.FlagSet) (recommend.Options, error) {
 		return recommend.Options{}, errors.New("--ctx must be positive")
 	case top < 0:
 		return recommend.Options{}, errors.New("--top must not be negative")
+	case !recommend.ValidRuntime(rt):
+		return recommend.Options{}, fmt.Errorf("--runtime %q is not valid; use one of: %s", rt, strings.Join(recommend.Runtimes, ", "))
 	}
-	return recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top}, nil
+	return recommend.Options{MinTPS: minTPS, Ctx: ctx, Top: top, Runtime: rt}, nil
 }
 
 func recommendRunE(detect detectFunc) func(*cobra.Command, []string) error {
