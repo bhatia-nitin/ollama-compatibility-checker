@@ -23,6 +23,11 @@ type Config struct {
 	CtxNote   string
 	Env       map[string]string // OLLAMA_FLASH_ATTENTION, OLLAMA_KV_CACHE_TYPE
 	EnvSyntax map[string]string // "posix", "powershell", "windows-persistent", "macos-app"
+
+	Runtime   string // "ollama" (default), "llamacpp" or "lmstudio"
+	ModelName string // catalog display name, e.g. "Qwen2.5 7B"
+	Quant     string // catalog quant, e.g. "q4_K_M"
+	Layers    int    // total model layers, to turn NumGPU into a ratio
 }
 
 // BuildConfig builds the pull command, Modelfile and environment for e.
@@ -55,6 +60,14 @@ func BuildConfig(h hw.Hardware, e estimate.Estimate, o Options) Config {
 		NumGPU:  final.NumGPU,
 		CtxNote: strings.Join(notes, "; "),
 		Env:     map[string]string{},
+
+		Runtime:   o.Runtime,
+		ModelName: final.Model.Name,
+		Quant:     final.Variant.Quant,
+		Layers:    final.Model.Layers,
+	}
+	if c.Runtime == "" {
+		c.Runtime = RuntimeOllama
 	}
 	c.Modelfile = fmt.Sprintf("FROM %s\nPARAMETER num_ctx %d\n", final.Variant.Tag, c.NumCtx)
 	if c.NumGPU > 0 {

@@ -86,6 +86,11 @@ type configJSON struct {
 	CtxNote   string            `json:"ctx_note"`
 	Env       map[string]string `json:"env"`
 	EnvSyntax map[string]string `json:"env_syntax"`
+
+	Runtime         string   `json:"runtime"`
+	RuntimeCommand  string   `json:"runtime_command,omitempty"`
+	RuntimeSettings []string `json:"runtime_settings,omitempty"`
+	RuntimeNotes    []string `json:"runtime_notes,omitempty"`
 }
 
 // ScanDocument is the JSON shape of `scan --json`.
@@ -132,7 +137,10 @@ func RecommendDoc(h hw.Hardware, picks []recommend.Pick, cfg recommend.Config) R
 			env = map[string]string{}
 		}
 		d.Config = &configJSON{PullCmd: cfg.PullCmd, Modelfile: cfg.Modelfile, NumCtx: cfg.NumCtx,
-			NumGPU: cfg.NumGPU, CtxNote: cfg.CtxNote, Env: env, EnvSyntax: cfg.EnvSyntax}
+			NumGPU: cfg.NumGPU, CtxNote: cfg.CtxNote, Env: env, EnvSyntax: cfg.EnvSyntax, Runtime: runtimeName(cfg)}
+		if rc, ok := runtimeConfig(cfg); ok {
+			d.Config.RuntimeCommand, d.Config.RuntimeSettings, d.Config.RuntimeNotes = rc.Command, rc.Settings, rc.Notes
+		}
 	}
 	return d
 }

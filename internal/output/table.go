@@ -176,14 +176,18 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 			heading += " (closest)"
 		}
 		fmt.Fprintln(w)
-		fmt.Fprintln(w, paint(color, ansiBold, heading))
-		fmt.Fprintln(w, "  "+cfg.PullCmd)
-		renderEnv(w, h.OS, cfg)
-		fmt.Fprintln(w, "  Modelfile:")
-		indentBlock(w, cfg.Modelfile, "    ")
-		fmt.Fprintf(w, "  ollama create %s -f Modelfile\n", tunedName(cfg.PullCmd))
-		if cfg.CtxNote != "" {
-			fmt.Fprintln(w, "  note: context "+cfg.CtxNote)
+		if rc, ok := runtimeConfig(cfg); ok {
+			renderRuntime(w, paint(color, ansiBold, heading+" ["+runtimeLabel(cfg.Runtime)+"]"), cfg, rc)
+		} else {
+			fmt.Fprintln(w, paint(color, ansiBold, heading))
+			fmt.Fprintln(w, "  "+cfg.PullCmd)
+			renderEnv(w, h.OS, cfg)
+			fmt.Fprintln(w, "  Modelfile:")
+			indentBlock(w, cfg.Modelfile, "    ")
+			fmt.Fprintf(w, "  ollama create %s -f Modelfile\n", tunedName(cfg.PullCmd))
+			if cfg.CtxNote != "" {
+				fmt.Fprintln(w, "  note: context "+cfg.CtxNote)
+			}
 		}
 	}
 

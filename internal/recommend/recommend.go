@@ -20,6 +20,7 @@ const (
 type Options struct {
 	MinTPS   float64
 	Ctx, Top int
+	Runtime  string // "" or RuntimeOllama, RuntimeLlamaCpp, RuntimeLMStudio
 }
 
 // Pick is one recommendation slot. When Met is false, Best is nil and
