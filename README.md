@@ -9,7 +9,8 @@
 [![Homebrew](https://img.shields.io/badge/brew-shra26%2Ftap-orange)](#homebrew-macos-linux)
 [![Telemetry: none](https://img.shields.io/badge/telemetry-none-brightgreen)](#privacy)
 
-Find out which Ollama models your machine can run, and how fast.
+**Run one command. See which Ollama models your machine can actually run, and how fast.**
+No forms to fill in, no account, no network.
 
 https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
 
@@ -17,30 +18,49 @@ https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
 *Click to watch the 20-second intro (with sound). The RTX 4090 scene is
 real output for an example hardware profile.*
 
-`ollama-compat` scans your hardware (GPU, VRAM, memory bandwidth, RAM, CPU),
-estimates decode speed for a curated catalog of open-weight models, and
-recommends a fast, a balanced and a largest-that-fits pick. It also prints a
-ready-to-use Ollama config for the balanced pick. It is a single static
-binary with no runtime dependencies.
+```bash
+brew install --cask shra26/tap/ollama-compat   # or see Install for Windows, Linux, curl
+ollama-compat
+```
 
-By default it makes no network calls. The optional `bench` command measures
-real speed through a local Ollama server.
+## Why ollama-compat
 
-New here? Follow the step-by-step
-**[Getting started guide](docs/getting-started.md)**: it covers installing
-Ollama and this tool on macOS, Linux and Windows, reading the output,
-applying the config, and troubleshooting.
+- **It detects your hardware.** No picking your GPU from a list or guessing
+  your VRAM. It reads the GPU, VRAM (free VRAM too, on NVIDIA and AMD), memory
+  bandwidth, RAM and CPU itself: NVIDIA, AMD, Apple Silicon, Intel or CPU only.
+- **It works offline.** A normal run makes no network calls and sends no
+  telemetry. The model catalog is built into a single static binary, so it
+  works on a plane or an air-gapped box. Only the optional `bench` talks to
+  your local Ollama, and it asks before downloading anything.
+- **It sizes the context, not just the weights.** It works out the KV cache
+  for your context length, splits layers between GPU and CPU when a model does
+  not fully fit, and shrinks the context so the model you pick runs fully on
+  your GPU.
+- **It hands you the config.** Copy-paste `ollama pull`, environment variables
+  for your OS and a Modelfile, or a `llama-server` / `lms load` command with
+  `--runtime`.
+- **It is honest about speed.** Every estimate carries its expected error
+  (`~20 tok/s ±15%`), fitted from real bench runs people share. `bench`
+  measures the real number on your machine.
+- **It fits in scripts.** `--json` output, one binary for macOS, Linux and
+  Windows on amd64 and arm64, MIT licensed.
+
+Picks come in three flavors: **Fastest**, **Balanced** (best quality that
+still reaches 20 tok/s) and **Largest** that runs at a usable speed. Add
+`--task coding`, `reasoning` or `vision` to narrow them.
+
+New here? The **[Getting started guide](docs/getting-started.md)** walks
+through installing Ollama and this tool on macOS, Linux and Windows, reading
+the output, applying the config, and troubleshooting.
 
 ## Quick start
 
 ```bash
-# 1. Build (needs Go 1.24+ and git); or download a release, see Install below
-git clone https://github.com/shra26/ollama-compatibility-checker.git
-cd ollama-compatibility-checker
-go build -o ollama-compat ./cmd/ollama-compat
+# 1. Install (or download a release, or build from source; see Install below)
+brew install --cask shra26/tap/ollama-compat
 
 # 2. Get recommendations (offline, about one second)
-./ollama-compat
+ollama-compat
 
 # 3. Use the Balanced pick (copy the exact commands from your output)
 ollama pull <tag from the output>
@@ -48,9 +68,6 @@ ollama pull <tag from the output>
 ollama create <name from the output> -f Modelfile
 ollama run <name from the output> --verbose
 ```
-
-On Windows, build with `go build -o ollama-compat.exe ./cmd/ollama-compat`
-and run `.\ollama-compat.exe`.
 
 ## Install
 
