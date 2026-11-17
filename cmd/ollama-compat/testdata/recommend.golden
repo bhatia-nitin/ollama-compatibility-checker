@@ -4,6 +4,7 @@ Hardware
   CPU    AMD Ryzen 7 7700X  8C/16T  AVX2 AVX-512
 
 Recommendations  (ctx 4096, estimates ± expected error)
+  Note: no NVIDIA (CUDA) bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.
   Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  2.8 GB  100% GPU (low confidence)
       also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.2 GB  100% GPU (low confidence)
   Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   9.9 GB  100% GPU (low confidence)

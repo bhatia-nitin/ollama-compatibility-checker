@@ -153,19 +153,19 @@ Hardware
   CPU    Apple M1  8C/8T
 
 Recommendations  (ctx 8192, estimates ± expected error)
-  Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.
-  Fastest   qwen2.5:3b-instruct-q4_K_M        ~21 tok/s ±15%  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M       ~20 tok/s ±15%  3.0 GB  100% GPU
-      also  qwen3:1.7b-q8_0                   ~18 tok/s ±15%  3.2 GB  100% GPU
+  Note: Apple Silicon speeds are fitted from 1 bench run on 1 machine. Add yours: `ollama-compat bench --share`.
+  Fastest   qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±15%  2.6 GB  100% GPU
+      also  llama3.2:3b-instruct-q4_K_M       ~19 tok/s ±15%  3.0 GB  100% GPU
+      also  qwen3:1.7b-q8_0                   ~17 tok/s ±15%  3.2 GB  100% GPU
       also  phi4-mini:3.8b-q4_K_M             ~16 tok/s ±15%  3.6 GB  100% GPU
-  Balanced  qwen2.5:3b-instruct-q4_K_M        ~21 tok/s ±15%  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M       ~20 tok/s ±15%  3.0 GB  100% GPU
-      also  qwen2.5-coder:3b-instruct-q4_K_M  ~21 tok/s ±15%  2.6 GB  100% GPU
-      also  qwen3:1.7b-q4_K_M                 ~30 tok/s ±15%  2.4 GB  100% GPU
-  Largest   qwen3:8b-q4_K_M                   ~8 tok/s ±40%   6.4 GB  75% GPU
+  Balanced  qwen2.5:3b-instruct-q4_K_M        ~20 tok/s ±15%  2.6 GB  100% GPU
+      also  qwen2.5-coder:3b-instruct-q4_K_M  ~20 tok/s ±15%  2.6 GB  100% GPU
+      also  qwen3:1.7b-q4_K_M                 ~29 tok/s ±15%  2.4 GB  100% GPU
+      also  granite3.3:2b                     ~25 tok/s ±15%  2.4 GB  100% GPU
+  Largest   qwen3:8b-q4_K_M                   ~7 tok/s ±40%   6.4 GB  75% GPU
       also  qwen3:4b-q8_0                     ~9 tok/s ±40%   5.5 GB  86% GPU
-      also  qwen3:4b-q4_K_M                   ~16 tok/s ±15%  3.8 GB  100% GPU
-      also  qwen2.5:7b-instruct-q4_K_M        ~9 tok/s ±40%   5.5 GB  86% GPU
+      also  qwen3:4b-q4_K_M                   ~15 tok/s ±15%  3.8 GB  100% GPU
+      also  qwen2.5:7b-instruct-q4_K_M        ~8 tok/s ±40%   5.5 GB  86% GPU
 
 Config for Balanced
   ollama pull qwen2.5:3b-instruct-q4_K_M
@@ -280,6 +280,7 @@ Examples:
 ollama-compat bench --installed-only          # measure what you already have
 ollama-compat bench --max-download 10GB       # refuse if more than 10 GB is needed
 ollama-compat bench --json > bench.json       # keep the results
+ollama-compat bench --installed-only --share  # save a calibration record to contribute
 ```
 
 ## How estimates work
@@ -289,25 +290,26 @@ token reads the active weights once. The tool computes:
 
 1. **Memory needed** = model file size + KV cache for your context length + 0.5 GB runtime overhead.
 2. **GPU fraction** = how much of that fits in usable VRAM (VRAM minus 10 percent headroom), rounded to whole layers. On Apple Silicon the GPU shares system RAM, so usable memory is about 66 percent of RAM (75 percent above 36 GB).
-3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor (0.65 for discrete GPUs, 0.60 for Apple Silicon, 0.55 for CPU). For mixture-of-experts models only the active parameters count.
+3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor. GPU factors are fitted from shared bench records (see [Contributing calibration data](#contributing-calibration-data)); a backend with no records uses 0.65, and CPU uses 0.55. For mixture-of-experts models only the active parameters count.
 
 Bandwidth comes from lookup tables of known GPUs and chips, not from a
 measurement. Models that cannot fit in VRAM plus 80 percent of RAM are
 excluded.
 
 Estimates are a rough guide (target within about plus or minus 30 percent,
-not yet met on every machine). The Apple Silicon factor comes from bench runs
-on an M1 with 8 GB, where estimates now land within about 5 percent; other
-chips and NVIDIA or AMD cards are not yet measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
-drivers can be further off. Run `ollama-compat bench` to measure the real
+not yet met on every machine). Apple Silicon is fitted from bench records
+(only an 8 GB M1 so far, where the estimate lands within a few percent);
+NVIDIA and AMD have no records yet. Offloaded models, unknown GPUs (marked
+low confidence) and unusual drivers can be further off. Run
+`ollama-compat bench` to measure the real
 number on your machine. See `catalog/README.md` for the calibration log.
 
 Each speed carries its expected error, for example `~21 tok/s ±15%`:
 
 | Case | Range |
 |---|---|
-| Apple Silicon, fully on GPU (calibrated) | ±15% |
-| Other GPUs fully on GPU, or CPU only (not yet measured) | ±30% |
+| Fully on GPU, backend with bench records (Apple Silicon today) | the fitted error, at least ±15% |
+| Fully on GPU, backend without records, or CPU only | ±30% |
 | Partial offload (part GPU, part CPU) | ±40% |
 | Unknown GPU (bandwidth guessed, marked low confidence) | ±50% |
 
@@ -349,11 +351,18 @@ the result low confidence.
 
 ## Contributing calibration data
 
-The efficiency constants are starting values and improve with real
-measurements. If you have a machine to spare:
+Speed estimates get better with every shared measurement. To add yours:
 
-1. Run `ollama-compat bench --json > bench.json`.
-2. Open an issue and paste the file. It contains your hardware, the estimate and the measured speed for each model. Review it first; nothing is uploaded by the tool.
+1. Close memory-heavy apps, then run `ollama-compat bench --share` (add
+   `--installed-only` to download nothing). It saves
+   `ollama-compat-calibration.json`; use `--share=path.json` for another name.
+2. Open a [calibration issue](https://github.com/shra26/ollama-compatibility-checker/issues/new?template=calibration.yml)
+   and paste the file. It holds hardware model names, memory sizes and
+   speeds; no hostname, username or paths. The tool never uploads anything.
+
+Records are fitted into per-backend speed factors and error ranges that ship
+in the next release. See [calibration/README.md](calibration/README.md) for
+how the fit works.
 
 Issues adding missing GPUs to the bandwidth table are welcome too.
 

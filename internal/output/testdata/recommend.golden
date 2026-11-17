@@ -6,6 +6,7 @@ Hardware
   ! nvidia-smi reported no free VRAM figure
 
 Recommendations  (ctx 8192, estimates ± expected error)
+  Note: no NVIDIA (CUDA) bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.
   Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  3.0 GB   100% GPU (low confidence)
       also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.4 GB   100% GPU (low confidence)
       also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.5 GB   100% GPU (low confidence)

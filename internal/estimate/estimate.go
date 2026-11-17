@@ -5,6 +5,7 @@ package estimate
 import (
 	"math"
 
+	"github.com/shra26/ollama-compatibility-checker/internal/calib"
 	"github.com/shra26/ollama-compatibility-checker/internal/catalog"
 	"github.com/shra26/ollama-compatibility-checker/internal/hw"
 )
@@ -17,22 +18,23 @@ const (
 
 // Params tunes the estimator.
 type Params struct {
-	Ctx      int
-	EffGPU   float64
-	EffMetal float64 // Apple Silicon GPU; replaces EffGPU on the metal backend
-	EffCPU   float64
+	Ctx    int
+	EffGPU float64 // GPU backends without a fitted factor
+	EffCPU float64
+	// Fitted holds per-backend factors fitted from shared bench records
+	// (calibration/data); they replace EffGPU on their backend.
+	Fitted calib.Table
 }
 
-// DefaultParams returns the starting constants. EffMetal comes from bench
-// runs on an M1 8 GB (decode efficiency 0.58 to 0.61); see catalog/README.md.
+// DefaultParams returns the default constants and the embedded fitted factors.
 func DefaultParams() Params {
-	return Params{Ctx: 8192, EffGPU: 0.65, EffMetal: 0.60, EffCPU: 0.55}
+	return Params{Ctx: 8192, EffGPU: 0.65, EffCPU: 0.55, Fitted: calib.Factors()}
 }
 
 // gpuEff is the bandwidth efficiency for g's backend.
 func (p Params) gpuEff(g hw.GPU) float64 {
-	if g.Backend == "metal" && p.EffMetal > 0 {
-		return p.EffMetal
+	if f, ok := p.Fitted[g.Backend]; ok && f.Eff > 0 {
+		return f.Eff
 	}
 	return p.EffGPU
 }
@@ -53,25 +55,27 @@ type Estimate struct {
 	ErrPct        int // expected error of TokS in percent, see errPct
 }
 
-// Expected error of the speed estimate, in percent. Metal is calibrated
-// (bench within about 5 percent on an M1); other backends are not yet
-// measured, so they get the README's plus or minus 30 percent target.
-// Partial offload and unknown GPUs (guessed bandwidth) are less predictable.
+// Expected error of the speed estimate, in percent. A backend fitted from
+// bench records uses its fitted error when the model runs fully on GPU;
+// unmeasured backends and CPU get the README's plus or minus 30 percent
+// target. Partial offload and unknown GPUs (guessed bandwidth) are less
+// predictable.
 const (
-	errCalibrated = 15
-	errDefault    = 30
-	errPartial    = 40
-	errLowConf    = 50
+	errDefault = 30
+	errPartial = 40
+	errLowConf = 50
 )
 
-func errPct(backend string, gpuFraction float64, lowConf bool) int {
+func (p Params) errPct(backend string, gpuFraction float64, lowConf bool) int {
 	switch {
 	case lowConf:
 		return errLowConf
 	case gpuFraction > 0 && gpuFraction < 1:
 		return errPartial
-	case backend == "metal" && gpuFraction == 1:
-		return errCalibrated
+	case gpuFraction == 1:
+		if f, ok := p.Fitted[backend]; ok && f.ErrPct > 0 {
+			return f.ErrPct
+		}
 	}
 	return errDefault
 }
@@ -183,7 +187,7 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 	if t := tGPU + tCPU; t > 0 {
 		e.TokS = 1 / t
 	}
-	e.ErrPct = errPct(g.Backend, e.GPUFraction, e.LowConfidence)
+	e.ErrPct = p.errPct(g.Backend, e.GPUFraction, e.LowConfidence)
 	return e
 }
 

@@ -92,7 +92,7 @@ func TestAppleUnified(t *testing.T) {
 		t.Fatalf("24GiB case %+v", e)
 	}
 	bpt := float64(23 * gib)
-	want := 1 / (bpt*e.GPUFraction/(400e9*p.EffMetal) + bpt*(1-e.GPUFraction)/(400e9*p.EffCPU))
+	want := 1 / (bpt*e.GPUFraction/(400e9*p.gpuEff(h.GPUs[0])) + bpt*(1-e.GPUFraction)/(400e9*p.EffCPU))
 	near(t, e.TokS, want, 1e-9)
 
 	m, v = model(26*gib, 30, 30)

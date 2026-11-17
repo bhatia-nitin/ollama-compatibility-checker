@@ -115,3 +115,8 @@ idle machine the bandwidth model holds for both a 0.6 GB and a 1.9 GB model, so
 Metal gets its own factor, `EffMetal 0.60` (qwen2.5 3B now estimates 21 tok/s).
 Discrete GPUs keep `EffGPU 0.65` until someone measures one.
 
+From 2026-11-17 on, measurements are kept as `bench --share` records in
+`calibration/data/` and fitted automatically; see `calibration/README.md`. The
+first record (same M1, 20.1 tok/s for qwen2.5 3B) fits a Metal efficiency of
+0.568, replacing the hand-set 0.60 above.
+

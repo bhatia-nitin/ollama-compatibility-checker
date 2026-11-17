@@ -7,6 +7,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/shra26/ollama-compatibility-checker/internal/calib"
 	"github.com/shra26/ollama-compatibility-checker/internal/catalog"
 	"github.com/shra26/ollama-compatibility-checker/internal/estimate"
 	"github.com/shra26/ollama-compatibility-checker/internal/hw"
@@ -154,8 +155,8 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 	RenderScan(w, h, color)
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, paint(color, ansiBold, recHeader(o)))
-	if usesMetal(h) {
-		fmt.Fprintln(w, "  Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure.")
+	if n := calibrationNote(h, calib.Factors()); n != "" {
+		fmt.Fprintln(w, "  "+n)
 	}
 	tw := newTab(w)
 	for _, p := range picks {
@@ -215,14 +216,44 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 	}
 }
 
-// usesMetal reports whether the first supported GPU runs on Metal.
-func usesMetal(h hw.Hardware) bool {
+// calibrationNote says how much shared bench data backs the speed factor
+// for the machine's GPU backend, and invites more. Empty for CPU-only.
+func calibrationNote(h hw.Hardware, t calib.Table) string {
+	backend := ""
 	for _, g := range h.GPUs {
 		if g.Supported {
-			return g.Backend == "metal"
+			backend = g.Backend
+			break
 		}
 	}
-	return false
+	if backend == "" {
+		return ""
+	}
+	name := backendName(backend)
+	if f, ok := t[backend]; ok {
+		return fmt.Sprintf("Note: %s speeds are fitted from %s on %s. Add yours: `ollama-compat bench --share`.",
+			name, plural(f.Runs, "bench run"), plural(f.Machines, "machine"))
+	}
+	return fmt.Sprintf("Note: no %s bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.", name)
+}
+
+func backendName(b string) string {
+	switch b {
+	case "metal":
+		return "Apple Silicon"
+	case "cuda":
+		return "NVIDIA (CUDA)"
+	case "rocm":
+		return "AMD (ROCm)"
+	}
+	return b
+}
+
+func plural(n int, word string) string {
+	if n == 1 {
+		return "1 " + word
+	}
+	return fmt.Sprintf("%d %ss", n, word)
 }
 
 // tunedName derives a model name for `ollama create` from the pull command.

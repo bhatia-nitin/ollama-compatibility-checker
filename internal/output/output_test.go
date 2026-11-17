@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/shra26/ollama-compatibility-checker/internal/calib"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -243,19 +244,22 @@ func TestJSONDocs(t *testing.T) {
 	}
 }
 
-func TestMetalNoteOnlyForMetal(t *testing.T) {
-	const note = "Note: Apple Silicon estimates are calibrated on one M1 8 GB; other chips may differ. Run `ollama-compat bench` to measure."
-	mac := hw.Hardware{
-		OS: "darwin", Arch: "arm64", RAMBytes: 16 * gb, RAMBandwidthGBs: 100, UnifiedMemory: true,
-		CPU:  hw.CPU{Model: "Apple M1", Cores: 8, Threads: 8},
-		GPUs: []hw.GPU{{Vendor: "apple", Name: "Apple M1", VRAMBytes: 10 * gb, BandwidthGBs: 68, Backend: "metal", Supported: true}},
-	}
-	got := renderRec(t, mac, opts)
-	if !strings.Contains(got, "Recommendations  (ctx 8192, estimates ± expected error)\n  "+note+"\n") {
-		t.Errorf("metal note missing or misplaced:\n%s", got)
-	}
-	if strings.Contains(renderRec(t, gpuHW(), opts), "calibrated on one M1") {
-		t.Error("note must not appear for cuda")
+func TestCalibrationNote(t *testing.T) {
+	tbl := calib.Table{"metal": {Eff: 0.57, ErrPct: 15, Runs: 1, Machines: 1}, "cuda": {Eff: 0.6, ErrPct: 20, Runs: 12, Machines: 4}}
+	gpu := func(b string) hw.Hardware { return hw.Hardware{GPUs: []hw.GPU{{Backend: b, Supported: true}}} }
+	for _, c := range []struct {
+		h    hw.Hardware
+		t    calib.Table
+		want string
+	}{
+		{gpu("metal"), tbl, "Note: Apple Silicon speeds are fitted from 1 bench run on 1 machine. Add yours: `ollama-compat bench --share`."},
+		{gpu("cuda"), tbl, "Note: NVIDIA (CUDA) speeds are fitted from 12 bench runs on 4 machines. Add yours: `ollama-compat bench --share`."},
+		{gpu("rocm"), tbl, "Note: no AMD (ROCm) bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`."},
+		{hw.Hardware{}, tbl, ""},
+	} {
+		if got := calibrationNote(c.h, c.t); got != c.want {
+			t.Errorf("got  %q\nwant %q", got, c.want)
+		}
 	}
 }
 
