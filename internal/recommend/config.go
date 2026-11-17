@@ -61,6 +61,9 @@ func BuildConfig(h hw.Hardware, e estimate.Estimate, o Options) Config {
 		c.Modelfile += fmt.Sprintf("PARAMETER num_gpu %d\n", c.NumGPU)
 	}
 
+	if c.NumGPU > 0 && usesVulkan(h) {
+		c.Env["OLLAMA_VULKAN"] = "1"
+	}
 	if c.NumGPU > 0 && usesAccelerator(h) {
 		c.Env["OLLAMA_FLASH_ATTENTION"] = "1"
 		if final.KVQuant {
@@ -84,6 +87,16 @@ func usesAccelerator(h hw.Hardware) bool {
 	for _, g := range h.GPUs {
 		if g.Supported {
 			return g.Backend == "cuda" || g.Backend == "metal" || g.Backend == "rocm"
+		}
+	}
+	return false
+}
+
+// usesVulkan reports whether the first supported GPU is on the experimental Vulkan backend.
+func usesVulkan(h hw.Hardware) bool {
+	for _, g := range h.GPUs {
+		if g.Supported {
+			return g.Backend == "vulkan"
 		}
 	}
 	return false

@@ -13,6 +13,7 @@ const (
 	runtimeOverhead = 512 << 20 // 512 MiB
 	vramHeadroom    = 0.9       // keep 10% of VRAM free
 	ramExcludeFrac  = 0.8       // models needing more than this share of RAM are excluded
+	vulkanEffFactor = 0.6       // Vulkan reaches a smaller share of bandwidth than CUDA/Metal/ROCm
 )
 
 // Params tunes the estimator.
@@ -133,7 +134,11 @@ func EstimateVariant(h hw.Hardware, m catalog.Model, v catalog.Variant, p Params
 	}
 	var tGPU, tCPU float64
 	if e.GPUFraction > 0 {
-		tGPU = bpt * e.GPUFraction / (g.BandwidthGBs * 1e9 * p.EffGPU)
+		effGPU := p.EffGPU
+		if g.Backend == "vulkan" {
+			effGPU *= vulkanEffFactor
+		}
+		tGPU = bpt * e.GPUFraction / (g.BandwidthGBs * 1e9 * effGPU)
 	}
 	if e.GPUFraction < 1 {
 		tCPU = bpt * (1 - e.GPUFraction) / (h.RAMBandwidthGBs * 1e9 * p.EffCPU)
