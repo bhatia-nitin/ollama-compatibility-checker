@@ -42,6 +42,10 @@ func main() {
 		if err := r.Validate(); err != nil {
 			log.Fatalf("%s: %v", p, err)
 		}
+		r.RefreshBandwidth()
+		if r.GPU != nil && r.GPU.BandwidthLowConfidence {
+			log.Printf("%s: %s bandwidth is a guess; its runs are not fitted (add it to internal/hw/bandwidth.go)", p, r.GPU.Name)
+		}
 		rs = append(rs, r)
 	}
 	t := calib.Fit(rs)

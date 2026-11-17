@@ -79,9 +79,25 @@ func TestEmbeddedFactorsUpToDate(t *testing.T) {
 		if err := r.Validate(); err != nil {
 			t.Fatalf("%s: %v", p, err)
 		}
+		r.RefreshBandwidth()
 		rs = append(rs, r)
 	}
 	if got, want := Factors(), Fit(rs); !reflect.DeepEqual(got, want) {
 		t.Fatalf("factors.json is stale; run `go run ./scripts/fit-calibration`\nembedded %+v\nfitted   %+v", got, want)
+	}
+}
+
+func TestRefreshBandwidth(t *testing.T) {
+	// Shared by tool 0.1.3, which guessed laptop bandwidth as half the desktop part.
+	r := Record{GPU: &GPU{Vendor: "nvidia", Name: "NVIDIA GeForce RTX 3070 Ti Laptop GPU", Backend: "cuda",
+		VRAMBytes: 8 << 30, BandwidthGBs: 304, BandwidthLowConfidence: true}}
+	r.RefreshBandwidth()
+	if r.GPU.BandwidthGBs != 448 || r.GPU.BandwidthLowConfidence {
+		t.Errorf("got %v GB/s low=%v", r.GPU.BandwidthGBs, r.GPU.BandwidthLowConfidence)
+	}
+	m := Record{GPU: &GPU{Name: "Apple M1", Backend: "metal", BandwidthGBs: 1}}
+	m.RefreshBandwidth()
+	if m.GPU.BandwidthGBs != 68.25 {
+		t.Errorf("apple: got %v", m.GPU.BandwidthGBs)
 	}
 }

@@ -52,6 +52,28 @@ var nvidiaBandwidth = map[string]float64{
 	"t4":             320,
 }
 
+// nvidiaLaptopBandwidth holds NVIDIA's reference memory configuration for
+// laptop GPUs (bus width x data rate). Laptop parts use different memory
+// from the desktop card with the same number, so the desktop table does not
+// apply. OEMs can clock memory slightly differently.
+var nvidiaLaptopBandwidth = map[string]float64{
+	"rtx 2060":    336, // 192-bit, 14 Gbps
+	"rtx 2070":    448, // 256-bit, 14 Gbps
+	"rtx 2080":    448,
+	"rtx 3050":    192, // 128-bit, 12 Gbps
+	"rtx 3050 ti": 192,
+	"rtx 3060":    336, // 192-bit, 14 Gbps
+	"rtx 3070":    448, // 256-bit, 14 Gbps
+	"rtx 3070 ti": 448,
+	"rtx 3080":    448,
+	"rtx 3080 ti": 512, // 256-bit, 16 Gbps
+	"rtx 4050":    192, // 96-bit, 16 Gbps
+	"rtx 4060":    256, // 128-bit, 16 Gbps
+	"rtx 4070":    256,
+	"rtx 4080":    432, // 192-bit, 18 Gbps
+	"rtx 4090":    576, // 256-bit, 18 Gbps
+}
+
 var amdBandwidth = map[string]float64{
 	// RX 6000
 	"rx 6500 xt": 144,
@@ -195,8 +217,13 @@ func LookupGPUBandwidth(vendor, name string, vramBytes uint64) (gbs float64, low
 	case "apple":
 		table = appleBandwidth
 	}
+	if isMobileName(name) && vendor == "nvidia" {
+		if v, ok := longestMatch(nvidiaLaptopBandwidth, name); ok {
+			return v, false
+		}
+	}
 	if v, ok := longestMatch(table, name); ok {
-		if isMobileName(name) {
+		if isMobileName(name) { // laptop part not in a laptop table: rough guess
 			return v * 0.5, true
 		}
 		return v, false

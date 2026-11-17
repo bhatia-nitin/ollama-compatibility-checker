@@ -12,6 +12,8 @@ import (
 	"math"
 	"regexp"
 	"sort"
+
+	"github.com/shra26/ollama-compatibility-checker/internal/hw"
 )
 
 // Schema is the record format version.
@@ -86,6 +88,22 @@ func (r Record) Validate() error {
 	return nil
 }
 
+// RefreshBandwidth replaces the GPU bandwidth recorded at bench time with the
+// value from the current lookup tables, so a table fix (for example a GPU
+// that was guessed) also corrects records shared before it.
+func (r *Record) RefreshBandwidth() {
+	if r.GPU == nil {
+		return
+	}
+	if r.GPU.Backend == "metal" {
+		if bw, ok := hw.LookupAppleBandwidth(r.GPU.Name); ok {
+			r.GPU.BandwidthGBs, r.GPU.BandwidthLowConfidence = bw, false
+		}
+		return
+	}
+	r.GPU.BandwidthGBs, r.GPU.BandwidthLowConfidence = hw.LookupGPUBandwidth(r.GPU.Vendor, r.GPU.Name, r.GPU.VRAMBytes)
+}
+
 // Factor is the fitted decode efficiency for one backend.
 type Factor struct {
 	Eff      float64 `json:"eff"`     // median of measured efficiencies
@@ -113,7 +131,8 @@ func efficiency(bwGBs float64, u Run) float64 {
 	return u.MeasuredTokS * float64(u.SizeBytes) * u.ActiveRatio / (bwGBs * 1e9)
 }
 
-// Fit computes one Factor per backend from fully-on-GPU runs. Eff is the
+// Fit computes one Factor per backend from fully-on-GPU runs. Call
+// RefreshBandwidth on each record first. Eff is the
 // median efficiency; ErrPct is the largest relative error that Eff makes on
 // those runs, rounded up to 5 and at least MinErrPct.
 func Fit(rs []Record) Table {
