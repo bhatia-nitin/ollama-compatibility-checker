@@ -180,9 +180,24 @@ func median(v []float64) float64 {
 //go:embed factors.json
 var factorsJSON []byte
 
-// Factors returns the fitted table compiled into the binary. It panics on
-// malformed JSON, which TestEmbeddedFactors guards.
+// override replaces the embedded table in tests (see UseFactors).
+var override Table
+
+// UseFactors makes Factors return t until restore is called. Tests use it so
+// their expected output does not change each time calibration data is added.
+func UseFactors(t Table) (restore func()) {
+	prev := override
+	override = t
+	return func() { override = prev }
+}
+
+// Factors returns the fitted table compiled into the binary, or the table set
+// by UseFactors. It panics on malformed JSON, which
+// TestEmbeddedFactorsUpToDate guards.
 func Factors() Table {
+	if override != nil {
+		return override
+	}
 	var t Table
 	if err := json.Unmarshal(factorsJSON, &t); err != nil {
 		panic(err)
