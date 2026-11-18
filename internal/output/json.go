@@ -54,19 +54,23 @@ type hardwareJSON struct {
 }
 
 type estimateJSON struct {
-	Family        string  `json:"family"`
-	Name          string  `json:"name"`
-	Tag           string  `json:"tag"`
-	Quant         string  `json:"quant"`
-	SizeBytes     uint64  `json:"size_bytes"`
-	Ctx           int     `json:"ctx"`
-	CtxReduced    bool    `json:"ctx_reduced"`
-	KVQuant       bool    `json:"kv_quant"`
-	NeedBytes     uint64  `json:"need_bytes"`
-	GPUFraction   float64 `json:"gpu_fraction"`
-	NumGPU        int     `json:"num_gpu"`
-	TokS          float64 `json:"est_tok_s"`
-	LowConfidence bool    `json:"low_confidence"`
+	Family        string   `json:"family"`
+	Name          string   `json:"name"`
+	Tag           string   `json:"tag"`
+	Quant         string   `json:"quant"`
+	SizeBytes     uint64   `json:"size_bytes"`
+	Ctx           int      `json:"ctx"`
+	CtxReduced    bool     `json:"ctx_reduced"`
+	KVQuant       bool     `json:"kv_quant"`
+	NeedBytes     uint64   `json:"need_bytes"`
+	GPUFraction   float64  `json:"gpu_fraction"`
+	NumGPU        int      `json:"num_gpu"`
+	TokS          float64  `json:"est_tok_s"`
+	TokSLow       float64  `json:"est_tok_s_low"`
+	TokSHigh      float64  `json:"est_tok_s_high"`
+	ErrPct        int      `json:"error_pct"`
+	Tasks         []string `json:"tasks,omitempty"`
+	LowConfidence bool     `json:"low_confidence"`
 }
 
 type pickJSON struct {
@@ -86,6 +90,11 @@ type configJSON struct {
 	CtxNote   string            `json:"ctx_note"`
 	Env       map[string]string `json:"env"`
 	EnvSyntax map[string]string `json:"env_syntax"`
+
+	Runtime         string   `json:"runtime"`
+	RuntimeCommand  string   `json:"runtime_command,omitempty"`
+	RuntimeSettings []string `json:"runtime_settings,omitempty"`
+	RuntimeNotes    []string `json:"runtime_notes,omitempty"`
 }
 
 // ScanDocument is the JSON shape of `scan --json`.
@@ -96,10 +105,27 @@ type ScanDocument struct {
 
 // RecommendDocument is the JSON shape of `recommend --json`.
 type RecommendDocument struct {
-	SchemaVersion int          `json:"schema_version"`
-	Hardware      hardwareJSON `json:"hardware"`
-	Picks         []pickJSON   `json:"picks"`
-	Config        *configJSON  `json:"config"`
+	SchemaVersion int           `json:"schema_version"`
+	Task          string        `json:"task,omitempty"`
+	Hardware      hardwareJSON  `json:"hardware"`
+	Picks         []pickJSON    `json:"picks"`
+	Config        *configJSON   `json:"config"`
+	NearMiss      *nearMissJSON `json:"near_miss,omitempty"`
+}
+
+// nearMissJSON is the Largest pick with twice the limiting memory.
+type nearMissJSON struct {
+	MemoryBytes uint64       `json:"memory_bytes"`
+	MemoryKind  string       `json:"memory_kind"`
+	Largest     estimateJSON `json:"largest"`
+	FullGPU     bool         `json:"full_gpu"`
+}
+
+// WithNearMiss adds the near-miss upgrade to d (no-op when up is nil).
+func (d *RecommendDocument) WithNearMiss(up *recommend.Upgrade) {
+	if up != nil {
+		d.NearMiss = &nearMissJSON{MemoryBytes: up.MemBytes, MemoryKind: up.MemKind, Largest: mapEstimate(up.Largest), FullGPU: up.FullGPU}
+	}
 }
 
 // ScanDoc maps hardware to its JSON document.
@@ -132,7 +158,10 @@ func RecommendDoc(h hw.Hardware, picks []recommend.Pick, cfg recommend.Config) R
 			env = map[string]string{}
 		}
 		d.Config = &configJSON{PullCmd: cfg.PullCmd, Modelfile: cfg.Modelfile, NumCtx: cfg.NumCtx,
-			NumGPU: cfg.NumGPU, CtxNote: cfg.CtxNote, Env: env, EnvSyntax: cfg.EnvSyntax}
+			NumGPU: cfg.NumGPU, CtxNote: cfg.CtxNote, Env: env, EnvSyntax: cfg.EnvSyntax, Runtime: runtimeName(cfg)}
+		if rc, ok := runtimeConfig(cfg); ok {
+			d.Config.RuntimeCommand, d.Config.RuntimeSettings, d.Config.RuntimeNotes = rc.Command, rc.Settings, rc.Notes
+		}
 	}
 	return d
 }
@@ -152,8 +181,9 @@ func mapHardware(h hw.Hardware) hardwareJSON {
 }
 
 func mapEstimate(e estimate.Estimate) estimateJSON {
-	return estimateJSON{Family: e.Model.Family, Name: e.Model.Name, Tag: e.Variant.Tag, Quant: e.Variant.Quant,
+	low, high := e.TokSRange()
+	return estimateJSON{TokSLow: low, TokSHigh: high, Family: e.Model.Family, Name: e.Model.Name, Tag: e.Variant.Tag, Quant: e.Variant.Quant,
 		SizeBytes: e.Variant.SizeBytes, Ctx: e.Ctx, CtxReduced: e.CtxReduced, KVQuant: e.KVQuant,
 		NeedBytes: e.NeedBytes, GPUFraction: e.GPUFraction, NumGPU: e.NumGPU, TokS: e.TokS,
-		LowConfidence: e.LowConfidence}
+		LowConfidence: e.LowConfidence, Tasks: e.Model.Tasks, ErrPct: e.ErrPct}
 }

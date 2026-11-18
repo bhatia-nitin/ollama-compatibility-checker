@@ -1,6 +1,16 @@
 # ollama-compat
 
-Find out which Ollama models your machine can run, and how fast.
+[![CI](https://github.com/shra26/ollama-compatibility-checker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/shra26/ollama-compatibility-checker/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/shra26/ollama-compatibility-checker)](https://github.com/shra26/ollama-compatibility-checker/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/shra26/ollama-compatibility-checker/total)](https://github.com/shra26/ollama-compatibility-checker/releases)
+[![Go](https://img.shields.io/github/go-mod/go-version/shra26/ollama-compatibility-checker)](go.mod)
+[![License: MIT](https://img.shields.io/github/license/shra26/ollama-compatibility-checker)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-blue)](#install)
+[![Homebrew](https://img.shields.io/badge/brew-shra26%2Ftap-orange)](#homebrew-macos-linux)
+[![Telemetry: none](https://img.shields.io/badge/telemetry-none-brightgreen)](#privacy)
+
+**Run one command. See which Ollama models your machine can actually run, and how fast.**
+No forms to fill in, no account, no network.
 
 https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
 
@@ -8,30 +18,49 @@ https://github.com/user-attachments/assets/e693299b-c213-4b11-858c-289b6352fafd
 *Click to watch the 20-second intro (with sound). The RTX 4090 scene is
 real output for an example hardware profile.*
 
-`ollama-compat` scans your hardware (GPU, VRAM, memory bandwidth, RAM, CPU),
-estimates decode speed for a curated catalog of open-weight models, and
-recommends a fast, a balanced and a largest-that-fits pick. It also prints a
-ready-to-use Ollama config for the balanced pick. It is a single static
-binary with no runtime dependencies.
+```bash
+brew install --cask shra26/tap/ollama-compat   # or see Install for Windows, Linux, curl
+ollama-compat
+```
 
-By default it makes no network calls. The optional `bench` command measures
-real speed through a local Ollama server.
+## Why ollama-compat
 
-New here? Follow the step-by-step
-**[Getting started guide](docs/getting-started.md)**: it covers installing
-Ollama and this tool on macOS, Linux and Windows, reading the output,
-applying the config, and troubleshooting.
+- **It detects your hardware.** No picking your GPU from a list or guessing
+  your VRAM. It reads the GPU, VRAM (free VRAM too, on NVIDIA and AMD), memory
+  bandwidth, RAM and CPU itself: NVIDIA, AMD, Apple Silicon, Intel or CPU only.
+- **It works offline.** A normal run makes no network calls and sends no
+  telemetry. The model catalog is built into a single static binary, so it
+  works on a plane or an air-gapped box. Only the optional `bench` talks to
+  your local Ollama, and it asks before downloading anything.
+- **It sizes the context, not just the weights.** It works out the KV cache
+  for your context length, splits layers between GPU and CPU when a model does
+  not fully fit, and shrinks the context so the model you pick runs fully on
+  your GPU.
+- **It hands you the config.** Copy-paste `ollama pull`, environment variables
+  for your OS and a Modelfile, or a `llama-server` / `lms load` command with
+  `--runtime`.
+- **It is honest about speed.** Every estimate carries its expected error
+  (`~20 tok/s ±25%`), fitted from real bench runs people share. `bench`
+  measures the real number on your machine.
+- **It fits in scripts.** `--json` output, one binary for macOS, Linux and
+  Windows on amd64 and arm64, MIT licensed.
+
+Picks come in three flavors: **Fastest**, **Balanced** (best quality that
+still reaches 20 tok/s) and **Largest** that runs at a usable speed. Add
+`--task coding`, `reasoning` or `vision` to narrow them.
+
+New here? The **[Getting started guide](docs/getting-started.md)** walks
+through installing Ollama and this tool on macOS, Linux and Windows, reading
+the output, applying the config, and troubleshooting.
 
 ## Quick start
 
 ```bash
-# 1. Build (needs Go 1.24+ and git); or download a release, see Install below
-git clone https://github.com/shra26/ollama-compatibility-checker.git
-cd ollama-compatibility-checker
-go build -o ollama-compat ./cmd/ollama-compat
+# 1. Install (or download a release, or build from source; see Install below)
+brew install --cask shra26/tap/ollama-compat
 
 # 2. Get recommendations (offline, about one second)
-./ollama-compat
+ollama-compat
 
 # 3. Use the Balanced pick (copy the exact commands from your output)
 ollama pull <tag from the output>
@@ -40,10 +69,36 @@ ollama create <name from the output> -f Modelfile
 ollama run <name from the output> --verbose
 ```
 
-On Windows, build with `go build -o ollama-compat.exe ./cmd/ollama-compat`
-and run `.\ollama-compat.exe`.
-
 ## Install
+
+### Homebrew (macOS, Linux)
+
+```bash
+brew install --cask shra26/tap/ollama-compat
+```
+
+### Scoop (Windows)
+
+```powershell
+scoop bucket add shra26 https://github.com/shra26/scoop-bucket
+scoop install ollama-compat
+```
+
+### Install script
+
+macOS and Linux (installs to `~/.local/bin`; set `INSTALL_DIR` or `VERSION`
+to override). It verifies the SHA-256 checksum before installing:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/shra26/ollama-compatibility-checker/main/scripts/install.sh | sh
+```
+
+Windows PowerShell (installs to `%LOCALAPPDATA%\Programs\ollama-compat`; save
+the script and run `./install.ps1 -Version v0.1.1 -AddToPath` for options):
+
+```powershell
+irm https://raw.githubusercontent.com/shra26/ollama-compatibility-checker/main/scripts/install.ps1 | iex
+```
 
 ### Prebuilt binaries
 
@@ -105,6 +160,8 @@ Flags:
       --json             emit machine-readable JSON
       --min-tps float    Balanced pick must reach this estimated tok/s (default 20)
       --no-color         disable colored output
+      --runtime string   runtime to print config for: ollama, llamacpp, lmstudio (default "ollama")
+      --task string      only recommend models tagged for this task: coding, reasoning, vision
       --top int          how many alternatives to list per pick (default 3)
   -v, --version          version for ollama-compat
 ```
@@ -134,23 +191,24 @@ Hardware
   RAM    8.6 GB  ~68 GB/s
   CPU    Apple M1  8C/8T
 
-Recommendations  (ctx 8192, estimates)
-  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.
-  Fastest   qwen2.5:3b-instruct-q4_K_M   ~23 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~22 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q8_0              ~20 tok/s est.  3.2 GB  100% GPU
-      also  phi4-mini:3.8b-q4_K_M        ~18 tok/s est.  3.6 GB  100% GPU
-  Balanced  qwen2.5:3b-instruct-q4_K_M   ~23 tok/s est.  2.6 GB  100% GPU
-      also  llama3.2:3b-instruct-q4_K_M  ~22 tok/s est.  3.0 GB  100% GPU
-      also  qwen3:1.7b-q4_K_M            ~33 tok/s est.  2.4 GB  100% GPU
-      also  granite3.3:2b                ~29 tok/s est.  2.4 GB  100% GPU
-  Largest   qwen3:8b-q4_K_M              ~8 tok/s est.   6.4 GB  75% GPU
-      also  qwen3:4b-q8_0                ~10 tok/s est.  5.5 GB  86% GPU
-      also  qwen3:4b-q4_K_M              ~17 tok/s est.  3.8 GB  100% GPU
-      also  qwen2.5:7b-instruct-q4_K_M   ~9 tok/s est.   5.5 GB  86% GPU
+Recommendations  (ctx 8192, estimates ± expected error)
+  Note: Apple Silicon speeds are fitted from 1 bench run on 1 machine. Add yours: `ollama-compat bench --share`.
+  Fastest   granite4:7b-a1b-h                 ~64 tok/s ±25%  4.9 GB  100% GPU
+      also  lfm3:1.7b-q4_K_M                  ~35 tok/s ±25%  1.7 GB  100% GPU
+      also  qwen3.5:2b-q4_K_M                 ~30 tok/s ±25%  3.0 GB  100% GPU
+      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+  Balanced  lfm2.5:8b-a1b-q4_K_M              ~62 tok/s ±40%  5.7 GB  79% GPU
+      also  granite4:7b-a1b-h                 ~64 tok/s ±25%  4.9 GB  100% GPU
+      also  gemma4:e2b-it-q4_K_M              ~25 tok/s ±25%  5.1 GB  100% GPU
+      also  lfm3:1.7b-q8_0                    ~21 tok/s ±25%  2.4 GB  100% GPU
+  Largest   deepseek-r1:8b-0528-qwen3-q4_K_M  ~7 tok/s ±40%   6.4 GB  75% GPU
+      also  qwen3:4b-thinking-2507-q8_0       ~9 tok/s ±40%   5.4 GB  89% GPU
+      also  qwen3:8b-q4_K_M                   ~7 tok/s ±40%   6.4 GB  75% GPU
+      also  qwen3:4b-instruct-2507-q8_0       ~9 tok/s ±40%   5.4 GB  89% GPU
+  With 16 GB unified memory, Largest would be qwen3.5:9b-q4_K_M (~7 tok/s ±25%, needs 8.5 GB).
 
 Config for Balanced
-  ollama pull qwen2.5:3b-instruct-q4_K_M
+  ollama pull lfm2.5:8b-a1b-q4_K_M
   env:
     export OLLAMA_FLASH_ATTENTION=1
     export OLLAMA_KV_CACHE_TYPE=q8_0
@@ -161,17 +219,53 @@ Config for Balanced
     # OLLAMA_KV_CACHE_TYPE is server-wide and applies to all models.
   Restart Ollama after setting these.
   Modelfile:
-    FROM qwen2.5:3b-instruct-q4_K_M
+    FROM lfm2.5:8b-a1b-q4_K_M
     PARAMETER num_ctx 8192
-    PARAMETER num_gpu 99
-  ollama create qwen2.5-3b-instruct-q4_K_M-tuned -f Modelfile
+    PARAMETER num_gpu 19
+  ollama create lfm2.5-8b-a1b-q4_K_M-tuned -f Modelfile
 
-Run `ollama-compat bench` to measure these (downloads up to ~7.2 GB, asks first).
+Run `ollama-compat bench` to measure these (downloads up to ~14.6 GB, asks first).
 ```
 
 Useful flags: `--ctx 16384` sizes the KV cache for a longer context,
 `--min-tps 30` raises the speed bar for the Balanced pick, `--top 5` lists
 more runners-up, `--json` prints machine-readable output.
+
+#### Picks for a task
+
+`--task` limits the picks to catalog models tagged for one job:
+
+| Task | Models | Meaning |
+|---|---|---|
+| `coding` | Qwen2.5 Coder 1.5B to 32B | code-tuned |
+| `reasoning` | Qwen3, DeepSeek-R1 distills | has a thinking mode |
+| `vision` | Gemma 3 4B/12B/27B, Mistral Small 3.2 | accepts images in Ollama |
+
+```bash
+ollama-compat --task coding
+```
+
+The same rules apply inside the smaller set, so a pick can come back empty
+(for example no vision model reaches 20 tok/s on an 8 GB Mac). Vision sizes
+cover the language model only; the image encoder adds a little memory.
+
+#### Other runtimes
+
+The config block is for Ollama by default. `--runtime` prints the same
+choices (context, GPU layers, flash attention, KV cache type) for another
+runtime:
+
+```bash
+ollama-compat --runtime llamacpp   # a llama-server command
+ollama-compat --runtime lmstudio   # an lms load command
+```
+
+The catalog only knows Ollama tags, so the model path is a placeholder such
+as `/path/to/Qwen2.5-7B-Instruct-Q4_K_M.gguf`; any GGUF of that model at that
+quant works. `lms load` has no flags for flash attention or KV cache
+quantization, so those are listed as settings to apply in the LM Studio app.
+With `--json`, the config object gains `runtime`, and for llama.cpp and
+LM Studio also `runtime_command`, `runtime_settings` and `runtime_notes`.
 
 ### scan
 
@@ -226,6 +320,7 @@ Examples:
 ollama-compat bench --installed-only          # measure what you already have
 ollama-compat bench --max-download 10GB       # refuse if more than 10 GB is needed
 ollama-compat bench --json > bench.json       # keep the results
+ollama-compat bench --installed-only --share  # save a calibration record to contribute
 ```
 
 ## How estimates work
@@ -235,18 +330,40 @@ token reads the active weights once. The tool computes:
 
 1. **Memory needed** = model file size + KV cache for your context length + 0.5 GB runtime overhead.
 2. **GPU fraction** = how much of that fits in usable VRAM (VRAM minus 10 percent headroom), rounded to whole layers. On Apple Silicon the GPU shares system RAM, so usable memory is about 66 percent of RAM (75 percent above 36 GB).
-3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor (0.65 for GPU, 0.55 for CPU). For mixture-of-experts models only the active parameters count.
+3. **Speed** = 1 / (time on GPU + time on CPU), where each time is the bytes read per token divided by memory bandwidth times an efficiency factor. GPU factors are fitted from shared bench records (see [Contributing calibration data](#contributing-calibration-data)); a backend with no records uses 0.65, and CPU uses 0.55. For mixture-of-experts models only the active parameters count.
 
 Bandwidth comes from lookup tables of known GPUs and chips, not from a
 measurement. Models that cannot fit in VRAM plus 80 percent of RAM are
 excluded.
 
 Estimates are a rough guide (target within about plus or minus 30 percent,
-not yet met on every machine). The one Apple Silicon machine measured so far
-(M1, 8 GB) ran at about half the estimated speed; other machines are not yet
-measured. Offloaded models, unknown GPUs (marked low confidence) and unusual
-drivers can be further off. Run `ollama-compat bench` to measure the real
+not yet met on every machine). Apple Silicon is fitted from bench records
+(only an 8 GB M1 so far, where the estimate lands within a few percent);
+NVIDIA and AMD have no records yet. Offloaded models, unknown GPUs (marked
+low confidence) and unusual drivers can be further off. Run
+`ollama-compat bench` to measure the real
 number on your machine. See `catalog/README.md` for the calibration log.
+
+Each speed carries its expected error, for example `~20 tok/s ±25%`:
+
+| Case | Range |
+|---|---|
+| Fully on GPU, backend with bench records (Apple Silicon and NVIDIA today) | the fitted error: at least ±25% until 3 machines have shared data, then at least ±15% |
+| Fully on GPU, backend without records, or CPU only | ±30% |
+| Partial offload (part GPU, part CPU) | ±40% |
+| Unknown GPU (bandwidth guessed, marked low confidence) | ±50% |
+
+With `--json`, each estimate has `est_tok_s_low`, `est_tok_s_high` and
+`error_pct`.
+
+When twice the memory that limits you (unified memory on a Mac, VRAM on a
+discrete GPU, RAM without a GPU) would unlock a better Largest pick, a line
+under the picks says so, for example
+`With 24 GB VRAM, Largest would be gemma2:27b-instruct-q4_K_M (~20 tok/s ±50%, needs 18.1 GB).`
+It also appears when the current Largest pick would run fully on GPU at
+least 25 percent faster. Bandwidth is kept the same, so on a bandwidth-bound
+machine (such as an 8 GB M1) more memory often unlocks nothing usable and
+the line is left out. `--json` reports it as `near_miss`.
 
 Quality scores in the catalog are maintainer-curated estimates, not benchmark
 results; see `catalog/README.md`.
@@ -274,11 +391,18 @@ the result low confidence.
 
 ## Contributing calibration data
 
-The efficiency constants are starting values and improve with real
-measurements. If you have a machine to spare:
+Speed estimates get better with every shared measurement. To add yours:
 
-1. Run `ollama-compat bench --json > bench.json`.
-2. Open an issue and paste the file. It contains your hardware, the estimate and the measured speed for each model. Review it first; nothing is uploaded by the tool.
+1. Close memory-heavy apps, then run `ollama-compat bench --share` (add
+   `--installed-only` to download nothing). It saves
+   `ollama-compat-calibration.json`; use `--share=path.json` for another name.
+2. Open a [calibration issue](https://github.com/shra26/ollama-compatibility-checker/issues/new?template=calibration.yml)
+   and paste the file. It holds hardware model names, memory sizes and
+   speeds; no hostname, username or paths. The tool never uploads anything.
+
+Records are fitted into per-backend speed factors and error ranges that ship
+in the next release. See [calibration/README.md](calibration/README.md) for
+how the fit works.
 
 Issues adding missing GPUs to the bandwidth table are welcome too.
 

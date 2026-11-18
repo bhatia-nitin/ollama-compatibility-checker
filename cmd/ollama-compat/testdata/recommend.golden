@@ -3,13 +3,15 @@ Hardware
   RAM    34.4 GB  ~60 GB/s
   CPU    AMD Ryzen 7 7700X  8C/16T  AVX2 AVX-512
 
-Recommendations  (ctx 4096, estimates)
-  Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  2.8 GB  100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.2 GB  100% GPU (low confidence)
-  Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   9.9 GB  100% GPU (low confidence)
-      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.4 GB  100% GPU (low confidence)
-  Largest   qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   9.9 GB  100% GPU (low confidence)
-      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.4 GB  100% GPU (low confidence)
+Recommendations  (ctx 4096, estimates ± expected error)
+  Note: no NVIDIA (CUDA) bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.
+  Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  2.8 GB  100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.2 GB  100% GPU (low confidence)
+  Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   9.9 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.4 GB  100% GPU (low confidence)
+  Largest   qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   9.9 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.4 GB  100% GPU (low confidence)
+  With 24 GB VRAM, Largest would be gemma2:27b-instruct-q4_K_M (~20 tok/s ±50%, needs 17.3 GB).
 
 Config for Balanced
   ollama pull qwen2.5:14b-instruct-q4_K_M

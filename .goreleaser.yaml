@@ -33,3 +33,43 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+# Package-manager publishers. They push to separate repos, which the default
+# GITHUB_TOKEN cannot do, so each is skipped unless HOMEBREW_TAP_GITHUB_TOKEN
+# (a PAT with contents:write on the tap/bucket repos) is set. Without it the
+# manifests are still generated in dist/ and the release succeeds.
+homebrew_casks:
+  - name: ollama-compat
+    homepage: https://github.com/shra26/ollama-compatibility-checker
+    description: Check which Ollama models will run on your hardware
+    repository:
+      owner: shra26
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    skip_upload: '{{ if index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}auto{{ else }}true{{ end }}'
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    # Binary is unsigned and not notarized: drop the quarantine flag on install.
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/ollama-compat"]
+          end
+
+scoops:
+  - name: ollama-compat
+    homepage: https://github.com/shra26/ollama-compatibility-checker
+    description: Check which Ollama models will run on your hardware
+    license: MIT
+    repository:
+      owner: shra26
+      name: scoop-bucket
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    skip_upload: '{{ if index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}auto{{ else }}true{{ end }}'
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com

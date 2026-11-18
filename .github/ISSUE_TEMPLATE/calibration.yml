@@ -1,0 +1,31 @@
+name: Calibration data
+description: Share a bench result so speed estimates get better for your hardware
+title: "calibration: <your GPU or chip>"
+labels: [calibration]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for measuring. Create the record with:
+
+        ```
+        ollama-compat bench --share
+        ```
+
+        It writes `ollama-compat-calibration.json` in the current folder. Check
+        it before pasting: it holds hardware model names, memory sizes and
+        speeds, and no hostname, username or paths. Close other memory-heavy
+        apps while benchmarking; memory pressure can halve the speed.
+  - type: textarea
+    id: record
+    attributes:
+      label: Calibration record
+      description: Paste the whole JSON file.
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: notes
+    attributes:
+      label: Anything unusual? (optional)
+      description: For example a laptop on battery, other apps running, or a non-default Ollama setting.

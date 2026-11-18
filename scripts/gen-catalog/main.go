@@ -45,6 +45,8 @@ type source struct {
 	Quality       int      `yaml:"quality"`
 	QualitySource string   `yaml:"quality_source"`
 	KVQuantOK     *bool    `yaml:"kv_quant_ok"`
+	Tasks         []string `yaml:"tasks"`
+	Quant         string   `yaml:"quant"` // for tags with no quant suffix whose GGUF file type has no name
 	Tags          []string `yaml:"tags"`
 }
 
@@ -56,7 +58,46 @@ type manifest struct {
 	} `json:"layers"`
 }
 
-var client = &http.Client{Timeout: 2 * time.Minute}
+var client = &http.Client{Timeout: 2 * time.Minute, Transport: retryTransport{http.DefaultTransport}}
+
+// retry runs f up to 3 times while it fails with anything but a 404, for
+// timeouts that happen while reading a response body.
+func retry(f func() error) error {
+	var err error
+	for i := 0; i < 3; i++ {
+		if i > 0 {
+			log.Printf("retrying after: %v", err)
+			time.Sleep(time.Duration(i) * 3 * time.Second)
+		}
+		if err = f(); err == nil || errors.Is(err, errNotFound) {
+			return err
+		}
+	}
+	return err
+}
+
+// retryTransport retries GET requests that fail at the network level or with
+// a 5xx status, so one slow registry response does not drop a model.
+type retryTransport struct{ next http.RoundTripper }
+
+func (t retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	const attempts = 3
+	var resp *http.Response
+	var err error
+	for i := 0; i < attempts; i++ {
+		if i > 0 {
+			time.Sleep(time.Duration(i) * 2 * time.Second)
+		}
+		resp, err = t.next.RoundTrip(req)
+		if err == nil && resp.StatusCode < 500 {
+			return resp, nil
+		}
+		if err == nil && i < attempts-1 {
+			resp.Body.Close()
+		}
+	}
+	return resp, err
+}
 
 func main() {
 	in := flag.String("in", "catalog/sources.yaml", "input source list")
@@ -113,13 +154,15 @@ func build(s source) (catalog.Model, error) {
 		ParamsB:   s.ParamsB,
 		Quality:   s.Quality,
 		KVQuantOK: s.KVQuantOK == nil || *s.KVQuantOK,
+		Tasks:     s.Tasks,
 	}
 	if s.ParamsB <= 0 {
 		return m, errors.New("params_b must be > 0")
 	}
 	var info *archInfo
 	for _, tag := range s.Tags {
-		layer, err := fetchManifest(tag)
+		var layer modelLayer
+		err := retry(func() (err error) { layer, err = fetchManifest(tag); return err })
 		if errors.Is(err, errNotFound) {
 			log.Printf("DROP tag %s: 404", tag)
 			continue
@@ -129,22 +172,27 @@ func build(s source) (catalog.Model, error) {
 		}
 		quant := quantFromTag(tag)
 		if info == nil || quant == "" {
-			ai, err := fetchArchInfo(tag, layer.Digest)
+			var ai archInfo
+			err := retry(func() (err error) { ai, err = fetchArchInfo(tag, layer.Digest); return err })
 			if err != nil {
 				return m, fmt.Errorf("%s: %w", tag, err)
 			}
 			if info == nil {
 				info = &ai
 			}
+			if quant == "" && s.Quant != "" {
+				quant = s.Quant
+			}
 			if quant == "" {
 				quant = quantName(tag, ai.FileType)
 			}
 		}
 		m.Variants = append(m.Variants, catalog.Variant{
-			Tag:       tag,
-			SizeBytes: layer.Size,
-			Bits:      bits(layer.Size, s.ParamsB),
-			Quant:     quant,
+			Tag:        tag,
+			SizeBytes:  layer.Size,
+			Bits:       bits(layer.Size, s.ParamsB),
+			Quant:      quant,
+			ExtraBytes: layer.Extra,
 		})
 		log.Printf("ok %s %d bytes %s", tag, layer.Size, quant)
 	}
@@ -152,6 +200,8 @@ func build(s source) (catalog.Model, error) {
 		return m, errors.New("no tag resolved")
 	}
 	m.Layers, m.KVHeads, m.HeadDim, m.MaxCtx = info.Layers, info.KVHeads, info.HeadDim, info.MaxCtx
+	m.KVFullElems, m.KVSWAElems, m.SWAWindow = info.KVFullElems, info.KVSWAElems, info.SWAWindow
+	m.StateBytes = info.StateBytes
 	m.ActiveParamsB = activeParams(s, *info)
 	sort.Slice(m.Variants, func(i, j int) bool { return m.Variants[i].SizeBytes < m.Variants[j].SizeBytes })
 	return m, nil
@@ -184,7 +234,10 @@ func splitTag(tag string) (model, ref string) {
 type modelLayer struct {
 	Digest string
 	Size   uint64
+	Extra  uint64 // vision projector layers, loaded with the model
 }
+
+const projectorMediaType = "application/vnd.ollama.image.projector"
 
 func fetchManifest(tag string) (modelLayer, error) {
 	model, ref := splitTag(tag)
@@ -209,12 +262,19 @@ func fetchManifest(tag string) (modelLayer, error) {
 	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&mf); err != nil {
 		return modelLayer{}, fmt.Errorf("manifest: %w", err)
 	}
+	var out modelLayer
 	for _, l := range mf.Layers {
-		if l.MediaType == modelMediaType {
-			return modelLayer{Digest: l.Digest, Size: l.Size}, nil
+		switch l.MediaType {
+		case modelMediaType:
+			out.Digest, out.Size = l.Digest, l.Size
+		case projectorMediaType:
+			out.Extra += l.Size
 		}
 	}
-	return modelLayer{}, errors.New("manifest: no model layer")
+	if out.Digest == "" {
+		return modelLayer{}, errors.New("manifest: no model layer")
+	}
+	return out, nil
 }
 
 // fetchArchInfo reads the GGUF header from the start of the blob, retrying
@@ -262,7 +322,9 @@ func fetchRange(url string, n int64) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(resp.Body, n))
 }
 
-var quantSuffix = regexp.MustCompile(`(?i)-((?:i?q\d[a-z0-9_]*)|fp16|f16|bf16|f32|mxfp4)$`)
+// quantSuffix matches a quant at the end of a tag ref, after a dash or as the
+// whole ref ("glm-4.7-flash:q8_0").
+var quantSuffix = regexp.MustCompile(`(?i)(?:^|-)((?:i?q\d[a-z0-9_]*)|fp16|f16|bf16|f32|mxfp4)$`)
 
 // quantFromTag returns the quant suffix of a tag, e.g. "q4_K_M", or "".
 func quantFromTag(tag string) string {

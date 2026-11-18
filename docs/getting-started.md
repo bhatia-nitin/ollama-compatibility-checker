@@ -39,6 +39,10 @@ a separate terminal.
 
 ### Option A: prebuilt binary
 
+Quickest: `brew install --cask shra26/tap/ollama-compat` on macOS or Linux,
+or `scoop bucket add shra26 https://github.com/shra26/scoop-bucket` then
+`scoop install ollama-compat` on Windows. Otherwise:
+
 Download the archive for your platform from
 [GitHub Releases](https://github.com/shra26/ollama-compatibility-checker/releases):
 
@@ -118,7 +122,7 @@ finishes in about a second. You get three blocks:
   - **Largest**: the best quality that is still usable (at least 5 tok/s), even if part of it runs on the CPU.
 - **Config for Balanced**: copy-paste commands for Ollama (next step).
 
-Every speed is an estimate and is marked `est.`. Read `100% GPU` as "fits
+Every speed is an estimate with its expected error, such as `~20 tok/s ±25%`. Read `100% GPU` as "fits
 entirely in GPU memory"; a lower percentage means part of the model runs on
 the CPU, which is much slower.
 
@@ -271,9 +275,9 @@ are assumed to share system RAM, so those estimates are rough.
 
 **Speeds in practice are much lower than the estimate.** Estimates assume
 the machine is otherwise idle. Close memory-heavy apps and try again, and use
-`ollama run <model> --verbose` or `bench` to measure. On Apple Silicon the
-estimates are not yet calibrated; an M1 with 8 GB measured about half the
-estimate.
+`ollama run <model> --verbose` or `bench` to measure. On an M1 with 8 GB,
+memory pressure from other apps once halved the measured speed (10.8 against
+21 tok/s on an idle machine).
 
 **A recommended model runs partly on the CPU.** Check with `ollama ps`: the
 `PROCESSOR` column shows the GPU and CPU split. Lower the context with

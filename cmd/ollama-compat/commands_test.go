@@ -140,7 +140,7 @@ func TestNoNetworkInDefaultRun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out, "tok/s est.") {
+	if !strings.Contains(out, "tok/s ±") {
 		t.Errorf("default run produced no recommendations:\n%s", out)
 	}
 }

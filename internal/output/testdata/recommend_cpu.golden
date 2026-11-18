@@ -3,17 +3,17 @@ Hardware
   CPU  Intel Core i5-12400  6C/12T  AVX2
   No supported GPU; estimates use CPU and system RAM.
 
-Recommendations  (ctx 8192, estimates)
-  Fastest   llama3.2:3b-instruct-q4_K_M  ~11 tok/s est.  3.5 GB   CPU
-      also  llama3.2:3b-instruct-q8_0    ~6 tok/s est.   4.9 GB   CPU
-      also  qwen2.5:7b-instruct-q4_K_M   ~5 tok/s est.   5.7 GB   CPU
-      also  qwen2.5:14b-instruct-q4_K_M  ~2 tok/s est.   11.1 GB  CPU
+Recommendations  (ctx 8192, estimates ± expected error)
+  Fastest   llama3.2:3b-instruct-q4_K_M  ~11 tok/s ±30%  3.5 GB   CPU
+      also  llama3.2:3b-instruct-q8_0    ~6 tok/s ±30%   4.9 GB   CPU
+      also  qwen2.5:7b-instruct-q4_K_M   ~5 tok/s ±30%   5.7 GB   CPU
+      also  qwen2.5:14b-instruct-q4_K_M  ~2 tok/s ±30%   11.1 GB  CPU
       Because nothing fits fully on GPU here, this is the fastest model that runs partly or wholly on CPU.
   Balanced     (no pick)
-      closest  llama3.2:3b-instruct-q4_K_M  ~11 tok/s est.  3.5 GB  CPU
+      closest  llama3.2:3b-instruct-q4_K_M  ~11 tok/s ±30%  3.5 GB  CPU
       No model reaches 20 tok/s on this hardware; closest shown.
-  Largest   llama3.2:3b-instruct-q8_0    ~6 tok/s est.   4.9 GB  CPU
-      also  llama3.2:3b-instruct-q4_K_M  ~11 tok/s est.  3.5 GB  CPU
+  Largest   llama3.2:3b-instruct-q8_0    ~6 tok/s ±30%   4.9 GB  CPU
+      also  llama3.2:3b-instruct-q4_K_M  ~11 tok/s ±30%  3.5 GB  CPU
 
 Config for Balanced (closest)
   ollama pull llama3.2:3b-instruct-q4_K_M

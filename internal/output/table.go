@@ -7,6 +7,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/shra26/ollama-compatibility-checker/internal/calib"
 	"github.com/shra26/ollama-compatibility-checker/internal/catalog"
 	"github.com/shra26/ollama-compatibility-checker/internal/estimate"
 	"github.com/shra26/ollama-compatibility-checker/internal/hw"
@@ -121,7 +122,17 @@ func fitStr(e estimate.Estimate) string {
 }
 
 func estRow(tw io.Writer, first, indent string, e estimate.Estimate) {
-	fmt.Fprintf(tw, "%s%s\t%s\t~%.0f tok/s est.\t%s\t%s\n", indent, first, e.Variant.Tag, e.TokS, gbStr(e.NeedBytes), fitStr(e))
+	fmt.Fprintf(tw, "%s%s\t%s\t%s\t%s\t%s\n", indent, first, e.Variant.Tag, speedStr(e), gbStr(e.NeedBytes), fitStr(e))
+}
+
+// speedStr is the estimated tok/s with its expected error, e.g. "~21 tok/s ±15%".
+func speedStr(e estimate.Estimate) string {
+	return fmt.Sprintf("~%.0f tok/s ±%d%%", e.TokS, e.ErrPct)
+}
+
+// memLabel rounds a memory size to whole GiB, the way RAM and cards are sold.
+func memLabel(b uint64) string {
+	return fmt.Sprintf("%d GB", (b+1<<29)>>30)
 }
 
 // ConfigTarget is the estimate that Config is built for: Balanced Best, or
@@ -140,12 +151,12 @@ func ConfigTarget(picks []recommend.Pick) *estimate.Estimate {
 }
 
 // RenderRecommend writes Hardware, Recommendations, Config and the bench footer.
-func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg recommend.Config, o recommend.Options, color bool) {
+func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg recommend.Config, o recommend.Options, up *recommend.Upgrade, color bool) {
 	RenderScan(w, h, color)
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, paint(color, ansiBold, fmt.Sprintf("Recommendations  (ctx %d, estimates)", o.Ctx)))
-	if usesMetal(h) {
-		fmt.Fprintln(w, "  Note: Apple Silicon estimates are uncalibrated; an M1 8 GB measured about half the estimate. Run `ollama-compat bench` to measure.")
+	fmt.Fprintln(w, paint(color, ansiBold, recHeader(o)))
+	if n := calibrationNote(h, calib.Factors()); n != "" {
+		fmt.Fprintln(w, "  "+n)
 	}
 	tw := newTab(w)
 	for _, p := range picks {
@@ -169,6 +180,14 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 		}
 	}
 	tw.Flush()
+	switch {
+	case up != nil && up.FullGPU:
+		fmt.Fprintf(w, "  With %s %s, %s would run fully on GPU (%s).\n",
+			memLabel(up.MemBytes), up.MemKind, up.Largest.Variant.Tag, speedStr(up.Largest))
+	case up != nil:
+		fmt.Fprintf(w, "  With %s %s, Largest would be %s (%s, needs %s).\n",
+			memLabel(up.MemBytes), up.MemKind, up.Largest.Variant.Tag, speedStr(up.Largest), gbStr(up.Largest.NeedBytes))
+	}
 
 	if t := ConfigTarget(picks); t != nil && cfg.PullCmd != "" {
 		heading := "Config for Balanced"
@@ -176,14 +195,18 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 			heading += " (closest)"
 		}
 		fmt.Fprintln(w)
-		fmt.Fprintln(w, paint(color, ansiBold, heading))
-		fmt.Fprintln(w, "  "+cfg.PullCmd)
-		renderEnv(w, h.OS, cfg)
-		fmt.Fprintln(w, "  Modelfile:")
-		indentBlock(w, cfg.Modelfile, "    ")
-		fmt.Fprintf(w, "  ollama create %s -f Modelfile\n", tunedName(cfg.PullCmd))
-		if cfg.CtxNote != "" {
-			fmt.Fprintln(w, "  note: context "+cfg.CtxNote)
+		if rc, ok := runtimeConfig(cfg); ok {
+			renderRuntime(w, paint(color, ansiBold, heading+" ["+runtimeLabel(cfg.Runtime)+"]"), cfg, rc)
+		} else {
+			fmt.Fprintln(w, paint(color, ansiBold, heading))
+			fmt.Fprintln(w, "  "+cfg.PullCmd)
+			renderEnv(w, h.OS, cfg)
+			fmt.Fprintln(w, "  Modelfile:")
+			indentBlock(w, cfg.Modelfile, "    ")
+			fmt.Fprintf(w, "  ollama create %s -f Modelfile\n", tunedName(cfg.PullCmd))
+			if cfg.CtxNote != "" {
+				fmt.Fprintln(w, "  note: context "+cfg.CtxNote)
+			}
 		}
 	}
 
@@ -193,14 +216,44 @@ func RenderRecommend(w io.Writer, h hw.Hardware, picks []recommend.Pick, cfg rec
 	}
 }
 
-// usesMetal reports whether the first supported GPU runs on Metal.
-func usesMetal(h hw.Hardware) bool {
+// calibrationNote says how much shared bench data backs the speed factor
+// for the machine's GPU backend, and invites more. Empty for CPU-only.
+func calibrationNote(h hw.Hardware, t calib.Table) string {
+	backend := ""
 	for _, g := range h.GPUs {
 		if g.Supported {
-			return g.Backend == "metal"
+			backend = g.Backend
+			break
 		}
 	}
-	return false
+	if backend == "" {
+		return ""
+	}
+	name := backendName(backend)
+	if f, ok := t[backend]; ok {
+		return fmt.Sprintf("Note: %s speeds are fitted from %s on %s. Add yours: `ollama-compat bench --share`.",
+			name, plural(f.Runs, "bench run"), plural(f.Machines, "machine"))
+	}
+	return fmt.Sprintf("Note: no %s bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.", name)
+}
+
+func backendName(b string) string {
+	switch b {
+	case "metal":
+		return "Apple Silicon"
+	case "cuda":
+		return "NVIDIA (CUDA)"
+	case "rocm":
+		return "AMD (ROCm)"
+	}
+	return b
+}
+
+func plural(n int, word string) string {
+	if n == 1 {
+		return "1 " + word
+	}
+	return fmt.Sprintf("%d %ss", n, word)
 }
 
 // tunedName derives a model name for `ollama create` from the pull command.
@@ -295,4 +348,12 @@ func RenderCatalog(w io.Writer, ms []catalog.Model) {
 		fmt.Fprintf(tw, "%s\t%.1fB\t%s\t%s\t%d\t%d\n", r.tag, r.params, r.quant, gbStr(r.size), r.ctx, r.q)
 	}
 	tw.Flush()
+}
+
+// recHeader is the Recommendations title, naming the task filter when set.
+func recHeader(o recommend.Options) string {
+	if o.Task != "" {
+		return fmt.Sprintf("Recommendations  (ctx %d, estimates ± expected error, task: %s)", o.Ctx, o.Task)
+	}
+	return fmt.Sprintf("Recommendations  (ctx %d, estimates ± expected error)", o.Ctx)
 }

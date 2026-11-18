@@ -23,21 +23,73 @@ type Variant struct {
 	SizeBytes uint64  `json:"size_bytes"`
 	Bits      float64 `json:"bits"`
 	Quant     string  `json:"quant"`
+	// ExtraBytes is loaded with the model but not read per token, such as a
+	// vision projector.
+	ExtraBytes uint64 `json:"extra_bytes,omitempty"`
 }
 
 // Model is one catalog entry with the architecture facts the estimator needs.
 type Model struct {
-	Family        string    `json:"family"`
-	Name          string    `json:"name"`
-	ParamsB       float64   `json:"params_b"`
-	ActiveParamsB float64   `json:"active_params_b"`
-	Layers        int       `json:"layers"`
-	KVHeads       int       `json:"kv_heads"`
-	HeadDim       int       `json:"head_dim"`
-	MaxCtx        int       `json:"max_ctx"`
-	Quality       int       `json:"quality"`
-	KVQuantOK     bool      `json:"kv_quant_ok"`
-	Variants      []Variant `json:"variants"`
+	Family        string  `json:"family"`
+	Name          string  `json:"name"`
+	ParamsB       float64 `json:"params_b"`
+	ActiveParamsB float64 `json:"active_params_b"`
+	Layers        int     `json:"layers"`
+	KVHeads       int     `json:"kv_heads"`
+	HeadDim       int     `json:"head_dim"`
+	MaxCtx        int     `json:"max_ctx"`
+	Quality       int     `json:"quality"`
+	KVQuantOK     bool    `json:"kv_quant_ok"`
+	// KV cache layout for hybrid and sliding-window models, from the GGUF:
+	// K+V elements per token in layers whose cache grows with the context
+	// and in sliding-window layers capped at SWAWindow tokens. Both zero
+	// means the plain 2 x layers x kv_heads x head_dim.
+	KVFullElems int `json:"kv_full_elems,omitempty"`
+	KVSWAElems  int `json:"kv_swa_elems,omitempty"`
+	SWAWindow   int `json:"swa_window,omitempty"`
+	// StateBytes is fixed memory for recurrent (linear attention) layers,
+	// independent of context length, as Ollama allocates it.
+	StateBytes uint64    `json:"state_bytes,omitempty"`
+	Tasks      []string  `json:"tasks,omitempty"` // subset of Tasks
+	Variants   []Variant `json:"variants"`
+}
+
+// Tasks lists the task tags a catalog entry may carry: coding (code-tuned
+// model), reasoning (has a thinking mode) and vision (accepts images in Ollama).
+var Tasks = []string{"coding", "reasoning", "vision"}
+
+// ValidTask reports whether t is one of Tasks.
+func ValidTask(t string) bool {
+	for _, k := range Tasks {
+		if k == t {
+			return true
+		}
+	}
+	return false
+}
+
+// HasTask reports whether m is tagged with task t.
+func (m Model) HasTask(t string) bool {
+	for _, k := range m.Tasks {
+		if k == t {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterTask returns the models tagged with task t, or ms unchanged when t is empty.
+func FilterTask(ms []Model, t string) []Model {
+	if t == "" {
+		return ms
+	}
+	var out []Model
+	for _, m := range ms {
+		if m.HasTask(t) {
+			out = append(out, m)
+		}
+	}
+	return out
 }
 
 // UnmarshalJSON decodes a Model, defaulting kv_quant_ok to true when absent.
@@ -113,8 +165,15 @@ func Validate(ms []Model) error {
 			return fmt.Errorf("catalog: %s: head_dim must be > 0", id)
 		case m.MaxCtx <= 0:
 			return fmt.Errorf("catalog: %s: max_ctx must be > 0", id)
+		case m.KVSWAElems > 0 && m.SWAWindow <= 0:
+			return fmt.Errorf("catalog: %s: kv_swa_elems needs swa_window", id)
 		case m.Quality < 0 || m.Quality > 100:
 			return fmt.Errorf("catalog: %s: quality %d outside 0-100", id, m.Quality)
+		}
+		for _, t := range m.Tasks {
+			if !ValidTask(t) {
+				return fmt.Errorf("catalog: %s: unknown task %q (valid: %s)", id, t, strings.Join(Tasks, ", "))
+			}
 		}
 		for _, v := range m.Variants {
 			switch {
@@ -137,7 +196,7 @@ func Validate(ms []Model) error {
 }
 
 // QuantPenalty is the quality adjustment for a quantization level:
-// q8 0, q6 -1, q5 -2, q4 -3, q3 -8, q2 -15. Unknown or unquantized types get 0.
+// q8 0, q6 -1, q5 -2, q4 and mxfp4 -3, q3 -8, q2 -15. Unknown or unquantized types get 0.
 func QuantPenalty(quant string) int {
 	q := strings.TrimPrefix(strings.ToLower(quant), "i") // iq4_xs ranks with q4
 	switch {
@@ -147,7 +206,7 @@ func QuantPenalty(quant string) int {
 		return -1
 	case strings.HasPrefix(q, "q5"):
 		return -2
-	case strings.HasPrefix(q, "q4"):
+	case strings.HasPrefix(q, "q4"), q == "mxfp4":
 		return -3
 	case strings.HasPrefix(q, "q3"):
 		return -8

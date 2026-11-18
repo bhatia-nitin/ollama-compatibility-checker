@@ -3,19 +3,21 @@ Hardware
   RAM    34.4 GB  ~60 GB/s
   CPU    AMD Ryzen 7 7700X  8C/16T  AVX2 AVX-512
 
-Recommendations  (ctx 8192, estimates)
-  Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
-      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
-      also  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
-  Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
-      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
-  Largest   qwen2.5:14b-instruct-q4_K_M  ~36 tok/s est.   10.3 GB  100% GPU (low confidence)
-      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s est.   5.5 GB   100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q8_0    ~96 tok/s est.   4.4 GB   100% GPU (low confidence)
-      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s est.  3.0 GB   100% GPU (low confidence)
+Recommendations  (ctx 8192, estimates ± expected error)
+  Note: no NVIDIA (CUDA) bench data yet, so speeds use a default factor. Add yours: `ollama-compat bench --share`.
+  Fastest   llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  3.0 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.4 GB   100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.5 GB   100% GPU (low confidence)
+      also  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   10.3 GB  100% GPU (low confidence)
+  Balanced  qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   10.3 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.5 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.4 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  3.0 GB   100% GPU (low confidence)
+  Largest   qwen2.5:14b-instruct-q4_K_M  ~36 tok/s ±50%   10.3 GB  100% GPU (low confidence)
+      also  qwen2.5:7b-instruct-q4_K_M   ~70 tok/s ±50%   5.5 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q8_0    ~96 tok/s ±50%   4.4 GB   100% GPU (low confidence)
+      also  llama3.2:3b-instruct-q4_K_M  ~164 tok/s ±50%  3.0 GB   100% GPU (low confidence)
+  With 24 GB VRAM, Largest would be gemma2:27b-instruct-q4_K_M (~20 tok/s ±50%, needs 18.1 GB).
 
 Config for Balanced
   ollama pull qwen2.5:14b-instruct-q4_K_M

@@ -8,8 +8,8 @@ go run ./scripts/gen-catalog -in catalog/sources.yaml -out internal/catalog/mode
 ```
 
 `catalog/sources.yaml` is the hand-maintained input: family, display name,
-`params_b`, `quality`, `quality_source`, optional `kv_quant_ok` (default true)
-and a list of Ollama library tags. The generator is a dev-only tool that needs
+`params_b`, `quality`, `quality_source`, optional `kv_quant_ok` (default true),
+optional `tasks` and a list of Ollama library tags. The generator is a dev-only tool that needs
 network access to `registry.ollama.ai`; the shipped binary never runs it and
 makes no network calls for the catalog.
 
@@ -19,6 +19,7 @@ makes no network calls for the catalog.
 |---|---|
 | `family`, `name`, `params_b` | `sources.yaml` (`params_b` from the model card) |
 | `quality` | `sources.yaml`, see "Quality scores" below |
+| `tasks` | `sources.yaml`: `coding` for code-tuned models, `reasoning` for models with a thinking mode, `vision` for models that accept images in Ollama. Facts from the model card, not quality judgments |
 | `variants[].size_bytes` | registry manifest, size of the `application/vnd.ollama.image.model` layer |
 | `variants[].bits` | `size_bytes * 8 / (params_b * 1e9)`, rounded to 2 decimals |
 | `variants[].quant` | tag suffix (for example `q4_K_M`); if the tag has none, the GGUF `general.file_type` |
@@ -98,3 +99,123 @@ The constants (`EffGPU 0.65`) are unchanged for v1 because one data point on a
 memory-constrained machine is not enough to recalibrate. More data points,
 especially from 16 GB and larger Apple Silicon and NVIDIA machines, are needed.
 Users can contribute with `ollama-compat bench --json`.
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-17 |
+| Hardware | Apple M1, 8 GB unified memory, Metal, 68.25 GB/s (same machine as above) |
+| Ollama | 0.24.0, default server settings |
+| Models | qwen2.5:3b-instruct-q4_K_M (1.93 GB), tinyllama:latest (0.64 GB), ctx 8192 |
+| Measured decode | qwen2.5 3B: 20.6 tok/s (`bench --installed-only`, median of 3), 21.4 and 21.8 via the API; tinyllama: 64.5 and 65.3 via the API |
+| Implied efficiency | tok/s x model bytes / bandwidth: 0.58 to 0.61 (qwen2.5 3B), 0.61 (tinyllama) |
+| Estimate before | 23.0 tok/s for qwen2.5 3B (EffGPU 0.65) |
+
+Result: the 10.8 tok/s entry above was memory pressure, not the model. On an
+idle machine the bandwidth model holds for both a 0.6 GB and a 1.9 GB model, so
+Metal gets its own factor, `EffMetal 0.60` (qwen2.5 3B now estimates 21 tok/s).
+Discrete GPUs keep `EffGPU 0.65` until someone measures one.
+
+From 2026-11-17 on, measurements are kept as `bench --share` records in
+`calibration/data/` and fitted automatically; see `calibration/README.md`. The
+first record (same M1, 20.1 tok/s for qwen2.5 3B) fits a Metal efficiency of
+0.568, replacing the hand-set 0.60 above.
+
+## Freshness check
+
+`scripts/check-catalog` compares `sources.yaml` with the Ollama library and
+writes a markdown report; it never edits the catalog. It lists tags whose
+registry manifest now 404s (a regen would fail), new `q4_K_M`, `q8_0` and
+`q3_K_M` tags in tracked families, and library models that are not tracked.
+
+```bash
+go run ./scripts/check-catalog -out report.md
+```
+
+The weekly `catalog-check` workflow (Mondays 06:00 UTC, or run it manually)
+keeps one open issue, "Catalog check: Ollama library changes", labelled
+`catalog`, with the latest report, and closes it when nothing is left.
+`catalog/check-ignore.txt` lists what was reviewed and not tracked: model
+names, or full `family:tag` names for single tags. It starts with a
+2026-11-17 baseline of the whole library, minus a short watch list of newer
+models worth adding (gemma4, qwen3.5 to 3.8, granite4, llama4 and others),
+so the issue shows only those plus anything released later. The tool scrapes
+ollama.com HTML, so a page that parses to zero entries fails the run instead
+of reporting nothing new.
+
+## Added 2026-11-17
+
+gpt-oss 20B, Qwen3 4B and 30B-A3B 2507 (instruct and thinking), Qwen3 Coder
+30B-A3B, Devstral Small 24B, Magistral Small 24B, Phi-4 Reasoning 14B and
+Mini Reasoning 3.8B, the DeepSeek-R1 0528 Qwen3 8B distill, Qwen2.5-VL 3B,
+7B and 32B, and Qwen3-VL 2B, 4B, 8B, 30B-A3B and 32B. Their quality scores
+are maintainer-curated estimates on the same scale. Known approximations:
+gpt-oss alternates sliding-window and full attention, so its KV cache is
+overstated (conservative); `gpt-oss:20b` has no quant suffix and is marked
+`mxfp4` through the `quant` field. Hybrid-attention families are handled since the
+Gemma 4 and Qwen3.5 additions below.
+
+## Gemma 4 and Qwen3.5 (2026-11-17)
+
+Gemma 4 (E2B, E4B, 12B, 26B A4B, 31B) and Qwen3.5 (0.8B, 2B, 4B, 9B, 27B,
+35B A3B) use hybrid attention, so `gen-catalog` now reads the KV layout from
+the GGUF instead of assuming every layer caches every token:
+
+| Field | Meaning | From |
+|---|---|---|
+| `kv_full_elems` | K+V elements per token in layers whose cache grows with the context | per-layer `head_count_kv`, `key_length`, `value_length`; skips recurrent and shared-KV layers |
+| `kv_swa_elems`, `swa_window` | same for sliding-window layers, capped at the window | `sliding_window_pattern`, `key_length_swa`, `sliding_window` |
+| `state_bytes` | fixed memory for recurrent (gated delta net) layers | `ssm.*` sizes x recurrent layers x 25 copies |
+| `variants[].extra_bytes` | vision projector, loaded with the model but not read per token | the manifest's projector layer |
+
+Models without these GGUF keys keep the plain formula and are unchanged.
+Gemma 3 and Qwen3-VL 2B to 30B gained `extra_bytes` (their projector, about
+0.85 GB, was not counted before).
+
+Checked against Ollama 0.24.0 on an M1 8 GB with qwen3.5:4b: its KV cache
+grew 32 KB per token from 2K to 32K context, matching `kv_full_elems` at f16,
+on top of a fixed 1.25 GiB that matches `state_bytes` (Ollama keeps about 25
+checkpoint copies of the recurrent state). Ollama also reported 0.3 to 0.7 GB
+more compute graph than the 0.5 GB runtime overhead allows for, so hybrid and
+vision models can need somewhat more memory than estimated. Gemma 4's
+sliding-window layout is computed the same way but not yet measured.
+
+Quality scores for both families are provisional estimates: they are newer
+than the benchmark data the maintainer scored the rest of the catalog with.
+Active parameters for the E-models are their effective sizes (per-layer
+embeddings are looked up, not streamed), and for the MoE models come from
+the model names (A4B, A3B).
+
+## Watch list families (2026-11-17)
+
+Added: Granite 4.0 H (350M, 1B, Micro 3B, Tiny 7B-A1B, Small 32B-A9B),
+Granite 4.1 and 4.2 (3B, 8B, 30B), Nemotron 3 Nano (4B, 30B-A3B), LFM2
+24B-A2B, LFM2.5 (8B-A1B, 24B-A2B), LFM3 1.7B, Qwen3-Next 80B-A3B (instruct and
+thinking), Qwen3.6 (27B, 35B-A3B), Qwen3.8 27B, GLM-4.7-Flash 30B-A3B, Llama 4
+Scout 109B-A17B, Gemma 3n (E2B, E4B), OLMo 3 (7B instruct and think, 32B
+think), OLMo 3.1 32B (instruct and think), Ministral 3 (3B, 8B, 14B), Mistral
+Small 3.1 24B, Devstral Small 2 24B and SmolLM2 (135M, 360M, 1.7B). Quality
+scores are provisional. Granite 4.2 describes a thinking mode but Ollama shows
+no thinking badge for it, so it carries no `reasoning` task. Left out:
+Cogito 2.1 (671B) and Llama 4 Maverick (245 GB at q4), as too large.
+
+More KV layouts `gen-catalog` now reads from the GGUF:
+
+| Layout | Families | Rule |
+|---|---|---|
+| Layers with zero KV heads (Mamba2 or short-conv) | Granite 4.0 H, Nemotron 3 Nano, LFM2/2.5/3, Qwen3.6 | no KV cache; Mamba2 layers add fixed state |
+| Linear attention with no interval key | Qwen3-Next | every 4th layer is attention (llama.cpp's rule) |
+| Multi-token-prediction layers | Qwen3.8 | `nextn_predict_layers` are not counted |
+| MLA (compressed KV) | GLM-4.7-Flash | one `key_length_mla` latent per layer, as llama.cpp caches it |
+| Chunked attention | Llama 4 | 3 of 4 layers keep at most `chunk_size` tokens |
+
+Recurrent state copies depend on which Ollama engine runs the model: its own
+engine keeps about 25 checkpoint copies (Qwen3.5, Qwen3.6, Qwen3.8,
+Qwen3-Next), while models on its llama.cpp runner keep one. Checked with
+granite4:350m-h on Ollama 0.24.0: 21.6 MiB of state (one copy of the 22.8 MB
+the GGUF describes) and a KV cache on exactly its 4 attention layers. Not yet
+measured: Nemotron 3 Nano's engine (assumed llama.cpp, one copy), GLM-4.7-Flash
+(assumes Ollama caches the compressed MLA latent; if it caches full K and V
+the KV cache is about 18 times larger) and Llama 4's chunked layers.
+`gen-catalog` also retries a registry fetch up to 3 times, and reads tags whose
+whole ref is a quant (`glm-4.7-flash:q8_0`).
+

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -105,9 +106,17 @@ func newBenchCmd(detect detectFunc, env benchEnv) *cobra.Command {
 				return nil // declined at the prompt
 			}
 			if asJSON, _ := f.GetBool("json"); asJSON {
-				return output.WriteJSON(cmd.OutOrStdout(), output.BenchDoc(h, results))
+				err = output.WriteJSON(cmd.OutOrStdout(), output.BenchDoc(h, results))
+			} else {
+				output.RenderBench(cmd.OutOrStdout(), results)
 			}
-			output.RenderBench(cmd.OutOrStdout(), results)
+			if err != nil {
+				return err
+			}
+			if share, _ := f.GetString("share"); share != "" {
+				ov, _ := client.Version(ctx)
+				return writeShare(cmd.ErrOrStderr(), share, calibrationRecord(h, results, ov, time.Now()))
+			}
 			return nil
 		},
 	}
@@ -119,5 +128,7 @@ func newBenchCmd(detect detectFunc, env benchEnv) *cobra.Command {
 	f.Bool("keep", false, "keep models downloaded for the benchmark")
 	f.Bool("allow-remote", false, "allow benchmarking a non-local OLLAMA_HOST")
 	f.Int("runs", 3, "timed runs per model (the median is reported)")
+	f.String("share", "", "save a calibration record to this file for contributing (nothing is sent)")
+	f.Lookup("share").NoOptDefVal = "ollama-compat-calibration.json"
 	return cmd
 }
